@@ -41,3 +41,21 @@ export const DELETE = async(req:Request, res:Response)=>{
         return NextResponse.json({status: 500, error_message: error.message, function_name: 'delete_subject' });
     }
 }
+
+export const GET = async(req:Request, res:Response)=>{
+    const id = req.url!.split("subject/")[1]
+
+    try {
+        const { data, error } = await supabase
+            .from('subject')
+            .select()
+            .eq('id', id)
+        if (error) {
+            throw error
+        }
+        return NextResponse.json({status: 201, data: data, function_name: 'get_subject'})
+    } catch (error:any) {
+        console.error(error)
+        return NextResponse.json({status: 500, error_message: error.message, function_name: 'get_subject'})
+    }
+}

@@ -22,7 +22,7 @@ export const POST = async(req:Request, res:Response)=>{
 }
 
 export const GET = async(req:any, res:any)=>{
-    const id = req.url!.split("api/")[1].split('/')[0]
+    const id = req.url!.split("university/")[1].split('/')[0]
     try {
         const { data, error } = await supabase
             .from('subject')

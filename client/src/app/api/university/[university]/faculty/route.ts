@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 
 export const POST = async(req:any, res:any)=>{
     const faculty = await req.json()
-    const id = req.url!.split("api/")[1].split('/')[0]
+    const id = req.url!.split("university/")[1].split('/')[0]
     const { faculty_name } = faculty
 
     try {

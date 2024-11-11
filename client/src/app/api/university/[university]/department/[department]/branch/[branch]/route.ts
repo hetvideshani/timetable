@@ -1,15 +1,17 @@
 import { supabase } from '@/lib/dbConnect';
 import { NextResponse } from 'next/server';
+import { DELETE as del } from './class/[class]/route';
 
 export const PUT = async(req:any, res:any) => {
     const branch = await req.json()
-    const { branch_id, branch_name, dept_id } = branch
+    const  id  = req.url.split('branch/')[1]
+    const { branch_name } = branch
 
     try {
         const { data, error } = await supabase
             .from('branch')
-            .update({ branch_name, dept_id })
-            .where('branch_id', '=', branch_id)
+            .update({ branch_name })
+            .eq('id', id)
             
         if (error) {
             throw error
@@ -24,13 +26,27 @@ export const PUT = async(req:any, res:any) => {
 }
 
 export const DELETE = async(req:any, res:any) => {
-    const branch_id = parseInt(req.query.branch_id)
-
+    
+    const id = req.url.split('branch/')[1]
     try {
+
+        const { data: classData, error: classError } = await supabase
+            .from('class')
+            .select('id') 
+            .eq('branch_id', id);
+
+        if (classError) {
+            throw classError;
+        }
+
+        for (const classItem of classData) {
+            await del({ url: `/class/${classItem.id}` },0);
+        }
+
         const { data, error } = await supabase
             .from('branch')
             .delete()
-            .where('branch_id', '=', branch_id)
+            .eq('id', id)
             
         if (error) {
             throw error
@@ -51,7 +67,7 @@ export const GET = async(req:any, res:any) => {
         const { data, error } = await supabase
             .from('branch')
             .select()
-            .eq('dept_id', id)
+            .eq('id', id)
             
         if (error) {
             throw error

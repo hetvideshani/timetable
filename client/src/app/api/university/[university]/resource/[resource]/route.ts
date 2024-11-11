@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/dbConnect';
 import { NextResponse } from 'next/server';
 
-export const PUT = async (req, res: any) => {
+export const PUT = async (req:any, res: any) => {
     const resource = await req.json();
     const { resource_name, resource_type, capacity, duration } = resource
     const id = req.url!.split("resource/")[1]
@@ -24,7 +24,7 @@ export const PUT = async (req, res: any) => {
     }
 }
 
-export const DELETE = async (req, res: any) => {
+export const DELETE = async (req:any, res: any) => {
     const id = req.url!.split("resource/")[1]
     
     try {
@@ -42,5 +42,26 @@ export const DELETE = async (req, res: any) => {
     } catch (error: any) {
         console.error(error);
         return NextResponse.json({status:500, error_message: error.message, function_name: 'delete_resource' });
+    }
+}
+
+export const GET = async (req:any, res: any) => {
+    const id = req.url!.split("resource/")[1]
+    
+    try {
+        const { data, error } = await supabase
+           .from('resource')
+           .select()
+           .eq('id', id)
+            
+        if (error) {
+            throw error
+        }
+            
+        return NextResponse.json({status:201, data: data, function_name: 'get_resource' });
+        
+    } catch (error: any) {
+        console.error(error);
+        return NextResponse.json({status:500, error_message: error.message, function_name: 'get_resource' });
     }
 }

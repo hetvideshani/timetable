@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 export const POST = async(req:any, res:any) => {
     const resource = await req.json();
     const { resource_name, resource_type, capacity, duration } = resource
-    const id = req.url!.split("api/")[1].split('/')[0]
+    const id = req.url!.split("university/")[1].split('/')[0]
     
     try {
         const { data, error } = await supabase
@@ -23,8 +23,8 @@ export const POST = async(req:any, res:any) => {
     }
 }
 
-export const GET = async (req, res: any) => {
-    const id = req.url!.split("api/")[1].split('/')[0]
+export const GET = async (req:any, res: any) => {
+    const id = req.url!.split("university/")[1].split('/')[0]
     
     try {
         const { data, error } = await supabase

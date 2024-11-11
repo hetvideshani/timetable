@@ -3,12 +3,13 @@ import { NextResponse } from 'next/server';
 
 export const POST = async(req:any, res:any) => {
     const branch = await req.json()
-    const { branch_name, dept_id } = branch
+    const id = req.url!.split("department/")[1].split("/")[0]
+    const { branch_name } = branch
 
     try {
         const { data, error } = await supabase
             .from('branch')
-            .insert([{ branch_name, dept_id }])
+            .insert([{ branch_name, dept_id : id }])
             
         if (error) {
             throw error
@@ -23,19 +24,20 @@ export const POST = async(req:any, res:any) => {
 }
 
 export const GET = async(req:any, res:any) => {
-    const id = req.url!.split("department/")[1]
+    const id = req.url!.split("department/")[1].split("/")[0]
+    console.log(id)
 
     try {
         const { data, error } = await supabase
             .from('branch')
             .select()
             .eq('dept_id', id)
-            
+        
         if (error) {
             throw error
         }
         
-        return NextResponse.json({status: 200, data: data, function_name: 'get_branches'})
+        return NextResponse.json({status: 201, data: data, function_name: 'get_branches'})
         
     } catch (error:any) {
         console.error(error)

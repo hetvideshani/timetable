@@ -3,12 +3,13 @@ import { NextResponse } from 'next/server';
 
 export const POST =  async (req:any, res:any)=>{
     const session = await req.json()
-    const { session_sequence, do_nothing, duration, dept_id } = session
+    const id = req.url!.split("department/")[1].split("/")[0]
+    const { session_sequence, do_nothing, duration } = session
 
     try {
         const { data, error } = await supabase
             .from('session')
-            .insert([{ session_sequence, do_nothing, duration, dept_id }]);
+            .insert([{ session_sequence, do_nothing, duration, dept_id :id}]);
         if (error) {
             throw error;
         }
@@ -20,10 +21,14 @@ export const POST =  async (req:any, res:any)=>{
 }
 
 export const GET = async (req:any, res:any)=>{
-    const 
+    const id = req.url!.split("department/")[1].split('/')[0];
+    console.log(id);
+    
     try {
         const { data, error } = await supabase
-            .from('session');
+            .from('session')
+            .select()
+            .eq('dept_id', id);
         if (error) {
             throw error;
         }
