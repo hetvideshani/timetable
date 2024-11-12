@@ -16,7 +16,7 @@ export default function SignUp() {
     const { name, value } = e.target;
     console.log(name, value);
 
-    setUser((prev: any) => ({ ...prev, [name]: value }));
+    setUser((prev) => ({ ...prev, [name]: value }));
   };
 
   const signUp = async (e: React.MouseEvent) => {

@@ -40,7 +40,7 @@ export const POST = async (req: Request, res: Response) => {
 
     const token = jwt.sign(
       { _id: emailData.id, email: emailData.email, username: emailData.username },
-      process.env.SECRET_KEY || "",
+      process.env.SECRET_KEY as string,
       {
         expiresIn: "48h",
       }
@@ -48,8 +48,6 @@ export const POST = async (req: Request, res: Response) => {
 
     const cookieStore = await cookies();
     cookieStore.set("token", token, {
-      httpOnly: true,
-      secure: true,
       maxAge: 24 * 60 * 60 * 1000,
     });
 
