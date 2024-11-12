@@ -10,6 +10,8 @@ export function withAuthGuard(gssp: GetServerSideProps) {
         const cookies = nookies.get(context);
         const token = cookies.token;
 
+        console.log(token);
+
         if (!token) {
             return {
                 redirect: {
@@ -45,7 +47,6 @@ export function withAuthGuard(gssp: GetServerSideProps) {
         }
     };
 }
-
 
 /* 
 put this on top of all the pages that you want to protect

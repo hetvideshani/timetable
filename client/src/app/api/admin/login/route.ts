@@ -38,8 +38,17 @@ export const POST = async (req: Request, res: Response) => {
       });
     }
 
+    const { data : uniData , error : uniError} = await supabase
+    .from('university')
+    .select()
+    .eq("id",emailData.uni_id)
+    .single();
+
+    if (uniError)
+      throw uniError;
+
     const token = jwt.sign(
-      { _id: emailData.id, email: emailData.email, username: emailData.username },
+      { _id: emailData.id, email: emailData.email, username: emailData.username, uni_id : emailData.uni_id, uni_name : uniData!.university_name },
       process.env.SECRET_KEY as string,
       {
         expiresIn: "48h",
