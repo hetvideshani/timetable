@@ -1,14 +1,20 @@
 "use client"
 import React, { useEffect, useState } from 'react'
+import { IoClose } from "react-icons/io5";
+import { LuPencil } from "react-icons/lu";
+import { FaPlus } from 'react-icons/fa';
 
 const page = () => {
   const [uni_id, setUni_id] = useState('');
+  const [department_id, setDepartment_id] = useState(0);
   const [department, setDepartment] = useState([{
-    id:null,
+    id:0,
     department_name:'',
-    uni_id:null
+    uni_id:0
   }]);
-  const [loading, setLoading] = useState(true);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [inputData, setInputData] = useState('');
   
   useEffect(()=>{
       get_uni_id();
@@ -32,20 +38,114 @@ const page = () => {
     const response = await fetch(`http://localhost:3000/api/university/${id}/department`);
 
     const data = await response.json();
-    setDepartment(data.data);
-    setLoading(false);
+    if (Array.isArray(data.data)) {
+      setDepartment(data.data);
+    } else {
+      setDepartment([]); 
+    }
   }
 
+  const handle_delete = async (dept_id:any) => {
+    const response = await fetch(`http://localhost:3000/api/university/${uni_id}/department/${dept_id}`, {
+      method: 'DELETE',
+    });
+
+    window.location.href = '/dashboard/department'
+  }
+
+  const handle_insert = () => {
+    setIsModalOpen(true);
+  };
+
+  const handle_edit = (dept_name:any) => {
+    setIsModalOpen(true);
+    setInputData(dept_name);
+  }
+
+  const handleSubmit = async (e:any) => {
+    e.preventDefault();
+    try {
+      const url = department_id == 0 ? `http://localhost:3000/api/university/${uni_id}/department` :
+      `http://localhost:3000/api/university/${uni_id}/department/${department_id}`;
+
+      const method = department_id == 0 ? 'POST' : 'PUT';
+      
+      const response =  await fetch(url, {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ department_name : inputData }),
+      });
+      const result = await response.json();
+      console.log('Data successfully posted:', result);
+
+      setIsModalOpen(false);
+      setInputData('');
+    } catch (error) {
+      console.error('Error posting data:', error);
+    }
+  };
+
+  const get_dept_data = department.map((data) =>{
+    return (
+        <div className='shadow-md hover:bg-slate-100 flex flex-col justify-center items-center w-full p-5 gap-0 font-bold rounded-sm'>
+          <p className=' text-lg text-slate-900'>{data.id}</p>
+          <p className=' text-2xl text-slate-950'>{data.department_name}</p>
+          <div className='flex gap-1 mt-5'>
+            <button onClick={(e) => {handle_edit(data.department_name); setDepartment_id(data.id)}} className='bg-green-600 px-3 py-1 rounded-md'><LuPencil size={20} className=' text-white '></LuPencil></button>
+            <button onClick={(e) => {handle_delete(data.id)}} className='bg-red-600 px-3 py-1 rounded-md'><IoClose size={20} className=' text-white'></IoClose></button>
+          </div>
+        </div>
+    )
+  })
+
   return (
-    <div className='w-sc'>
+    <div className='flex flex-col gap-6 justify-center items-center p-5 w-full'>
+      <div className='flex justify-between w-full'>
         <div>
-          {
-            loading? 'Loading...' : (department.map((item, index) => (
-              <div key={index}>
-                <p>Department Name: {item.department_name}</p>
+
+        </div>
+        <div className='text-3xl font-bold text-slate-950'>
+          Department
+        </div>
+        <button onClick={handle_insert} className='flex gap-1 justify-center items-center text-xl bg-blue-600 py-1 px-3 text-white rounded-md'>
+          <FaPlus></FaPlus> <div>New</div>
+        </button>
+
+        {isModalOpen && (
+        <div className="fixed top-0 left-0 right-0 bottom-0 bg-gray-900 bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
+            <h2 className="text-lg font-bold mb-4">Add New Department</h2>
+
+            <form onSubmit={handleSubmit}>
+              <input
+                id="data"
+                type="text"
+                value={inputData}
+                placeholder='Enter Department Name'
+                onChange={(e) => setInputData(e.target.value)} 
+                className="mt-1 p-2 border border-gray-300 rounded-md w-full"
+              />
+
+              <div className="mt-4">
+                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-md">Submit</button>
+
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="ml-2 bg-red-600 text-white px-4 py-2 rounded-md"
+                >
+                  Cancel
+                </button>
               </div>
-            )))
-          }
+            </form>
+          </div>
+        </div>
+      )}
+      </div>
+        <div className="grid grid-cols-3 w-full gap-5">
+          {department.length > 0 ? get_dept_data : <div></div>}
         </div>
     </div>
   )

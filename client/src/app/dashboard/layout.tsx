@@ -6,12 +6,12 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
     <div>
       <div className="main_body w-full flex">
         <div className="side_bar w-1/4 flex flex-col gap-3 text-xl items-center h-screen">
-          <div className="header p-5 flex justify-center items-center font-extrabold shadow-md">
-            <Link href="/dashboard" className="text-2xl font-serif">
+          <div className="header p-5 flex justify-center items-center mt-5 font-extrabold shadow-md">
+            <Link href="/dashboard" className="text-3xl font-serif ">
               EduScheduler
             </Link>
           </div>
-          <div className="flex flex-col gap-3 w-full ps-10 mt-5 text-lg font-bold">
+          <div className="flex flex-col gap-3 w-full ps-10 mt-2 text-lg font-bold">
             <Link href="/dashboard/department" className="">
               Departments
             </Link>
