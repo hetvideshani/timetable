@@ -25,8 +25,8 @@ export const POST = async (req: Request, res: Response) => {
     if (emailData!.length > 0) {
       return NextResponse.json({
         status: 400,
-        errormsg: "Email already exists",
-        FUNCTIONNAME: "signup",
+        message: "Email already exists",
+        function_name: "signup-emailData",
       });
     }
 
@@ -46,8 +46,8 @@ export const POST = async (req: Request, res: Response) => {
     if (uniData!.length > 0) {
       return NextResponse.json({
         status: 400,
-        errormsg: "University already exists",
-        FUNCTIONNAME: "signup",
+        message: "University already exists",
+        function_name: "signup-uniData",
       });
     }
 
@@ -76,14 +76,14 @@ export const POST = async (req: Request, res: Response) => {
 
     return NextResponse.json({
       status: 200,
-      DATA: "user signed up successfully",
-      FUNCTIONNAME: "signup",
+      message: "user signed up successfully",
+      function_name: "signup-success",
     });
   } catch (error: any) {
     return NextResponse.json({
       status: 500,
-      ERRORMSG: error.message,
-      FUNCTIONNAME: "POST",
+      message: error.message,
+      function_name: "signup-catch",
     });
   }
 };

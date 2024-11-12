@@ -22,8 +22,8 @@ export const POST = async (req: Request, res: Response) => {
     if (!emailData) {
       return NextResponse.json({
         status: 400,
-        errormsg: "Email does not exist",
-        FUNCTIONNAME: "login",
+        message: "Email does not exist",
+        function_name: "login-emailData",
       });
     }
 
@@ -33,8 +33,8 @@ export const POST = async (req: Request, res: Response) => {
     if (!isPasswordMatch) {
       return NextResponse.json({
         status: 400,
-        errormsg: "Password does not match",
-        FUNCTIONNAME: "login",
+        message: "Password does not match",
+        function_name: "login-isPasswordMatch",
       });
     }
 
@@ -55,18 +55,18 @@ export const POST = async (req: Request, res: Response) => {
 
     return NextResponse.json({
       status: 200,
-      DATA: {
+      message: {
         message: "User logged in successfully",
         token,
       },
-      FUNCTIONNAME: "login",
+      function_name: "login-success",
     });
 
   } catch (err: any) {
     return NextResponse.json({
       status: 500,
-      errormsg: err.message,
-      FUNCTIONNAME: "login",
+      message: err.message,
+      function_name: "login-catch",
     });
   }
 };

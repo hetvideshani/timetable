@@ -5,6 +5,7 @@ export const GET = async () => {
     const response = NextResponse.json({
         status: 200,
         message: 'User logged out successfully',
+        function_name: 'logout-success',
     });
 
     response.headers.set('Set-Cookie', serialize('token', '', {

@@ -10,7 +10,7 @@ export default function Resource() {
     duration: "",
     capacity: "",
   });
-  const [resourceList, setResourceList] = useState([]);
+  const [resourceList, setResourceList] = useState<{ name: string; type: string; duration: string; capacity: string; }[]>([]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
