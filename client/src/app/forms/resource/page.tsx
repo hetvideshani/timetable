@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { IoClose } from "react-icons/io5";
 import { LuPencil } from "react-icons/lu";
 
@@ -10,8 +10,15 @@ export default function Resource() {
     duration: "",
     capacity: "",
   });
-  const [resourceList, setResourceList] = useState<{ name: string; type: string; duration: string; capacity: string; }[]>([]);
+  const [dropdowntypes, setDropdowntypes] = useState<string[]>([]); // Dropdown items for user-added types
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [resourceList, setResourceList] = useState<
+    { name: string; type: string; duration: string; capacity: string }[]
+  >([]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [newType, setNewType] = useState(""); // To capture the custom type to be added
+
+  const dropdownRef = useRef<HTMLDivElement>(null); // Reference for dropdown area
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -19,7 +26,7 @@ export default function Resource() {
   };
 
   const addResource = (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent page refresh
+    e.preventDefault();
     if (
       resource.name &&
       resource.type &&
@@ -27,11 +34,11 @@ export default function Resource() {
       resource.capacity
     ) {
       if (editingIndex !== null) {
-        // Update resource
+        // Update existing resource
         const updatedResources = [...resourceList];
         updatedResources[editingIndex] = resource;
         setResourceList(updatedResources);
-        setEditingIndex(null); // Reset edit mode
+        setEditingIndex(null);
       } else {
         // Add new resource
         setResourceList((prev) => [...prev, resource]);
@@ -49,20 +56,40 @@ export default function Resource() {
   const editResource = (index: number) => {
     const selectedResource = resourceList[index];
     setResource(selectedResource);
-    setEditingIndex(index); // Set the index to enable edit mode
+    setEditingIndex(index);
   };
 
   const saveAllResources = () => {
-    // Simulate saving to the database
     console.log("Saving all resources to the database:", resourceList);
     alert("All resources saved to the database!");
-    // Here you can make an API call to save the resources to your database
   };
 
+  const handleAddType = () => {
+    if (newType && !dropdowntypes.includes(newType)) {
+      setDropdowntypes((prev) => [...prev, newType]); // Add the new type to the list
+      setNewType(""); // Clear the input field
+    }
+  };
+
+  // Handle clicks outside the dropdown
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowDropdown(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownRef]);
+
   return (
-    <div className=" h-screen flex flex-col items-center justify-center p-5">
+    <div className="h-screen flex flex-col items-center justify-center p-5">
       <div className="w-[90vw] max-w-3xl bg-white shadow-lg rounded-2xl px-10 py-6 space-y-6">
-        {/* Resource form */}
         <div className="text-center font-bold text-2xl text-gray-900 mt-8">
           {editingIndex !== null ? "Edit Resource" : "Add New Resource"}
         </div>
@@ -78,52 +105,92 @@ export default function Resource() {
             placeholder="Name"
             className="border border-gray-300 p-3 rounded-md text-black focus:outline-none focus:border-blue-500"
           />
-          <input
-            type="text"
-            name="type"
-            value={resource.type}
-            onChange={handleInputChange}
-            placeholder="Type"
-            className="border border-gray-300 p-3 text-black rounded-md focus:outline-none focus:border-blue-500"
-          />
-          <input
-            type="text"
-            name="duration"
-            value={resource.duration}
-            onChange={handleInputChange}
-            placeholder="Duration"
-            className="border border-gray-300 p-3 rounded-md text-black focus:outline-none focus:border-blue-500"
-          />
-          <input
-            type="number"
-            name="capacity"
-            value={resource.capacity}
-            onChange={handleInputChange}
-            placeholder="Capacity"
-            className="border border-gray-300 p-3 rounded-md text-black focus:outline-none focus:border-blue-500"
-          />
+          {/* Inline input fields for Type, Duration, and Capacity */}
+          <div className="flex gap-4 ">
+            <div ref={dropdownRef} className="relative w-1/3 ">
+              <input
+                type="text"
+                name="type"
+                list="types"
+                value={resource.type}
+                onChange={handleInputChange}
+                placeholder="Type"
+                className="border border-gray-300 p-3 text-black rounded-md focus:outline-none focus:border-blue-500 w-full"
+                autoComplete="off"
+                onFocus={() => setShowDropdown(true)}
+              />
+              {showDropdown && (
+                <div className="absolute top-full left-0 bg-white border-gray-300 rounded-md shadow-md mt-1 w-full">
+                  <div className="flex items-center p-2  text-white rounded-md">
+                    <input
+                      type="text"
+                      placeholder="Add new type"
+                      value={newType}
+                      onChange={(e) => setNewType(e.target.value)}
+                      className="w-full p-1 rounded-md text-black border border-gray-300 focus:outline-none focus:border-blue-500 "
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddType}
+                      className="ml-2 p-1 font-bold cursor-pointer text-blue-500 hover:border-blue-500 hover:border rounded-md"
+                    >
+                      Add
+                    </button>
+                  </div>
+                  {dropdowntypes.map((type, index) => (
+                    <div
+                      key={index}
+                      className="p-2 hover:bg-gray-100 cursor-pointer text-gray-500"
+                      onClick={() => {
+                        setResource((prev) => ({ ...prev, type }));
+                        setShowDropdown(false);
+                      }}
+                    >
+                      {type}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <input
+              type="text"
+              name="duration"
+              value={resource.duration}
+              onChange={handleInputChange}
+              placeholder="Duration"
+              className="border border-gray-300 p-3 rounded-md text-black focus:outline-none focus:border-blue-500 w-1/3"
+            />
+            <input
+              type="number"
+              name="capacity"
+              value={resource.capacity}
+              onChange={handleInputChange}
+              placeholder="Capacity"
+              className="border border-gray-300 p-3 rounded-md text-black focus:outline-none focus:border-blue-500 w-1/3"
+            />
+          </div>
 
           {resourceList.length > 0 && (
             <div className="text-center font-bold text-4xl text-gray-900 mb-4">
               Resource List
             </div>
           )}
-          {/* Display list of resources in rows of 3 */}
           <div className="flex flex-wrap justify-start">
             {resourceList.map((res, index) => (
               <div
                 key={index}
-                className=" p-4 border border-gray-200 rounded-md flex  shadow-sm text-gray-700 m-1"
+                className="p-4 border border-gray-200 rounded-md flex shadow-sm text-gray-700 m-1"
               >
                 <div>
                   <p className="font-bold">{res.name}</p>
+                  <p className="text-xs text-gray-400">{res.type}</p>
                 </div>
                 <div className="flex space-x-2">
                   <button
-                    className="ml-2 text-gray-600 hover:text-yellow-500"
+                    className="ml-4 text-gray-600 hover:text-yellow-500"
                     onClick={() => editResource(index)}
                   >
-                    <LuPencil size={20} />
+                    <LuPencil size={16} />
                   </button>
                   <button
                     className="ml-2 text-gray-600 hover:text-red-500"
