@@ -48,7 +48,7 @@ export const POST = async (req: Request, res: Response) => {
       throw uniError;
 
     const token = jwt.sign(
-      { _id: emailData.id, email: emailData.email, username: emailData.username, uni_id : emailData.uni_id, uni_name : uniData!.name },
+      { _id: emailData.id, email: emailData.email, username: emailData.username, uni_id : emailData.uni_id, uni_name : uniData!.university_name },
       process.env.SECRET_KEY as string,
       {
         expiresIn: "48h",

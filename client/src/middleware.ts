@@ -27,7 +27,9 @@ export async function middleware(request: NextRequest) {
     const res = NextResponse.next();
     
     // Pass user data in a custom header
-    res.headers.set('useremail', user!.email);
+    console.log(user!.uni_id);
+    
+    res.headers.set('uni_id', user!.uni_id);
     
     return res;
     
@@ -35,5 +37,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/forms/:path*','/dashboard','/dash_components/:path*'],
+    matcher: ['/forms/:path*','/dashboard/:path*'],
 };
