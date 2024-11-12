@@ -31,7 +31,7 @@ export default function Page() {
           />
           <input
             type="password"
-            className="border border-gray-300 p-3 text-lg my-3 w-[80%] rounded-md focus:outline-none focus:border-blue-500 "
+            className="border border-gray-300 p-3 text-lg my-3 w-[80%] rounded-md focus:outline-none focus:border-blue-500 text-black"
             placeholder="Password"
           />
           <p className="text-blue-500 text-sm cursor-pointer hover:underline mt-2">

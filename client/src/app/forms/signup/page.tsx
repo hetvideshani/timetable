@@ -1,7 +1,40 @@
+"use client";
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 
 export default function SignUp() {
+  const [user, setUser] = useState({
+    username: "",
+    university: "",
+    email: "",
+    password: "",
+  });
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    console.log(name, value);
+
+    setUser((prev: any) => ({ ...prev, [name]: value }));
+  };
+
+  const signUp = async (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent page refresh
+    if (user.username && user.university && user.email && user.password) {
+      const res = await fetch("/api/admin/signup", {
+        method: "POST",
+        body: JSON.stringify(user),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data);
+        });
+    } else {
+      alert("Please fill in all fields");
+    }
+  };
   return (
     <div className="bg-gray-900 h-screen flex justify-center items-center">
       <div className="flex w-[90vw] max-w-4xl bg-white shadow-lg justify-around items-center rounded-2xl p-10 space-x-6">
@@ -26,26 +59,37 @@ export default function SignUp() {
         <div className="flex-[0.6] flex justify-center flex-col items-center">
           <input
             type="text"
-            className="border border-gray-300 p-3 text-lg my-3 w-[80%] rounded-md focus:outline-none focus:border-blue-500"
+            className="border border-gray-300 p-3 text-lg my-3 w-[80%] rounded-md focus:outline-none focus:border-blue-500 text-black"
             placeholder="Username"
+            name="username"
+            onChange={handleInputChange}
           />
           <input
             type="text"
-            className="border border-gray-300 p-3 text-lg my-3 w-[80%] rounded-md focus:outline-none focus:border-blue-500"
+            className="border border-gray-300 p-3 text-lg my-3 w-[80%] rounded-md focus:outline-none focus:border-blue-500 text-black"
             placeholder="University Name"
+            name="university"
+            onChange={handleInputChange}
           />
           <input
             type="email"
-            className="border border-gray-300 p-3 text-lg my-3 w-[80%] rounded-md focus:outline-none focus:border-blue-500"
+            className="border border-gray-300 p-3 text-lg my-3 w-[80%] rounded-md focus:outline-none focus:border-blue-500 text-black"
             placeholder="Email"
+            name="email"
+            onChange={handleInputChange}
           />
           <input
             type="password"
-            className="border border-gray-300 p-3 text-lg my-3 w-[80%] rounded-md focus:outline-none focus:border-blue-500"
+            className="border border-gray-300 p-3 text-lg my-3 w-[80%] rounded-md focus:outline-none focus:border-blue-500 text-black"
             placeholder="Password"
+            name="password"
+            onChange={handleInputChange}
           />
 
-          <button className="bg-gray-700 hover:bg-gray-800 text-white py-3 w-[80%] rounded-md mt-4">
+          <button
+            className="bg-gray-700 hover:bg-gray-800 text-white py-3 w-[80%] rounded-md mt-4"
+            onClick={signUp}
+          >
             Sign Up
           </button>
         </div>
