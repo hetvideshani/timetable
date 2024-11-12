@@ -1,5 +1,3 @@
-// src/app/dashboard/page.tsx
-
 const page = () => {
     return (
       <div>
