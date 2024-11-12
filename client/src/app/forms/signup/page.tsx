@@ -33,6 +33,7 @@ export default function SignUp() {
         .then((data) => {
           if (data.status === 200) {
             toast.success(data.message);
+            window.location.href = '/dashboard'
           } else {
             toast.error(data.message);
           }

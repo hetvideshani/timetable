@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
-import React, { useState } from "react";
+import { useRouter } from "next/router";
+import React, { useEffect, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -31,6 +32,7 @@ export default function Page() {
         .then((data) => {
           if (data.status === 200) {
             toast.success(data.message.message);
+            window.location.href = '/dashboard'
           } else {
             toast.error(data.message);
           }
