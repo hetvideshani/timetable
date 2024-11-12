@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import dotenv from "dotenv";
 dotenv.config();
-console.log(process.env.SECRET_KEY);
+
 export const POST = async (req: Request, res: Response) => {
   const body = await req.json();
   const { email, password } = body;

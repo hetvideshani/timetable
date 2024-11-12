@@ -19,8 +19,8 @@ export const POST = async (req: Request, res: Response) => {
     console.log(emailData);
     console.log("email error : ", emailError);
 
-    // if (emailError)
-    //     throw emailError;
+    if (emailError)
+        throw emailError;
 
     if (emailData!.length > 0) {
       return NextResponse.json({
