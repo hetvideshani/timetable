@@ -1,7 +1,27 @@
 // src/app/dashboard/page.tsx
-
+'use client'
 import Link from "next/link";
+import { useEffect, useState } from "react";
+
 const page = () => {
+    const [data,SetData] = useState('');
+
+    useEffect(()=>{
+      fetch(window.location.href)
+      .then((res) => {
+        const customData = res.headers.get('useremail');
+        console.log(customData);
+        
+        if (customData) {
+          SetData(customData);
+        }
+      })
+      .catch((error) => console.error('Error fetching data:', error));
+
+      console.log(data);
+      
+    },[])
+
     return (
       <div>
         <div className="main_body w-full flex">
@@ -12,7 +32,7 @@ const page = () => {
             <button className="bg-white text-slate-950 p-3 flex gap-3 rounded-md justify-center items-center text-sm font-bold">
               <div className="text-2xl">👤</div>
               <div className="flex flex-col gap-0 items-start">
-                <div>Welcome, {'shruti'}</div>
+                <div>Welcome, {data}</div>
                 <div className="text-xs text-blue-600 underline">Edit your profile</div>
               </div>
             </button>

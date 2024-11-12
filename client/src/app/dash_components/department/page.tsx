@@ -1,12 +1,19 @@
 "use client"
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 const page = () => {
-
-  const [department, setDepartment] = useState([]);
+  
+  const [department, setDepartment] = useState('');
+  
+  useEffect(()=>{
+    getDepartment()
+  },[])
 
   const getDepartment = async () => {
-    await fetch('')
+    // const userHeaders = await headers();
+    // const userEmail = userHeaders.get('useremail');
+    // console.log(userEmail);
+    
   }
 
   return (
