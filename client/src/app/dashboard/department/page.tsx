@@ -4,6 +4,7 @@ import { IoClose } from "react-icons/io5";
 import { LuPencil } from "react-icons/lu";
 import { FaPlus } from "react-icons/fa";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const page = () => {
   const [uni_id, setUni_id] = useState("");
@@ -79,7 +80,7 @@ const page = () => {
     setInputData(dept_name);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e:any) => {
     e.preventDefault();
     try {
       const url =
@@ -129,7 +130,7 @@ const page = () => {
 
   const get_dept_data = department.map((data, index) => {
     return (
-      <div
+      <Link href={'/dashboard/' + data.id +'/branch'}
         className="shadow-md hover:bg-slate-100 flex flex-col justify-center items-center w-full p-5 gap-0 font-bold rounded-sm"
         key={index}
       >
@@ -154,7 +155,7 @@ const page = () => {
             <IoClose size={20} className=" text-white"></IoClose>
           </button>
         </div>
-      </div>
+      </Link>
     );
   });
 
