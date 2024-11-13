@@ -11,7 +11,10 @@ export const PUT = async(req:any, res:any)=>{
         const { data, error } = await supabase
             .from('department')
             .update({ department_name })
-            .eq('id', id);
+            .eq('id', id)
+            .select();
+        console.log("Updated Data:", data);
+        
         if (error) {
             throw error;
         }
@@ -55,6 +58,8 @@ export const DELETE = async(req:any, res:any)=>{
         if (error) {
             throw error;
         }
+        console.log(data);
+        
         return NextResponse.json({status: 201 ,data: data, function_name: 'delete_department' });
     } catch (error:any) {
         console.error(error);

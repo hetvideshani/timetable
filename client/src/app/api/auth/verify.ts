@@ -6,7 +6,7 @@ import { NextResponse } from 'next/server';
 export default function handler(req:any, res:any) {
     const token = req.cookies.token;
 
-    console.log(token);
+    // console.log(token);
 
     if (!token) {
         return NextResponse.json({ status:401,error: "Token missing" });
