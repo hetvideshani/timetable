@@ -14,7 +14,7 @@ export const GET = async (req: any, res: any) => {
             throw department_error;
         }
         
-        const branches = []
+        const branches:any = []
 
         for (const department of department_data) {
             const { data:branch_data, error:branch_error } = await supabase
@@ -25,11 +25,23 @@ export const GET = async (req: any, res: any) => {
             if (branch_error) {
                 throw branch_error;
             }
+
+            branch_data.map((branch:any) => {
+                branch.dept_name = department.department_name
+            })
             
-            branches.push({branch_data, dept_name: department.department_name});
+            branches.push({branch_data});
         }
 
-        return NextResponse.json({ status: 201, data: branches, function_name: 'get_department' });
+        const final_branches:any =[]
+
+        branches.map((branch:any) => {
+            branch.branch_data.map((br:any) => {
+                final_branches.push(br)
+            })
+        })
+
+        return NextResponse.json({ status: 201, data: final_branches, function_name: 'get_department' });
 
     } catch (error: any) {
         console.error(error);

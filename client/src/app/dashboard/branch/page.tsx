@@ -9,24 +9,24 @@ const page = () => {
   const [uni_id, setUni_id] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [all_branches, setAllBranches] = useState([{
-    branch_data: [
-      {
-        id: 0,
-        branch_name: "",
-        dept_id: 0
-      }
-    ],
+    id: 0,
+    branch_name: "",
+    dept_id: 0,
     dept_name: ""
   }]);
 
-  const [branch, setBranch] = useState({
+  const [branch, setBranch] = useState<{
+    id: number | null;
+    branch_name: string;
+    dept_id: number | null;
+  }>({
     id: null,
     branch_name: "",
     dept_id: null,
   });
 
+  const [dept_name, setDept_name] = useState('');
   const [department, setDepartment] = useState([{ id: 0, department_name: "", uni_id: 0 }]);
-  const [dropdowntypes, setDropdowntypes] = useState<string[]>([]); // Dropdown items for user-added types
   const [showDropdown, setShowDropdown] = useState(false);
   const router = useRouter();
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -101,10 +101,12 @@ const page = () => {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     try {
-      const url = branch.id === 0 ? `http://localhost:3000/api/university/${uni_id}/department/${branch.dept_id}/branch` :
+      console.log(branch);
+
+      const url = branch.id === null ? `http://localhost:3000/api/university/${uni_id}/department/${branch.dept_id}/branch` :
         `http://localhost:3000/api/university/${uni_id}/department/${branch.dept_id}/branch/${branch.id}`;
 
-      const method = branch.id === 0 ? 'POST' : 'PUT';
+      const method = branch.id === null ? 'POST' : 'PUT';
 
       const response = await fetch(url, {
         method: method,
@@ -117,18 +119,11 @@ const page = () => {
       console.log('Data successfully posted:', result);
 
       if (result.function_name === 'update_branch') {
-        setAllBranches((prev: any) =>
-          prev.map((br: any) =>
-            br.id === branch.id
-              ? { ...br, branch_name: branch.branch_name, dept_id: branch.dept_id }
-              : br
-          ));
+        setAllBranches((prev: any) => prev.map((br: any) => br.id === branch.id ? { ...br, branch_name: branch.branch_name } : br));
       }
 
       if (result.function_name === 'create_branch') {
-        setAllBranches((prev: any) => [
-          ...prev, result.data[0]
-        ]);
+        setAllBranches((prev: any) => [...prev, result.data[0]]);
       }
 
       setIsModalOpen(false);
@@ -139,9 +134,9 @@ const page = () => {
     }
   }
 
-  const handle_delete = async (branch_id: any) => {
+  const handle_delete = async (br: any) => {
     const response = await fetch(
-      `http://localhost:3000/api/university/${uni_id}/department/${branch.dept_id}/branch/${branch.id}`,
+      `http://localhost:3000/api/university/${uni_id}/department/${br.dept_id}/branch/${br.id}`,
       {
         method: 'DELETE',
         headers: {
@@ -149,10 +144,12 @@ const page = () => {
         },
       }
     );
+
     const data = await response.json();
     if (data.status === 201) {
       console.log('Data successfully deleted:', data);
-      setAllBranches(all_branches.filter((br: any) => br.id !== branch_id));
+      setAllBranches(all_branches.filter((data) => data.id !== br.id));
+      setBranch({ id: null, branch_name: "", dept_id: null });
       router.refresh();
     } else {
       console.error('Error deleting data:', data);
@@ -160,19 +157,17 @@ const page = () => {
   }
 
   const get_branch_data = all_branches.map((data, index) => {
-    return data.branch_data.map((branch, index) => {
-      return (
-        <div className='shadow-md hover:bg-slate-100 flex flex-col justify-center items-center w-full p-5 gap-0 font-bold rounded-sm' key={index}>
-          <p className=' text-lg text-slate-900'>{branch.id}</p>
-          <p className=' text-2xl text-slate-950'>{branch.branch_name}</p>
-          <p className=' text-xl text-slate-950'>Department - {data.dept_name}</p>
-          <div className='flex gap-1 mt-5'>
-            <button onClick={(e) => { handle_edit(branch); }} className='bg-green-600 px-3 py-1 rounded-md'><LuPencil size={20} className=' text-white '></LuPencil></button>
-            <button onClick={(e) => { handle_delete(branch) }} className='bg-red-600 px-3 py-1 rounded-md'><IoClose size={20} className=' text-white'></IoClose></button>
-          </div>
+    return (
+      <div className='shadow-md hover:bg-slate-100 flex flex-col justify-center items-center w-full p-5 gap-0 font-bold rounded-sm' key={index} onClick={() => setBranch({ id: data.id, branch_name: data.branch_name, dept_id: data.dept_id })}>
+        <p className=' text-lg text-slate-900'>{data.id}</p>
+        <p className=' text-2xl text-slate-950'>{data.branch_name}</p>
+        <p className=' text-xl text-slate-950'>Department - {data.dept_name}</p>
+        <div className='flex gap-1 mt-5'>
+          <button onClick={(e) => { handle_edit(data); }} className='bg-green-600 px-3 py-1 rounded-md'><LuPencil size={20} className=' text-white '></LuPencil></button>
+          <button onClick={(e) => { handle_delete(data) }} className='bg-red-600 px-3 py-1 rounded-md'><IoClose size={20} className=' text-white'></IoClose></button>
         </div>
-      )
-    })
+      </div>
+    )
   })
 
   return (
@@ -204,14 +199,17 @@ const page = () => {
                   className="mt-1 p-2 border border-gray-300 rounded-md w-full"
                 />
 
-                <div ref={dropdownRef} className="relative w-1/3 ">
+                <div ref={dropdownRef} className='relative' >
                   <input
                     type='text'
+                    value={dept_name}
+                    onChange={(e) => setDept_name(e.target.value)}
                     placeholder='Department'
                     onFocus={() => setShowDropdown(true)}
+
                   />
                   {showDropdown && (
-                    <div className="absolute top-full left-0 bg-white border-gray-300 rounded-md shadow-md mt-1 w-full">
+                    <div className="relative top-full left-0 bg-white border-gray-300 rounded-md shadow-md mt-1 w-full">
 
                       {department.map((type, index) => (
                         <div
@@ -219,6 +217,7 @@ const page = () => {
                           className="p-2 hover:bg-gray-100 cursor-pointer text-gray-500"
                           onClick={() => {
                             setBranch({ ...branch, dept_id: type.id });
+                            setDept_name(type.department_name);
                             setShowDropdown(false);
                           }}
                         >
