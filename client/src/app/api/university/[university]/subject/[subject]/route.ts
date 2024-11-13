@@ -13,7 +13,8 @@ export const PUT = async(req:Request, res:Response)=>{
         const { data, error } = await supabase
             .from('subject')
             .update({ subject_name })
-            .eq('id', id);
+            .eq('id', id)
+            .select();
         if (error) {
             throw error;
         }

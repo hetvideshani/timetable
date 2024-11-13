@@ -6,6 +6,7 @@ import { FaPlus } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+
 const page = () => {
   const [uni_id, setUni_id] = useState("");
   const [department_id, setDepartment_id] = useState(0);
@@ -132,7 +133,7 @@ const page = () => {
     return (
       <Link href={'/dashboard/' + data.id +'/branch'}
         className="shadow-md hover:bg-slate-100 flex flex-col justify-center items-center w-full p-5 gap-0 font-bold rounded-sm"
-        key={index}
+        key={index} onClick={() => router.push(`/dashboard/department/${data.id}`)}
       >
         <p className=" text-lg text-slate-900">{data.id}</p>
         <p className=" text-2xl text-slate-950">{data.department_name}</p>

@@ -10,6 +10,7 @@ export const POST = async(req:any, res:any) => {
         const { data, error } = await supabase
             .from('branch')
             .insert([{ branch_name, dept_id : id }])
+            .select()
             
         if (error) {
             throw error

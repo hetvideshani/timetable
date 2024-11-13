@@ -12,6 +12,7 @@ export const PUT = async(req:any, res:any) => {
             .from('branch')
             .update({ branch_name })
             .eq('id', id)
+            .select()
             
         if (error) {
             throw error
