@@ -7,13 +7,14 @@ export const POST = async(req:any, res:any)=>{
     const { faculty_name } = faculty
 
     try {
-        const { data, error } = await supabase
+        const { data:fac_data, error:fac_error } = await supabase
             .from('faculty')
-            .insert([{ faculty_name, uni_id : id }]);
-        if (error) {
-            throw error;
+            .insert([{ faculty_name, uni_id : id }])
+            .select();
+        if (fac_error) {
+            throw fac_error;
         }
-        return NextResponse.json({status : 201, data: data , function_name: 'create_faculty' });
+        return NextResponse.json({status : 201, data: fac_data , function_name: 'create_faculty' });
     } catch (error:any) {
         console.error(error);
         return NextResponse.json({status : 500, error_message: error.message , function_name: 'create_faculty' });
