@@ -11,6 +11,7 @@ export const PUT = async(req:any, res:any) => {
             .from('class')
             .update({ class_no, total_batches, students_per_batch, branch_id })
             .eq('id', id)
+            .select()
             
         if (error) {
             throw error

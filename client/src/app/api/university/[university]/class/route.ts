@@ -34,7 +34,7 @@ export const GET = async (req: any, res: any) => {
         }
 
         const classes = []
-        
+                
         for (const branch of branches) {
             for (const br of branch.branch_data) {
                 const { data:class_data, error:class_error } = await supabase
@@ -49,25 +49,25 @@ export const GET = async (req: any, res: any) => {
                 class_data.map((cl:any) => {
                     cl.branch_name = br.branch_name
                     cl.dept_name = br.dept_name
+                    cl.dept_id = br.id
                 })
                 
                 classes.push({class_data});
             }
         }
-        const final_classes = []
+        const final_classes:any = []
         
         classes.map((c) => {
             c.class_data.map((cl) => {
                 final_classes.push(cl)
             }
         )})
-
         
-        return NextResponse.json({ status: 201, data: final_classes, function_name: 'get_department' });
+        return NextResponse.json({ status: 201, data: final_classes, function_name: 'get_all_classes' });
 
     } catch (error: any) {
         console.error(error);
-        return NextResponse.json({ status: 500, error_message: error.message, function_name: 'get_department' });
+        return NextResponse.json({ status: 500, error_message: error.message, function_name: 'get_all_classes' });
         
     }
 }   

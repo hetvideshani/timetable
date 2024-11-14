@@ -213,7 +213,7 @@ const page = () => {
                     label="Branch"
                     options={branchOptions}
                     value={data.branch.branch_name}
-                    onChange={(value) =>
+                    onChange={(value:any) =>
                       setData({
                         ...data,
                         branch: {

@@ -9,7 +9,8 @@ export const POST = async(req:any, res:any)=>{
     {
         const { data, error } = await supabase
            .from('class')
-           .insert([{ class_no, total_batches, students_per_batch, branch_id:id }]);
+           .insert([{ class_no, total_batches, students_per_batch, branch_id:id }])
+           .select();
 
         if (error) {
             throw error

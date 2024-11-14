@@ -1,11 +1,11 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { IoClose } from "react-icons/io5";
-const CustomDropdown = ({ label, options, value, onChange }) => {
+const CustomDropdown = ({ label, options, value, onChange }: any) => {
   const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const handleOptionClick = (option) => {
+  const handleOptionClick = (option: any) => {
     onChange(option);
     setIsOpen(false);
   };
@@ -17,7 +17,11 @@ const CustomDropdown = ({ label, options, value, onChange }) => {
 
   // Close the dropdown if a click is detected outside of it
   useEffect(() => {
-    const handleClickOutside = (event) => {
+
+    console.log(options);
+
+
+    const handleClickOutside = (event: any) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false);
       }
@@ -54,7 +58,7 @@ const CustomDropdown = ({ label, options, value, onChange }) => {
       </div>
       {isOpen && (
         <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
-          {options.map((option) => (
+          {options.map((option: any) => (
             <div
               key={option}
               onClick={() => handleOptionClick(option)}

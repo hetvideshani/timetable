@@ -25,7 +25,7 @@ const page = () => {
     dept_id: null,
   });
 
-  const [dept_name, setDept_name] = useState('');
+  const [selected_department, setSelectedDepartment] = useState({ id: 0, department_name: "", uni_id: 0 });
   const [department, setDepartment] = useState([{ id: 0, department_name: "", uni_id: 0 }]);
   const [showDropdown, setShowDropdown] = useState(false);
   const router = useRouter();
@@ -49,6 +49,7 @@ const page = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [dropdownRef]);
+
   const get_uni_id = async () => {
     let customData;
     await fetch(window.location.href)
@@ -108,6 +109,10 @@ const page = () => {
 
       const method = branch.id === null ? 'POST' : 'PUT';
 
+      if (method === 'PUT') {
+        setBranch({ ...branch, dept_id: selected_department.id });
+      }
+
       const response = await fetch(url, {
         method: method,
         headers: {
@@ -115,11 +120,14 @@ const page = () => {
         },
         body: JSON.stringify(branch),
       });
+
       const result = await response.json();
       console.log('Data successfully posted:', result);
 
       if (result.function_name === 'update_branch') {
-        setAllBranches((prev: any) => prev.map((br: any) => br.id === branch.id ? { ...br, branch_name: branch.branch_name } : br));
+        setAllBranches((prev: any) => prev.map((br: any) => br.id === branch.id ? {
+          ...br, branch_name: branch.branch_name, dept_id: branch.dept_id, dept_name: selected_department.department_name
+        } : br));
       }
 
       if (result.function_name === 'create_branch') {
@@ -202,11 +210,10 @@ const page = () => {
                 <div ref={dropdownRef} className='relative' >
                   <input
                     type='text'
-                    value={dept_name}
-                    onChange={(e) => setDept_name(e.target.value)}
+                    value={selected_department.department_name}
+                    onChange={(e) => setSelectedDepartment({ ...selected_department, department_name: e.target.value })}
                     placeholder='Department'
                     onFocus={() => setShowDropdown(true)}
-
                   />
                   {showDropdown && (
                     <div className="relative top-full left-0 bg-white border-gray-300 rounded-md shadow-md mt-1 w-full">
@@ -216,8 +223,7 @@ const page = () => {
                           key={index}
                           className="p-2 hover:bg-gray-100 cursor-pointer text-gray-500"
                           onClick={() => {
-                            setBranch({ ...branch, dept_id: type.id });
-                            setDept_name(type.department_name);
+                            setSelectedDepartment({ id: type.id, department_name: type.department_name, uni_id: type.uni_id });
                             setShowDropdown(false);
                           }}
                         >

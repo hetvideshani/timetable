@@ -54,7 +54,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           </Link>
         </div>
 
-        <div className="flex-1 bg-white">{children}</div>
+        <div className="flex-1 bg-white overflow-y-auto">{children}</div>
       </div>
     </div>
   );

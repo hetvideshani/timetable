@@ -7,171 +7,171 @@ import { FaPlus } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 
 const page = () => {
-    const [uni_id, setUni_id] = useState('');
-    const [class_id, setClass_id] = useState(0)
-    const [classData, setClassData] = useState([{
-        id:0,
-        class_no:0,
-        total_batches:0,
-        students_per_batch:0,
-        branch_id:0
-    }])
-    const router = useRouter();
-    const params = useParams();
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [inputData, setInputData] = useState({
+  const [uni_id, setUni_id] = useState('');
+  const [class_id, setClass_id] = useState(0)
+  const [classData, setClassData] = useState([{
+    id: 0,
+    class_no: 0,
+    total_batches: 0,
+    students_per_batch: 0,
+    branch_id: 0
+  }])
+  const router = useRouter();
+  const params = useParams();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [inputData, setInputData] = useState({
+    class_no: 0,
+    total_batches: 0,
+    students_per_batch: 0
+  });
+
+  const dept_id = params.department;
+  const branch_id = params.branch;
+
+  useEffect(() => {
+    get_uni_id();
+  }, [])
+
+  const get_uni_id = async () => {
+    let customData;
+    await fetch(window.location.href)
+      .then((res) => {
+        customData = res.headers.get('uni_id');
+        if (customData) {
+          setUni_id(customData);
+        }
+      })
+      .catch((error) => console.log("Error fetching data", error)
+
+      )
+
+    await getClassData(customData)
+  }
+
+  const getClassData = async (uni_id: any) => {
+    const response = await fetch(`http://localhost:3000/api/university/${uni_id}/department/${dept_id}/branch/${branch_id}/class`)
+    const data = await response.json();
+    if (Array.isArray(data.data)) {
+      setClassData(data.data);
+    } else {
+      setClassData([]);
+    }
+  }
+
+  const handle_delete = async (class_id: any) => {
+    const response = await fetch(
+      `http://localhost:3000/api/university/${uni_id}/department/${dept_id}/branch/${branch_id}/class/${class_id}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    const data = await response.json();
+    if (data.status === 201) {
+      console.log("Data successfully deleted:", data);
+      setClassData(classData.filter((data) => data.id !== class_id));
+      router.refresh();
+    } else {
+      console.error("Error deleting data:", data);
+    }
+  };
+
+  const handle_insert = () => {
+    setIsModalOpen(true);
+  };
+
+  const handle_edit = (class_no: number, total_batches: number, students_per_batch: number) => {
+    setIsModalOpen(true);
+    setInputData({ class_no, total_batches, students_per_batch });
+  };
+
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+    try {
+      const url =
+        class_id === 0
+          ? `http://localhost:3000/api/university/${uni_id}/department/${dept_id}/branch/${branch_id}/class`
+          : `http://localhost:3000/api/university/${uni_id}/department/${dept_id}/branch/${branch_id}/class/${class_id}`;
+
+      const method = class_id === 0 ? "POST" : "PUT";
+
+      const response = await fetch(url, {
+        method: method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ class_no: inputData.class_no, total_batches: inputData.total_batches, students_per_batch: inputData.students_per_batch }),
+      });
+      const result = await response.json();
+      console.log("Data successfully posted:", result);
+
+      if (result.function_name === "update_class") {
+        setClassData((prevClass) =>
+          prevClass.map((cls) =>
+            cls.id === class_id
+              ? { ...cls, class_no: inputData.class_no, total_batches: inputData.total_batches, students_per_batch: inputData.students_per_batch }
+              : cls
+          )
+        );
+      }
+
+      if (result.function_name === "create_class") {
+        setClassData((prevClass) => [
+          ...prevClass,
+          result.data[0],
+        ]);
+      }
+
+      setIsModalOpen(false);
+      setInputData({
         class_no: 0,
         total_batches: 0,
         students_per_batch: 0
-    });
-
-    const dept_id = params.department;
-    const branch_id = params.branch;
-
-    useEffect(() => {
-        get_uni_id();
-    }, [])
-
-    const get_uni_id = async () => {
-        let customData;
-        await fetch(window.location.href)
-           .then((res) => {
-                customData = res.headers.get('uni_id');
-                if (customData) {
-                    setUni_id(customData);
-                }
-            })
-            .catch((error) => console.log("Error fetching data", error)
-        
-        )
-
-        await getClassData(customData)
+      });
+      setClass_id(0);
+      router.refresh();
+    } catch (error) {
+      console.error("Error posting data:", error);
     }
+  };
 
-    const getClassData = async (uni_id:any) => {
-        const response = await fetch(`http://localhost:3000/api/university/${uni_id}/department/${dept_id}/branch/${branch_id}/class`)
-        const data = await response.json();
-        if (Array.isArray(data.data)) {
-          setClassData(data.data);
-        } else {
-          setClassData([]);
-        }
-    }
+  console.log(classData);
 
-    const handle_delete = async (class_id: any) => {
-        const response = await fetch(
-          `http://localhost:3000/api/university/${uni_id}/department/${dept_id}/branch/${branch_id}/class/${class_id}`,
-          {
-            method: "DELETE",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        const data = await response.json();
-        if (data.status === 201) {
-          console.log("Data successfully deleted:", data);
-          setClassData(classData.filter((data) => data.id !== class_id));
-          router.refresh();
-        } else {
-          console.error("Error deleting data:", data);
-        }
-      };
 
-      const handle_insert = () => {
-        setIsModalOpen(true);
-      };
-    
-      const handle_edit = (class_no: number, total_batches: number, students_per_batch: number) => {
-        setIsModalOpen(true);
-        setInputData({class_no, total_batches, students_per_batch});
-      };
+  const get_class_data = classData.map((data, index) => {
+    return (
+      <div
+        className="shadow-md hover:bg-slate-100 flex flex-col justify-center items-center w-full p-5 gap-0 font-bold rounded-sm"
+        key={index} >
+        <p className=" text-lg text-slate-900">{data.id}</p>
+        <p className=" text-2xl text-slate-950">Class No : {data.class_no}</p>
+        <p className=" text-2xl text-slate-950">Total Batch : {data.total_batches}</p>
+        <p className=" text-2xl text-slate-950">Student Per Batch : {data.students_per_batch}</p>
+        <div className="flex gap-1 mt-5">
+          <button
+            onClick={(e) => {
+              handle_edit(data.class_no, data.total_batches, data.students_per_batch);
+              setClass_id(data.id);
+            }}
+            className="bg-green-600 px-3 py-1 rounded-md"
+          >
+            <LuPencil size={20} className=" text-white "></LuPencil>
+          </button>
+          <button
+            onClick={() => {
+              handle_delete(data.id);
+            }}
+            className="bg-red-600 px-3 py-1 rounded-md"
+          >
+            <IoClose size={20} className=" text-white"></IoClose>
+          </button>
+        </div>
+      </div>
+    )
+  })
 
-      const handleSubmit = async (e:any) => {
-        e.preventDefault();
-        try {
-          const url =
-            class_id === 0
-              ? `http://localhost:3000/api/university/${uni_id}/department/${dept_id}/branch/${branch_id}/class`
-              : `http://localhost:3000/api/university/${uni_id}/department/${dept_id}/branch/${branch_id}/class/${class_id}`;
-    
-          const method = class_id === 0 ? "POST" : "PUT";
-    
-          const response = await fetch(url, {
-            method: method,
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({class_no : inputData.class_no, total_batches : inputData.total_batches , students_per_batch : inputData.students_per_batch}),
-          });
-          const result = await response.json();
-          console.log("Data successfully posted:", result);
-    
-          if (result.function_name === "update_class") {
-            setClassData((prevClass) =>
-                prevClass.map((cls) =>
-                cls.id === class_id
-                  ? { ...cls, class_no : inputData.class_no, total_batches : inputData.total_batches , students_per_batch : inputData.students_per_batch }
-                  : cls
-              )
-            );
-          }
-    
-          if (result.function_name === "create_class") {
-            setClassData((prevClass) => [
-              ...prevClass,
-              result.data[0],
-            ]);
-          }
-    
-          setIsModalOpen(false);
-          setInputData({
-            class_no: 0,
-            total_batches: 0,
-            students_per_batch: 0
-          });
-          setClass_id(0); 
-          router.refresh();
-        } catch (error) {
-          console.error("Error posting data:", error);
-        }
-      };
-
-      console.log(classData);
-      
-
-      const get_class_data = classData.map((data,index) => {
-        return (
-            <div
-                className="shadow-md hover:bg-slate-100 flex flex-col justify-center items-center w-full p-5 gap-0 font-bold rounded-sm"
-                key={index} >
-                <p className=" text-lg text-slate-900">{data.id}</p>
-                <p className=" text-2xl text-slate-950">Class No : {data.class_no}</p>
-                <p className=" text-2xl text-slate-950">Total Batch : {data.total_batches}</p>
-                <p className=" text-2xl text-slate-950">Student Per Batch : {data.students_per_batch}</p>
-                <div className="flex gap-1 mt-5">
-                <button
-                onClick={(e) => {
-                    handle_edit(data.class_no, data.total_batches, data.students_per_batch);
-                    setClass_id(data.id);
-                }}
-                    className="bg-green-600 px-3 py-1 rounded-md"
-                >
-                    <LuPencil size={20} className=" text-white "></LuPencil>
-                </button>
-                <button
-                    onClick={() => {
-                    handle_delete(data.id);
-                    }}
-                    className="bg-red-600 px-3 py-1 rounded-md"
-                >
-                    <IoClose size={20} className=" text-white"></IoClose>
-                </button>
-                </div>
-            </div>
-        )
-      })
-    
 
   return (
     <div className="flex flex-col gap-6 justify-center items-center p-5 w-full">
@@ -188,15 +188,15 @@ const page = () => {
           <div className="fixed top-0 left-0 right-0 bottom-0 bg-gray-900 bg-opacity-50 flex justify-center items-center">
             <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
               <h2 className="text-lg font-bold mb-4">Add New Class</h2>
-                
+
               <form onSubmit={handleSubmit}>
-              <label htmlFor="" className='text-sm font-semibold'>Enter Starting Class Year</label>
+                <label htmlFor="" className='text-sm font-semibold'>Enter Starting Class Year</label>
                 <input
                   id="data"
                   type="number"
                   value={inputData.class_no > 0 ? inputData.class_no : ''}
                   placeholder="Enter Starting Class Year"
-                  onChange={(e) => setInputData({...inputData, class_no : Number(e.target.value)})}
+                  onChange={(e) => setInputData({ ...inputData, class_no: Number(e.target.value) })}
                   className="mb-3 p-2 border border-gray-300 rounded-md w-full"
                 />
                 <label htmlFor="" className='text-sm font-semibold'>Enter Total Batches</label>
@@ -205,7 +205,7 @@ const page = () => {
                   type="number"
                   value={inputData.total_batches > 0 ? inputData.total_batches : ''}
                   placeholder="Enter Total Batches"
-                  onChange={(e) => setInputData({...inputData, total_batches : Number(e.target.value)})}
+                  onChange={(e) => setInputData({ ...inputData, total_batches: Number(e.target.value) })}
                   className="mb-3 p-2 border border-gray-300 rounded-md w-full"
                 />
                 <label htmlFor="" className='text-sm font-semibold'>Enter Students Per Batch</label>
@@ -214,7 +214,7 @@ const page = () => {
                   type="number"
                   value={inputData.students_per_batch > 0 ? inputData.students_per_batch : ''}
                   placeholder="Enter Students Per Batch"
-                  onChange={(e) => setInputData({...inputData, students_per_batch : Number(e.target.value)})}
+                  onChange={(e) => setInputData({ ...inputData, students_per_batch: Number(e.target.value) })}
                   className=" p-2 border border-gray-300 rounded-md w-full"
                 />
 
@@ -240,7 +240,7 @@ const page = () => {
         )}
       </div>
       <div className="grid grid-cols-3 w-full gap-5">
-        {classData.length > 1 ? get_class_data : null}
+        {classData[0].id > 0 ? get_class_data : null}
       </div>
     </div>
   )
