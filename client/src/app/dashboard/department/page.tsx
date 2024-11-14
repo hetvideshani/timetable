@@ -131,7 +131,7 @@ const page = () => {
 
   const get_dept_data = department.map((data, index) => {
     return (
-      <Link href={'/dashboard/' + data.id +'/branch'}
+      <div
         className="shadow-md hover:bg-slate-100 flex flex-col justify-center items-center w-full p-5 gap-0 font-bold rounded-sm"
         key={index} onClick={() => router.push(`/dashboard/department/${data.id}`)}
       >
@@ -156,7 +156,7 @@ const page = () => {
             <IoClose size={20} className=" text-white"></IoClose>
           </button>
         </div>
-      </Link>
+        </div>
     );
   });
 
