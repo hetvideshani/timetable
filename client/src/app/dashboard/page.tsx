@@ -122,7 +122,7 @@ const page = () => {
   };
 
   // Fetch all departments
-  const getAllDepartments = async (id) => {
+  const getAllDepartments = async (id:any) => {
     const response = await fetch(
       `http://localhost:3000/api/university/${id}/department`
     );

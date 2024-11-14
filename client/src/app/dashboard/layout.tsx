@@ -35,6 +35,12 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             Semesters
           </Link>
           <Link
+            href="/dashboard/session"
+            className=" p-2 hover:rounded-md hover:bg-blue-900 "
+          >
+            Sessions
+          </Link>
+          <Link
             href="/dashboard/resource"
             className=" p-2 hover:rounded-md hover:bg-blue-900 "
           >

@@ -140,38 +140,39 @@ const page = () => {
   console.log(classData);
 
 
-  const get_class_data = classData.map((data, index) => {
-    return (
-      <div
-        className="shadow-md hover:bg-slate-100 flex flex-col justify-center items-center w-full p-5 gap-0 font-bold rounded-sm"
-        key={index} >
-        <p className=" text-lg text-slate-900">{data.id}</p>
-        <p className=" text-2xl text-slate-950">Class No : {data.class_no}</p>
-        <p className=" text-2xl text-slate-950">Total Batch : {data.total_batches}</p>
-        <p className=" text-2xl text-slate-950">Student Per Batch : {data.students_per_batch}</p>
-        <div className="flex gap-1 mt-5">
-          <button
-            onClick={(e) => {
-              handle_edit(data.class_no, data.total_batches, data.students_per_batch);
-              setClass_id(data.id);
-            }}
-            className="bg-green-600 px-3 py-1 rounded-md"
-          >
-            <LuPencil size={20} className=" text-white "></LuPencil>
-          </button>
-          <button
-            onClick={() => {
-              handle_delete(data.id);
-            }}
-            className="bg-red-600 px-3 py-1 rounded-md"
-          >
-            <IoClose size={20} className=" text-white"></IoClose>
-          </button>
-        </div>
-      </div>
-    )
-  })
-
+      const get_class_data = classData.map((data,index) => {
+        return (
+            <div
+                className="shadow-md hover:bg-slate-100 flex flex-col justify-center items-center w-full p-5 gap-0 font-bold rounded-sm"
+                key={index} 
+                onClick={() => {router.push(`/dashboard/department/${dept_id}/${branch_id}/${data.id}`)}}>
+                <p className=" text-lg text-slate-900">{data.id}</p>
+                <p className=" text-2xl text-slate-950">Class No : {data.class_no}</p>
+                <p className=" text-2xl text-slate-950">Total Batch : {data.total_batches}</p>
+                <p className=" text-2xl text-slate-950">Student Per Batch : {data.students_per_batch}</p>
+                <div className="flex gap-1 mt-5">
+                <button
+                onClick={(e) => {
+                    handle_edit(data.class_no, data.total_batches, data.students_per_batch);
+                    setClass_id(data.id);
+                }}
+                    className="bg-green-600 px-3 py-1 rounded-md"
+                >
+                    <LuPencil size={20} className=" text-white "></LuPencil>
+                </button>
+                <button
+                    onClick={() => {
+                    handle_delete(data.id);
+                    }}
+                    className="bg-red-600 px-3 py-1 rounded-md"
+                >
+                    <IoClose size={20} className=" text-white"></IoClose>
+                </button>
+                </div>
+            </div>
+        )
+      })
+    
 
   return (
     <div className="flex flex-col gap-6 justify-center items-center p-5 w-full">
