@@ -144,7 +144,8 @@ const page = () => {
         return (
             <div
                 className="shadow-md hover:bg-slate-100 flex flex-col justify-center items-center w-full p-5 gap-0 font-bold rounded-sm"
-                key={index} >
+                key={index} 
+                onClick={() => {router.push(`/dashboard/department/${dept_id}/${branch_id}/${data.id}`)}}>
                 <p className=" text-lg text-slate-900">{data.id}</p>
                 <p className=" text-2xl text-slate-950">Class No : {data.class_no}</p>
                 <p className=" text-2xl text-slate-950">Total Batch : {data.total_batches}</p>
@@ -240,7 +241,7 @@ const page = () => {
         )}
       </div>
       <div className="grid grid-cols-3 w-full gap-5">
-        {classData.length > 1 ? get_class_data : null}
+        {classData[0].id > 0 ? get_class_data : null}
       </div>
     </div>
   )
