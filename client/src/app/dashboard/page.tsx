@@ -1,14 +1,308 @@
 // src/app/dashboard/page.tsx
-'use client'
-import Link from "next/link";
+"use client";
 import { useEffect, useState } from "react";
+import CustomDropdown from "./dropdown";
 
 const page = () => {
+  const [data, setData] = useState({
+    department: {
+      id: 0,
+      department_name: "",
+    },
+    branch: {
+      id: 0,
+      branch_name: "",
+      dept_id: 0,
+    },
+    classes: {
+      id: 0,
+      class_no: 0,
+      branch_id: 0,
+      branch_name: "",
+      dept_name: "",
+    },
+    semester: "",
+  });
+  const [showModal, setShowModal] = useState(true);
+  const [department, setDepartment] = useState([
+    {
+      id: 0,
+      department_name: "",
+      uni_id: 0,
+    },
+  ]);
+  const [branch, setBranch] = useState([
+    {
+      id: 0,
+      branch_name: "",
+      dept_id: 0,
+      dept_name: "",
+    },
+  ]);
+  const [classs, setClass] = useState([
+    {
+      id: 0,
+      class_no: 0,
+      branch_id: 0,
+      branch_name: "",
+      dept_name: "",
+    },
+  ]);
+  const [semester, setSemester] = useState("");
+  const [uni_id, setUni_id] = useState("");
+  const departmentOptions = [
+    ...new Set(
+      department
+        .filter((dept) => {
+          if (
+            data.branch.branch_name === "" ||
+            data.branch.branch_name === "Select branch"
+          ) {
+            return true;
+          }
+          return data.branch.dept_id === dept.id;
+        })
+        .map((dept) => dept.department_name)
+    ),
+  ];
+  const branchOptions = [
+    ...new Set(
+      branch
+        .filter((bran) => {
+          // Show all branches if no department is selected
+          if (
+            data.department.department_name === "" ||
+            data.department.department_name === "Select department"
+          ) {
+            return true;
+          }
+          // Otherwise, filter branches by selected department
+          return bran.dept_name === data.department.department_name;
+        })
+        .map((bran) => bran.branch_name) // Extract branch names
+    ),
+  ];
+  const classOptions = [
+    ...new Set(
+      classs
+        .filter((cl) => {
+          if (
+            data.branch.branch_name === "" ||
+            data.branch.branch_name === "Select branch"
+          ) {
+            return true;
+          }
+          return cl.branch_id === data.branch.id;
+        })
+        .map((cl) => cl.class_no)
+    ),
+  ];
+  const semesterOptions = ["Item 1", "Item 2", "Item 3"];
 
-    return (
-      <div></div>
-    );
+  // Fetch university ID on load
+  useEffect(() => {
+    get_uni_id();
+  }, []);
+
+  // get university ID from the URL
+  const get_uni_id = async () => {
+    let customData;
+    await fetch(window.location.href)
+      .then((res) => {
+        customData = res.headers.get("uni_id");
+        if (customData) {
+          setUni_id(customData);
+        }
+      })
+      .catch((error) => console.error("Error fetching data:", error));
+
+    await getAllDepartments(customData);
+    await getAllBranch(customData);
+    await getAllClasses(customData);
   };
-  
-  export default page;
-  
+
+  // Fetch all departments
+  const getAllDepartments = async (id:any) => {
+    const response = await fetch(
+      `http://localhost:3000/api/university/${id}/department`
+    );
+
+    const data = await response.json();
+    if (Array.isArray(data.data)) {
+      setDepartment(data.data);
+    } else {
+      setDepartment([]);
+    }
+  };
+
+  // Fetch all branches
+  const getAllBranch = async (id: any) => {
+    const response = await fetch(
+      `http://localhost:3000/api/university/${id}/branch`
+    );
+
+    const data = await response.json();
+    if (Array.isArray(data.data)) {
+      console.log(data.data);
+      setBranch(data.data);
+    } else {
+      console.log("No data");
+      setBranch([]);
+    }
+  };
+
+  // fetch all classes
+  const getAllClasses = async (id: any) => {
+    const response = await fetch(
+      `http://localhost:3000/api/university/${id}/class`
+    );
+
+    const data = await response.json();
+    if (Array.isArray(data.data)) {
+      console.log(data.data);
+      setClass(data.data);
+    } else {
+      console.log("No data");
+      setClass([]);
+    }
+  };
+  return (
+    <div className="text-black flex justify-center">
+      <button
+        className="m-5 bg-blue-600 p-5 rounded-md"
+        onClick={() => setShowModal(true)}
+      >
+        Create TimeTable
+      </button>
+
+      {showModal && (
+        <div className="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white w-[50vw] p-5 rounded-md">
+            <div className="flex flex-col justify-center items-center">
+              <h1 className="text-2xl font-bold">Create TimeTable</h1>
+              <p className="text-gray-400 text-sm">
+                Add details required for generating the timetable!
+              </p>
+            </div>
+
+            <div className="m-5">
+              <div className="flex">
+                <div className="m-2 flex-[0.9]">
+                  <CustomDropdown
+                    label="Department"
+                    options={departmentOptions}
+                    value={data.department.department_name}
+                    onChange={(value) =>
+                      setData({
+                        ...data,
+                        department: {
+                          id:
+                            value === ""
+                              ? 0
+                              : department.filter(
+                                  (dept) => dept.department_name === value
+                                )[0].id,
+                          department_name: value,
+                        },
+                      })
+                    }
+                  />
+                </div>
+                <div className="m-2 flex-1">
+                  <CustomDropdown
+                    label="Branch"
+                    options={branchOptions}
+                    value={data.branch.branch_name}
+                    onChange={(value) =>
+                      setData({
+                        ...data,
+                        branch: {
+                          id:
+                            value === ""
+                              ? 0
+                              : branch.filter(
+                                  (bran) => bran.branch_name === value
+                                )[0].id,
+                          branch_name: value,
+                          dept_id:
+                            value === ""
+                              ? 0
+                              : branch.filter(
+                                  (bran) => bran.branch_name === value
+                                )[0].dept_id,
+                        },
+                      })
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="flex">
+                <div className="m-2 flex-[0.9]">
+                  <CustomDropdown
+                    label="Class"
+                    options={classOptions}
+                    value={data.classes.class_no}
+                    onChange={(value) =>
+                      setData({
+                        ...data,
+                        classes: {
+                          id:
+                            value === ""
+                              ? 0
+                              : classs.filter((cl) => cl.class_no == value)[0]
+                                  .id,
+                          class_no: value,
+                          branch_id:
+                            value === ""
+                              ? 0
+                              : classs.filter((cl) => cl.class_no === value)[0]
+                                  .branch_id,
+                          branch_name:
+                            value === ""
+                              ? ""
+                              : classs.filter((cl) => cl.class_no === value)[0]
+                                  .branch_name,
+                          dept_name:
+                            value === ""
+                              ? ""
+                              : classs.filter((cl) => cl.class_no === value)[0]
+                                  .dept_name,
+                        },
+                      })
+                    }
+                  />
+                </div>
+                <div className="m-2 flex-1">
+                  <CustomDropdown
+                    label="Semester"
+                    options={semesterOptions}
+                    value={data.semester}
+                    onChange={(value) => setData({ ...data, semester: value })}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-between m-5">
+              <button
+                className="bg-red-600 p-2 rounded-md"
+                onClick={() => setShowModal(false)}
+              >
+                Close
+              </button>
+              <button
+                className="bg-green-600 p-2 rounded-md"
+                onClick={() => setShowModal(false)}
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default page;

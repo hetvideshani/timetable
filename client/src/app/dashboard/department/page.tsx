@@ -6,7 +6,6 @@ import { FaPlus } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-
 const page = () => {
   const [uni_id, setUni_id] = useState("");
   const [department_id, setDepartment_id] = useState(0);
@@ -81,7 +80,7 @@ const page = () => {
     setInputData(dept_name);
   };
 
-  const handleSubmit = async (e:any) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
     try {
       const url =
@@ -133,7 +132,8 @@ const page = () => {
     return (
       <div
         className="shadow-md hover:bg-slate-100 flex flex-col justify-center items-center w-full p-5 gap-0 font-bold rounded-sm"
-        key={index} onClick={() => router.push(`/dashboard/department/${data.id}`)}
+        key={index}
+        onClick={() => router.push(`/dashboard/department/${data.id}`)}
       >
         <p className=" text-lg text-slate-900">{data.id}</p>
         <p className=" text-2xl text-slate-950">{data.department_name}</p>
@@ -168,7 +168,7 @@ const page = () => {
           onClick={handle_insert}
           className="flex gap-1 justify-center items-center text-xl bg-blue-600 py-1 px-3 text-white rounded-md"
         >
-          <FaPlus></FaPlus> <div>New</div>
+          <FaPlus /> <div>New</div>
         </button>
 
         {isModalOpen && (
