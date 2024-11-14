@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation"; // Updated import
 import React, { useEffect, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -10,6 +10,7 @@ export default function Page() {
     email: "",
     password: "",
   });
+  const router = useRouter();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -32,7 +33,7 @@ export default function Page() {
         .then((data) => {
           if (data.status === 200) {
             toast.success(data.message.message);
-            window.location.href = '/dashboard'
+            router.push("/dashboard");
           } else {
             toast.error(data.message);
           }
