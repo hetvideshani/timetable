@@ -31,7 +31,7 @@ export const GET = async (req: any, res: any) => {
             })
             
             branches.push({branch_data});
-        }
+        }        
 
         const classes = []
                 
@@ -49,7 +49,7 @@ export const GET = async (req: any, res: any) => {
                 class_data.map((cl:any) => {
                     cl.branch_name = br.branch_name
                     cl.dept_name = br.dept_name
-                    cl.dept_id = br.id
+                    cl.dept_id = br.dept_id
                 })
                 
                 classes.push({class_data});

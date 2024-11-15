@@ -6,6 +6,7 @@ import { LuPencil } from "react-icons/lu";
 import { FaPlus } from 'react-icons/fa';
 import CustomDropdown from '../dropdown';
 import { get } from 'http';
+import { set } from 'mongoose';
 
 const page = () => {
   const [uni_id, setUni_id] = useState('');
@@ -44,6 +45,16 @@ const page = () => {
   }]);
   const [selected_branch, setSelectedBranch] = useState({ id: 0, branch_name: "", dept_id: 0, dept_name: "" });
   const [branches, setBranches] = useState([{ id: 0, branch_name: "", dept_id: 0, dept_name: "" }]);
+  const [previous_data, setPreviousData] = useState({
+    id: 0,
+    class_no: 0,
+    total_batches: 0,
+    students_per_batch: 0,
+    branch_id: 0,
+    branch_name: "",
+    dept_name: "",
+    dept_id: 0,
+  });
   const [showDropdown1, setShowDropdown1] = useState(false);
   const [showDropdown2, setShowDropdown2] = useState(false);
   const router = useRouter();
@@ -132,8 +143,10 @@ const page = () => {
   };
 
   const handle_edit = (br: any) => {
+    console.log(br);
     setIsModalOpen(true);
     setOneClass({ id: br.id, class_no: br.class_no, total_batches: br.total_batches, students_per_batch: br.students_per_batch, branch_id: br.branch_id });
+    setBranches(all_branches.filter((data) => data.dept_id === br.dept_id));
   }
 
   const handle_delete = async (br: any) => {
@@ -158,13 +171,15 @@ const page = () => {
     try {
       console.log(one_class);
 
-      const url = one_class.id === 0 || one_class.id === null ? `http://localhost:3000/api/university/${uni_id}/department/${selected_department.id}/branch/${selected_branch.id}/class` : `http://localhost:3000/api/university/${uni_id}/department/${selected_department.id}/branch/${one_class.branch_id}/class/${one_class.id}`;
+      const url = one_class.id === 0 || one_class.id === null ? `http://localhost:3000/api/university/${uni_id}/department/${selected_department.id}/branch/${selected_branch.id}/class` : `http://localhost:3000/api/university/${uni_id}/department/${previous_data.dept_id}/branch/${previous_data.branch_id}/class/${one_class.id}`;
 
       const method = one_class.id === 0 || one_class.id === null ? 'POST' : 'PUT';
 
       if (method === 'PUT') {
-        setOneClass({ ...one_class, branch_id: selected_department.id });
+        setOneClass({ ...one_class, branch_id: selected_branch.id });
       }
+
+      console.log(one_class);
 
       const response = await fetch(url, {
         method: method,
@@ -175,28 +190,35 @@ const page = () => {
       });
 
       const result = await response.json();
-      console.log('class successfully posted:', result);
 
-      console.log(result.data);
+      if (result.status === 201) {
 
-      if (result.function_name === 'update_class') {
-        setAllClasses((prev: any) => prev.map((cl: any) => cl.id === one_class.id ? { ...cl, class_no: one_class.class_no, total_batches: one_class.total_batches, students_per_batch: one_class.students_per_batch } : cl));
+        console.log('class successfully posted:', result);
+        console.log(result.data);
+
+        if (result.function_name === 'update_class') {
+          setAllClasses((prev: any) => prev.map((cl: any) => cl.id === one_class.id ? {
+            ...cl, class_no: one_class.class_no, total_batches: one_class.total_batches, students_per_batch: one_class.students_per_batch, branch_id: one_class.branch_id, branch_name: selected_branch.branch_name,
+            dept_id: selected_department.id, dept_name: selected_department.department_name
+          } : cl));
+        }
+
+        if (result.function_name === 'create_class') {
+          setAllClasses((prev: any) => [...prev, { id: result.data[0].id, class_no: result.data[0].class_no, total_batches: result.data[0].total_batches, students_per_batch: result.data[0].students_per_batch, branch_id: result.data[0].branch_id, branch_name: selected_branch.branch_name, dept_id: selected_department.id, dept_name: selected_department.department_name }]);
+        }
       }
-
-      if (result.function_name === 'create_class') {
-        setAllClasses((prev: any) => [...prev, result.data[0]]);
+      else {
+        console.error('Error posting data:', result);
       }
 
       setIsModalOpen(false);
       setOneClass({ id: 0, class_no: 0, total_batches: 0, students_per_batch: 0, branch_id: 0 });
-      getBranch(uni_id);
       router.refresh();
     }
     catch (error) {
       console.error('Error posting data:', error);
     }
   }
-
 
   const get_class_data = all_classes.map((data, index) => {
     return (
@@ -206,6 +228,7 @@ const page = () => {
           setOneClass({ id: data.id, class_no: data.class_no, total_batches: data.total_batches, students_per_batch: data.students_per_batch, branch_id: data.branch_id });
           setSelectedDepartment({ id: data.dept_id, department_name: data.dept_name, uni_id: Number(uni_id) });
           setSelectedBranch({ id: data.branch_id, branch_name: data.branch_name, dept_id: data.dept_id, dept_name: data.dept_name });
+          setPreviousData({ id: data.id, class_no: data.class_no, total_batches: data.total_batches, students_per_batch: data.students_per_batch, branch_id: data.branch_id, branch_name: data.branch_name, dept_name: data.dept_name, dept_id: data.dept_id });
         }}
       >
         <p className=" text-lg text-slate-900">{data.id}</p>
@@ -283,7 +306,7 @@ const page = () => {
                           onClick={() => {
                             setSelectedDepartment({ id: type.id, department_name: type.department_name, uni_id: type.uni_id });
                             setShowDropdown1(false);
-                            setAllBranches(all_branches.filter((data) => data.dept_id === type.id));
+                            setBranches(all_branches.filter((data) => data.dept_id === type.id));
                           }}
                         >
                           {type.department_name}
@@ -303,13 +326,14 @@ const page = () => {
                   />
                   {showDropdown2 && (
                     <div className="relative top-full left-0 bg-white border-gray-300 rounded-md shadow-md mt-1 w-full">
-                      {all_branches.map((type, index) => (
+                      {branches.map((type, index) => (
                         <div
                           key={index}
                           className="p-2 hover:bg-gray-100 cursor-pointer text-gray-500"
                           onClick={() => {
                             setSelectedBranch({ id: type.id, branch_name: type.branch_name, dept_id: type.dept_id, dept_name: type.dept_name });
                             setShowDropdown2(false);
+                            setOneClass({ ...one_class, branch_id: type.id });
                           }}
                         >
                           {type.branch_name}
