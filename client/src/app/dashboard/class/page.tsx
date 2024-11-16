@@ -6,7 +6,6 @@ import { LuPencil } from "react-icons/lu";
 import { FaPlus } from 'react-icons/fa';
 import CustomDropdown from '../dropdown';
 import { get } from 'http';
-import { set } from 'mongoose';
 
 const page = () => {
   const [uni_id, setUni_id] = useState('');

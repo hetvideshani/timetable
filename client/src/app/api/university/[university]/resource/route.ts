@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 
 export const POST = async(req:any, res:any) => {
     const resource = await req.json();
-    const { resource_name, type, capacity, duration } = resource
+    const { resource_name, resource_type, capacity, duration } = resource
     const id = req.url!.split("university/")[1].split('/')[0]
     console.log(resource);
     console.log(id);
@@ -11,7 +11,7 @@ export const POST = async(req:any, res:any) => {
     try {
         const { data, error } = await supabase
             .from('resource')
-            .insert({ resource_name:resource_name, resource_type:type, capacity:capacity, duration:duration, uni_id:id });
+            .insert({ resource_name:resource_name, resource_type:resource_type, capacity:capacity, duration:duration, uni_id:id });
         
         console.log(data);
         
