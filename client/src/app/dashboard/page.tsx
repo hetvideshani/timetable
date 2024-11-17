@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import CustomDropdown from "./dropdown";
 import { Modal, ModalTrigger } from "../components/ui/animated-modal";
 
-const page = () => {
+const Page = () => {
   const [data, setData] = useState({
     department: {
       id: 0,
@@ -43,7 +43,8 @@ const page = () => {
       },
     ],
   });
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(true);
+  const [showModal2, setShowModal2] = useState(false);
   const [department, setDepartment] = useState([
     {
       id: 0,
@@ -73,17 +74,41 @@ const page = () => {
       id: 0,
       sem_no: "",
       class_id: 0,
+      subject_faculty: [
+        {
+          subject_id: 0,
+          subject_name: "",
+          faculty_id: 0,
+          faculty_name: "",
+        },
+      ],
     },
   ]);
-
-  const [subject, setSubject] = useState([
+  const [subject_faculty, setSubject_Faculty] = useState([
     {
       id: 0,
       subject_name: "",
+      faculty_id: 0,
+      faculty_name: "",
+      resource_required: [
+        {
+          resource_type: "",
+          resource_count: 0,
+        },
+      ],
       uni_id: 0,
     },
   ]);
   const [uni_id, setUni_id] = useState("");
+  const [allResource, setAllResource] = useState([
+    {
+      id: 0,
+      resource_type: "",
+    },
+  ]);
+  const resourceOptions = [
+    ...new Set(allResource.map((res) => res.resource_type)),
+  ];
   const departmentOptions = department.map((dept) => dept.department_name);
   const branchOptions = [
     ...new Set(
@@ -136,7 +161,7 @@ const page = () => {
     await getAllBranch(customData);
     await getAllClasses(customData);
     await getAllSemester(customData);
-    await getAllSubjects(customData);
+    await getAllResources(customData);
   };
 
   // Fetch all departments
@@ -200,19 +225,32 @@ const page = () => {
     }
   };
 
-  const getAllSubjects = async (id: any) => {
+  const getAllResources = async (id: any) => {
     const response = await fetch(
-      `http://localhost:3000/api/university/${id}/subject`
+      `http://localhost:3000/api/university/${id}/resource`
     );
 
     const data = await response.json();
     if (Array.isArray(data.data)) {
       console.log(data.data);
-      setSubject(data.data);
+      setAllResource(data.data);
     } else {
       console.log("No data");
-      setSubject([]);
+      setResource([]);
     }
+  };
+
+  const sendData = async () => {
+    const response = await fetch("http://localhost:3000/api/timetable", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    const res = await response.json();
+    console.log(res);
   };
   return (
     <div className="text-black flex justify-center">
@@ -371,6 +409,36 @@ const page = () => {
                   />
                 </div>
               </div>
+
+              {/* <div className="flex bg-red-500 w-full">
+                {subject_facultyOptions.map((sub_fac, subindex) => {
+                  return (
+                    <div key={subindex}>
+                      <div className="flex tex-xl gap-4 font-bold">
+                        <div className="  ">{sub_fac.subject_name}</div>
+                        <div className="  ">{sub_fac.faculty_name}</div>
+                      </div>
+                      <div className="flex gap-2 justify-between ">
+                        {resourceOptions.map((res, index) => {
+                          return (
+                            <div className=" w-[30%]" key={index}>
+                              <label htmlFor="">{res}</label>
+                              <input
+                                type="text"
+                                className="border-2 border-gray-300 p-2 rounded-md"
+                                placeholder="Enter count"
+                                onChange={(e) => {
+                                  // setSubject_Faculty(newSubject);
+                                }}
+                              />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div> */}
             </div>
 
             <div className="flex justify-between m-5">
@@ -379,6 +447,60 @@ const page = () => {
                 onClick={() => setShowModal(false)}
               >
                 Close
+              </button>
+              <button
+                className="bg-blue-600 p-2 rounded-md"
+                onClick={() => {
+                  setShowModal(false);
+                  setShowModal2(true);
+
+                  semester
+                    .filter((sem) => {
+                      return sem.id === data.semester.id;
+                    })[0]
+                    .subject_faculty.map((sub_fac, index) => {
+                      if (index == 0) {
+                        console.log(sub_fac);
+
+                        setSubject_Faculty((prev) => [
+                          {
+                            id: sub_fac.subject_id,
+                            subject_name: sub_fac.subject_name,
+                            faculty_id: sub_fac.faculty_id,
+                            faculty_name: sub_fac.faculty_name,
+                            resource_required: [
+                              {
+                                resource_type: "",
+                                resource_count: 0,
+                              },
+                            ],
+                            uni_id: Number(uni_id),
+                          },
+                        ]);
+                      } else {
+                        console.log("heloooooooooooooooooooooooooo");
+
+                        setSubject_Faculty((prev) => [
+                          ...prev,
+                          {
+                            id: sub_fac.subject_id,
+                            subject_name: sub_fac.subject_name,
+                            faculty_id: sub_fac.faculty_id,
+                            faculty_name: sub_fac.faculty_name,
+                            resource_required: [
+                              {
+                                resource_type: "",
+                                resource_count: 0,
+                              },
+                            ],
+                            uni_id: Number(uni_id),
+                          },
+                        ]);
+                      }
+                    });
+                }}
+              >
+                next
               </button>
               <button
                 className="bg-green-600 p-2 rounded-md"
@@ -390,8 +512,89 @@ const page = () => {
           </div>
         </div>
       )}
+
+      {showModal2 && (
+        <div className="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white w-[50vw] p-5 rounded-md">
+            <div className="flex flex-col justify-center items-center">
+              <h1 className="text-2xl font-bold">Create TimeTable</h1>
+              <p className="text-gray-400 text-sm">
+                Add details required for generating the timetable!
+              </p>
+            </div>
+
+            {/* subject and faculty wise resource */}
+            <div className="">
+              {subject_faculty.map((sub_fac, subindex) => {
+                return (
+                  <div key={subindex}>
+                    <div className="flex tex-xl gap-4 font-bold">
+                      <div className="  ">{sub_fac.subject_name}</div>
+                      <div className="  ">{sub_fac.faculty_name}</div>
+                    </div>
+                    <div className="flex gap-2 justify-between ">
+                      {resourceOptions.map((res, index) => {
+                        return (
+                          <div className=" w-[30%]" key={index}>
+                            <label htmlFor="">{res}</label>
+                            <input
+                              type="text"
+                              className="border-2 border-gray-300 p-2 rounded-md"
+                              placeholder="Enter count"
+                              onChange={(e) => {
+                                const newSubject = [...subject_faculty];
+                                newSubject[subindex].resource_required[index] =
+                                  {
+                                    resource_type: res,
+                                    resource_count: parseInt(e.target.value),
+                                  };
+                                setSubject_Faculty(newSubject);
+                              }}
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="flex justify-between m-5">
+              <button
+                className="bg-red-600 p-2 rounded-md"
+                onClick={() => setShowModal(false)}
+              >
+                Close
+              </button>
+              <button
+                className="bg-blue-600 p-2 rounded-md"
+                onClick={() => {
+                  setShowModal2(false);
+                  setShowModal(true);
+                }}
+              >
+                prev
+              </button>
+              <button
+                className="bg-green-600 p-2 rounded-md"
+                onClick={() => {
+                  setShowModal(false);
+                  setData({
+                    ...data,
+                    subject: subject_faculty,
+                  });
+                  console.log(subject_faculty);
+                  sendData();
+                }}
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
-export default page;
+export default Page;
