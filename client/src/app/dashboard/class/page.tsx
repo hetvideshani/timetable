@@ -381,7 +381,6 @@ const page = () => {
         <div className="grid grid-cols-3 w-full gap-5">
           {all_classes[0].id > 0 && all_classes !== null ? get_class_data : null}
         </div>
-
       </div>
     </>
   )

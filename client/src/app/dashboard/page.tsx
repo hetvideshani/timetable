@@ -2,6 +2,10 @@
 "use client";
 import { useEffect, useState } from "react";
 import CustomDropdown from "./dropdown";
+import {
+  Modal,
+  ModalTrigger,
+} from "../components/ui/animated-modal";
 
 const page = () => {
   const [data, setData] = useState({
@@ -23,7 +27,7 @@ const page = () => {
     },
     semester: "",
   });
-  const [showModal, setShowModal] = useState(true);
+  const [showModal, setShowModal] = useState(false);
   const [department, setDepartment] = useState([
     {
       id: 0,
@@ -122,7 +126,7 @@ const page = () => {
   };
 
   // Fetch all departments
-  const getAllDepartments = async (id:any) => {
+  const getAllDepartments = async (id: any) => {
     const response = await fetch(
       `http://localhost:3000/api/university/${id}/department`
     );
@@ -168,12 +172,18 @@ const page = () => {
   };
   return (
     <div className="text-black flex justify-center">
-      <button
-        className="m-5 bg-blue-600 p-5 rounded-md"
-        onClick={() => setShowModal(true)}
-      >
-        Create TimeTable
-      </button>
+      <div className="pt-10 flex " onClick={() => setShowModal(true)}>
+        <Modal>
+          <ModalTrigger className="bg-black dark:bg-white dark:text-black text-white flex justify-center group/modal-btn">
+            <span className="group-hover/modal-btn:translate-x-40 text-center transition duration-500">
+              Create Time Table
+            </span>
+            <div className="-translate-x-40 group-hover/modal-btn:translate-x-0 flex items-center justify-center absolute inset-0 transition duration-500 text-white z-20">
+              📅
+            </div>
+          </ModalTrigger>
+        </Modal>
+      </div>
 
       {showModal && (
         <div className="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-center">
@@ -192,7 +202,7 @@ const page = () => {
                     label="Department"
                     options={departmentOptions}
                     value={data.department.department_name}
-                    onChange={(value) =>
+                    onChange={(value: any) =>
                       setData({
                         ...data,
                         department: {
@@ -200,8 +210,8 @@ const page = () => {
                             value === ""
                               ? 0
                               : department.filter(
-                                  (dept) => dept.department_name === value
-                                )[0].id,
+                                (dept) => dept.department_name === value
+                              )[0].id,
                           department_name: value,
                         },
                       })
@@ -213,7 +223,7 @@ const page = () => {
                     label="Branch"
                     options={branchOptions}
                     value={data.branch.branch_name}
-                    onChange={(value:any) =>
+                    onChange={(value: any) =>
                       setData({
                         ...data,
                         branch: {
@@ -221,15 +231,15 @@ const page = () => {
                             value === ""
                               ? 0
                               : branch.filter(
-                                  (bran) => bran.branch_name === value
-                                )[0].id,
+                                (bran) => bran.branch_name === value
+                              )[0].id,
                           branch_name: value,
                           dept_id:
                             value === ""
                               ? 0
                               : branch.filter(
-                                  (bran) => bran.branch_name === value
-                                )[0].dept_id,
+                                (bran) => bran.branch_name === value
+                              )[0].dept_id,
                         },
                       })
                     }
@@ -243,7 +253,7 @@ const page = () => {
                     label="Class"
                     options={classOptions}
                     value={data.classes.class_no}
-                    onChange={(value) =>
+                    onChange={(value: any) =>
                       setData({
                         ...data,
                         classes: {
@@ -251,23 +261,23 @@ const page = () => {
                             value === ""
                               ? 0
                               : classs.filter((cl) => cl.class_no == value)[0]
-                                  .id,
+                                .id,
                           class_no: value,
                           branch_id:
                             value === ""
                               ? 0
                               : classs.filter((cl) => cl.class_no === value)[0]
-                                  .branch_id,
+                                .branch_id,
                           branch_name:
                             value === ""
                               ? ""
                               : classs.filter((cl) => cl.class_no === value)[0]
-                                  .branch_name,
+                                .branch_name,
                           dept_name:
                             value === ""
                               ? ""
                               : classs.filter((cl) => cl.class_no === value)[0]
-                                  .dept_name,
+                                .dept_name,
                         },
                       })
                     }
@@ -278,7 +288,7 @@ const page = () => {
                     label="Semester"
                     options={semesterOptions}
                     value={data.semester}
-                    onChange={(value) => setData({ ...data, semester: value })}
+                    onChange={(value: any) => setData({ ...data, semester: value })}
                   />
                 </div>
               </div>
