@@ -1,11 +1,11 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { IoClose } from "react-icons/io5";
-const CustomDropdown = ({ label, options, value, onChange }: any) => {
+const CustomDropdown = ({ label, options, disabled, value, onChange }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef(null);
 
-  const handleOptionClick = (option:any) => {
+  const handleOptionClick = (option) => {
     onChange(option);
     setIsOpen(false);
   };
@@ -17,7 +17,7 @@ const CustomDropdown = ({ label, options, value, onChange }: any) => {
 
   // Close the dropdown if a click is detected outside of it
   useEffect(() => {
-    const handleClickOutside = (event:any) => {
+    const handleClickOutside = (event: any) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false);
       }
@@ -37,7 +37,13 @@ const CustomDropdown = ({ label, options, value, onChange }: any) => {
       <div className="flex items-center w-full">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="w-full bg-white border border-gray-300 rounded-lg py-2 px-4 text-left focus:outline-none"
+          data-tooltip-target="tooltip-bottom"
+          data-tooltip-placement="bottom"
+          className={
+            `w-full bg-white border border-gray-300 rounded-lg py-2 px-4 text-left focus:outline-none` +
+            (disabled ? " cursor-not-allowed" : " cursor-pointer")
+          }
+          disabled={disabled}
         >
           <div className="flex justify-between">
             {value || `Select ${label.toLowerCase()}`}
@@ -54,15 +60,19 @@ const CustomDropdown = ({ label, options, value, onChange }: any) => {
       </div>
       {isOpen && (
         <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
-          {options.map((option:any) => (
-            <div
-              key={option}
-              onClick={() => handleOptionClick(option)}
-              className="px-4 py-2 cursor-pointer hover:bg-gray-100"
-            >
-              {option}
-            </div>
-          ))}
+          {options.length === 0 ? (
+            <div className="px-4 py-2 cursor-not-allowed">No options found</div>
+          ) : (
+            options.map((option) => (
+              <div
+                key={option}
+                onClick={() => handleOptionClick(option)}
+                className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+              >
+                {option}
+              </div>
+            ))
+          )}
         </div>
       )}
     </div>

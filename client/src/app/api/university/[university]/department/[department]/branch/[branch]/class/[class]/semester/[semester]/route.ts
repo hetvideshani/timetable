@@ -3,13 +3,13 @@ import { NextResponse } from 'next/server';
 
 export const PUT = async (req:any, res:any) => {
     const semester = await req.json()
-    const { sem_no, subject_id, faculty_id } = semester
+    const { sem_no,subject_faculty } = semester
     const id = req.url.split('semester/')[1]
 
     try {
         const { data, error } = await supabase
             .from('semester')
-            .update({ sem_no , subject_id, faculty_id })
+            .update({ sem_no ,subject_faculty })
             .eq('id' , id);
         if (error) {
             throw error;

@@ -1,25 +1,27 @@
+
 "use client";
 import React, { useEffect, useState } from "react";
 import { IoClose } from "react-icons/io5";
 import { LuPencil } from "react-icons/lu";
 import { FaPlus } from "react-icons/fa";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
+import '../../department.css';
 
-const page = () => {
+const Page = () => {
   const [uni_id, setUni_id] = useState("");
   const [department_id, setDepartment_id] = useState(0);
   const [department, setDepartment] = useState([
-    {
-      id: 0,
-      department_name: "",
-      uni_id: 0,
-    },
-  ]);
-
+        {
+          id: 0,
+          department_name: "",
+          uni_id: 0,
+        },
+      ]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [inputData, setInputData] = useState("");
+  const [activeCard, setActiveCard] = useState<number | null>(null); // Tracks the active card
   const router = useRouter();
+
   useEffect(() => {
     get_uni_id();
   }, []);
@@ -101,7 +103,6 @@ const page = () => {
       console.log("Data successfully posted:", result);
 
       if (result.function_name === "update_department") {
-        // Update the department in place by mapping and replacing the edited item
         setDepartment((prevDepartments) =>
           prevDepartments.map((dept) =>
             dept.id === department_id
@@ -112,7 +113,6 @@ const page = () => {
       }
 
       if (result.function_name === "create_department") {
-        // Add the new department to the list
         setDepartment((prevDepartments) => [
           ...prevDepartments,
           result.data[0],
@@ -121,42 +121,67 @@ const page = () => {
 
       setIsModalOpen(false);
       setInputData("");
-      setDepartment_id(0); // Reset department_id for next insert
+      setDepartment_id(0);
       router.refresh();
     } catch (error) {
       console.error("Error posting data:", error);
     }
   };
 
-  const get_dept_data = department.map((data, index) => {
+  const get_dept_data = department.map((data: any, index: number) => {
+    const isActive = activeCard === index;
+
     return (
       <div
         className="shadow-md hover:bg-slate-100 flex flex-col justify-center items-center w-full p-5 gap-0 font-bold rounded-sm"
         key={index}
-        onClick={() => router.push(`/dashboard/department/${data.id}`)}
       >
-        <p className=" text-lg text-slate-900">{data.id}</p>
-        <p className=" text-2xl text-slate-950">{data.department_name}</p>
-        <div className="flex gap-1 mt-5">
-          <button
-            onClick={(e) => {
-              handle_edit(data.department_name);
-              setDepartment_id(data.id);
-            }}
-            className="bg-green-600 px-3 py-1 rounded-md"
-          >
-            <LuPencil size={20} className=" text-white "></LuPencil>
+        <div
+          className={`main_content w-full flex justify-center items-center flex-col ${
+            isActive ? "hidden" : ""
+          }`}
+          onClick={() => setActiveCard(index)}
+        >
+          <p className="text-lg text-slate-900">{data.id}</p>
+          <p className="text-2xl text-slate-950">{data.department_name}</p>
+          <div className="flex gap-1 mt-5">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handle_edit(data.department_name);
+                setDepartment_id(data.id);
+              }}
+              className="bg-green-600 px-3 py-1 rounded-md"
+            >
+              <LuPencil size={20} className="text-white" />
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handle_delete(data.id);
+              }}
+              className="bg-red-600 px-3 py-1 rounded-md"
+            >
+              <IoClose size={20} className="text-white" />
+            </button>
+          </div>
+        </div>
+        <div
+          className={`button_slide w-full h-28 flex gap-2 justify-center items-center ${
+            isActive ? "active" : ""
+          }`}
+          onClick={() => setActiveCard(null)}
+        >
+          <button className="bg-slate-900 text-white font-bold py-2 px-4 rounded-lg"
+          onClick={() => router.push(`/dashboard/department/${data.id}/branch`)}>
+            Branch
           </button>
-          <button
-            onClick={() => {
-              handle_delete(data.id);
-            }}
-            className="bg-red-600 px-3 py-1 rounded-md"
-          >
-            <IoClose size={20} className=" text-white"></IoClose>
+          <button className="bg-slate-900 text-white font-bold py-2 px-4 rounded-lg"
+          onClick={() => router.push(`/dashboard/department/${data.id}/session`)}>
+            Session
           </button>
         </div>
-        </div>
+      </div>
     );
   });
 
@@ -214,4 +239,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

@@ -144,7 +144,7 @@ const page = () => {
         {isModalOpen && (
           <div className="fixed top-0 left-0 right-0 bottom-0 bg-gray-900 bg-opacity-50 flex justify-center items-center">
             <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
-              <h2 className="text-lg font-bold mb-4">Add New Subject</h2>
+              <h2 className="text-lg font-bold mb-4 text-gray-950">Add New Subject</h2>
 
               <form onSubmit={handleSubmit}>
                 <input

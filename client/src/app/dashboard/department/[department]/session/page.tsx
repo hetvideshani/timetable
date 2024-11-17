@@ -9,15 +9,21 @@ import { useRouter } from "next/navigation";
 const page = () => {
     const [uni_id, setUni_id] = useState('');
     const params = useParams();
-    const [branches, setBranches] = useState([{
-        id:0,
-        branch_name: "",
+    const [sessions, setSessions] = useState([{
+        id: 0,
+        session_sequence:0,
+        do_nothing:false,
+        duration:0,
         dept_id:0,
-    }]);
+      }]);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [inputData, setInputData] = useState("");
-    const [branch_id, setBranch_id] = useState(0);
+    const [inputData, setInputData] = useState({
+        session_sequence:0,
+        do_nothing:false,
+        duration:0
+    });
+    const [session_id, setSession_Id] = useState(0);
     const router = useRouter();
     const department_id = params.department;
 
@@ -36,12 +42,12 @@ const page = () => {
           })
           .catch((error) => console.error("Error fetching data:", error));
 
-          await get_branches(customData);
+          await get_sessions(customData);
       };
 
-      const handle_delete = async (branch_id: any) => {
+      const handle_delete = async (session_id: any) => {
         const response = await fetch(
-          `http://localhost:3000/api/university/${uni_id}/department/${department_id}/branch/${branch_id}`,
+          `http://localhost:3000/api/university/${uni_id}/department/${department_id}/session/${session_id}`,
           {
             method: "DELETE",
             headers: {
@@ -52,7 +58,7 @@ const page = () => {
         const data = await response.json();
         if (data.status === 201) {
           console.log("Data successfully deleted:", data);
-          setBranches(branches.filter((data) => data.id !== branch_id));
+          setSessions(sessions.filter((data) => data.id !== session_id));
           router.refresh();
         } else {
           console.error("Error deleting data:", data);
@@ -63,79 +69,84 @@ const page = () => {
         setIsModalOpen(true);
       };
     
-      const handle_edit = (branch_name: any) => {
+      const handle_edit = (session_sequence:any, duration:any, do_nothing:any) => {
         setIsModalOpen(true);
-        setInputData(branch_name);
+        setInputData({session_sequence: session_sequence, duration: duration, do_nothing: do_nothing});
       };
 
       const handleSubmit = async (e:any) => {
         e.preventDefault();
         try {
           const url =
-            branch_id === 0
-              ? `http://localhost:3000/api/university/${uni_id}/department/${department_id}/branch`
-              : `http://localhost:3000/api/university/${uni_id}/department/${department_id}/branch/${branch_id}`;
+            session_id === 0
+              ? `http://localhost:3000/api/university/${uni_id}/department/${department_id}/session`
+              : `http://localhost:3000/api/university/${uni_id}/department/${department_id}/session/${session_id}`;
     
-          const method = branch_id === 0 ? "POST" : "PUT";
+          const method = session_id === 0 ? "POST" : "PUT";
     
           const response = await fetch(url, {
             method: method,
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ branch_name: inputData }),
+            body: JSON.stringify({ session_sequence: inputData.session_sequence, do_nothing: inputData.do_nothing, duration: inputData.duration}),
           });
           const result = await response.json();
           console.log("Data successfully posted:", result);
     
-          if (result.function_name === "update_branch") {
-            setBranches((prevBranch) =>
-              prevBranch.map((bran) =>
-                bran.id === branch_id
-                  ? { ...bran, branch_name: inputData }
-                  : bran
+          if (result.function_name === "update_session") {
+            setSessions((preSes) =>
+              preSes.map((ses) =>
+                ses.id === session_id
+                  ? { ...ses, session_sequence: inputData.session_sequence, do_nothing : inputData.do_nothing, duration: inputData.duration }
+                  : ses
               )
             );
           }
     
-          if (result.function_name === "create_branch") {
-            setBranches((prevBranch) => [
-              ...prevBranch,
+          if (result.function_name === "create_session") {
+            setSessions((preSes) => [
+              ...preSes,
               result.data[0],
             ]);
           }
     
           setIsModalOpen(false);
-          setInputData("");
-          setBranch_id(0); 
+          setInputData({
+            session_sequence:0,
+            do_nothing:false,
+            duration:0
+          });
+          setSession_Id(0); 
           router.refresh();
         } catch (error) {
           console.error("Error posting data:", error);
         }
       };
 
-    const get_branches = async (id:any) => {
-        const response = await fetch(`http://localhost:3000/api/university/${id}/department/${department_id}/branch`);
+    const get_sessions = async (id:any) => {
+        const response = await fetch(`http://localhost:3000/api/university/${id}/department/${department_id}/session`);
         const data = await response.json();
         if (Array.isArray(data.data)) {
-          setBranches(data.data);
+          setSessions(data.data);
         } else {
-          setBranches([]);
+          setSessions([]);
         }
     }
 
-    const get_branch_data = branches.map((data,index) => {
+    const get_session_data = sessions.map((data,index) => {
         return (
         <div
         className="shadow-md hover:bg-slate-100 flex flex-col justify-center items-center w-full p-5 gap-0 font-bold rounded-sm"
-        key={index} onClick={() => {router.push(`/dashboard/department/${department_id}/${data.id}`)}}>
-        <p className=" text-lg text-slate-900">{data.id}</p>
-        <p className=" text-2xl text-slate-950">{data.branch_name}</p>
+        key={index}>
+        <p className=" text-2xl text-slate-950">{data.session_sequence}</p>
+        <p className=" text-2xl text-slate-950">{data.do_nothing? "Break" : "Allocated"}</p>
+        <p className=" text-2xl text-slate-950">Duration : {data.duration}</p>
         <div className="flex gap-1 mt-5">
           <button
           onClick={(e) => {
-            handle_edit(data.branch_name);
-            setBranch_id(data.id);
+            handle_edit(data.session_sequence, data.duration ,data.do_nothing);
+            setSession_Id(data.id);
           }}
             className="bg-green-600 px-3 py-1 rounded-md"
           >
@@ -156,7 +167,7 @@ const page = () => {
     return (
       <div className="flex flex-col gap-6 justify-center items-center p-5 w-full">
       <div className="flex justify-between w-full">
-        <div className="text-3xl font-bold text-slate-950">Branch</div>
+        <div className="text-3xl font-bold text-slate-950">Session</div>
         <button
           onClick={handle_insert}
           className="flex gap-1 justify-center items-center text-xl bg-blue-600 py-1 px-3 text-white rounded-md"
@@ -165,19 +176,36 @@ const page = () => {
         </button>
 
         {isModalOpen && (
-          <div className="fixed top-0 left-0 right-0 bottom-0 bg-gray-900 bg-opacity-50 flex justify-center items-center">
+          <div className="fixed top-0 left-0 right-0 bottom-0 text-slate-950 bg-gray-900 bg-opacity-50 flex justify-center items-center">
             <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
-              <h2 className="text-lg font-bold mb-4">Add New Branch</h2>
+              <h2 className="text-lg font-bold mb-4">Add New Session</h2>
 
               <form onSubmit={handleSubmit}>
-                <input
+              <input
                   id="data"
-                  type="text"
-                  value={inputData}
-                  placeholder="Enter Branch Name"
-                  onChange={(e) => setInputData(e.target.value)}
+                  type="number"
+                  value={inputData.session_sequence ? (inputData.session_sequence) : ""}
+                  placeholder='Enter Session Sequence'
+                  onChange={(e) => setInputData({ ...inputData, session_sequence: Number(e.target.value) })}
                   className="mt-1 p-2 border border-gray-300 rounded-md w-full"
                 />
+                <input
+                  id="data"
+                  type="number"
+                  value={inputData.duration ? (inputData.duration) : ""}
+                  placeholder='Enter Session Duration'
+                  onChange={(e) => setInputData({ ...inputData, duration: Number(e.target.value) })}
+                  className="mt-1 p-2 border border-gray-300 rounded-md w-full"
+                />
+                <div className='mt-1 p-2 flex gap-3 text-gray-500 items-center w-full'>
+                <label>Is Break Session ?</label>
+                  <input
+                    id="data"
+                    type="checkbox"
+                    checked={inputData.do_nothing ? inputData.do_nothing : false}
+                    onChange={(e) => setInputData({ ...inputData, do_nothing: e.target.checked })}
+                  />
+                </div>
 
                 <div className="mt-4">
                   <button
@@ -201,7 +229,7 @@ const page = () => {
         )}
       </div>
       <div className="grid grid-cols-3 w-full gap-5">
-        {branches.length > 1 ? get_branch_data : null}
+        {sessions[0].id > 0 ? get_session_data : null}
       </div>
     </div>
     );
