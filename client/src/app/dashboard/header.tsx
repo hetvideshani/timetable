@@ -4,7 +4,7 @@ import React from "react";
 
 const Header = () => {
   return (
-    <div className="flex justify-between items-center m-3 ">
+    <div className="flex justify-between items-center m-5 ">
       <div className="text-3xl font-bold">EduScheduler</div>
 
       <div className="flex gap-10 text-xl mx-2">

@@ -12,6 +12,7 @@ import {
   IconTerminal2,
 } from "@tabler/icons-react";
 import Image from "next/image";
+import { SidebarDemo } from "../components/ui/sidebar";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 
@@ -75,8 +76,8 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   ];
 
   return (
-    <div className="main_body w-full h-[100vh] flex flex-col bg-[#1B262C] text-[#BBE1FA]">
-      <div className=" ">
+    <div className="main_body w-full h-[100vh] flex flex-col bg-white text-[#BBE1FA]">
+      <div className=" bg-[#1B262C] ">
         <Header />
       </div>
       <div className="flex h-[100vh]">
@@ -132,11 +133,12 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
         </div> */}
 
 
-        <div className="flex flex-col items-center justify-center h-fit w-[8vw] ">
-          <FloatingDock
+        <div className="flex flex-col items-center justify-center h-screen w-[15vw] ">
+          {/* <FloatingDock
             desktopClassName="translate-x-0" // only for demo, remove for production
             items={links}
-          />
+          /> */}
+          <SidebarDemo />
         </div>
         <div className="flex-1 bg-white overflow-y-auto">{children}</div>
       </div>
