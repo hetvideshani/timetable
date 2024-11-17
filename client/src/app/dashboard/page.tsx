@@ -2,10 +2,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import CustomDropdown from "./dropdown";
-import {
-  Modal,
-  ModalTrigger,
-} from "../components/ui/animated-modal";
+import { Modal, ModalTrigger } from "../components/ui/animated-modal";
 
 const page = () => {
   const [data, setData] = useState({
@@ -220,7 +217,10 @@ const page = () => {
   return (
     <div className="text-black flex justify-center">
       <div className="pt-10 flex " onClick={() => setShowModal(true)}>
-        <Modal>
+        <button className="relative flex h-[50px] w-40 items-center justify-center overflow-hidden bg-[#BBE1FA] font-medium text-[#1B262C] shadow-2xl transition-all duration-300 before:absolute before:inset-0 before:border-0 before:border-[#0F4C75] before:duration-100 before:ease-linear hover:bg-[#1B262C] hover:text-[#BBE1FA] rounded-lg">
+          <span className="relative z-10">Create Time Table</span>
+        </button>
+        {/* <Modal>
           <ModalTrigger className="bg-black dark:bg-white dark:text-black text-white flex justify-center group/modal-btn">
             <span className="group-hover/modal-btn:translate-x-40 text-center transition duration-500">
               Create Time Table
@@ -229,7 +229,7 @@ const page = () => {
               📅
             </div>
           </ModalTrigger>
-        </Modal>
+        </Modal> */}
       </div>
 
       {showModal && (
@@ -258,8 +258,8 @@ const page = () => {
                             value === ""
                               ? 0
                               : department.filter(
-                                (dept) => dept.department_name === value
-                              )[0].id,
+                                  (dept) => dept.department_name === value
+                                )[0].id,
                           department_name: value,
                         },
                       })
@@ -283,18 +283,18 @@ const page = () => {
                             value === ""
                               ? 0
                               : branch.filter(
-                                (bran) =>
-                                  bran.branch_name === value &&
-                                  bran.dept_name ===
-                                  data.department.department_name
-                              )[0].id,
+                                  (bran) =>
+                                    bran.branch_name === value &&
+                                    bran.dept_name ===
+                                      data.department.department_name
+                                )[0].id,
                           branch_name: value,
                           dept_id:
                             value === ""
                               ? 0
                               : branch.filter(
-                                (bran) => bran.branch_name === value
-                              )[0].dept_id,
+                                  (bran) => bran.branch_name === value
+                                )[0].dept_id,
                         },
                       })
                     }
@@ -320,23 +320,23 @@ const page = () => {
                             value === ""
                               ? 0
                               : classs.filter((cl) => cl.class_no == value)[0]
-                                .id,
+                                  .id,
                           class_no: value,
                           branch_id:
                             value === ""
                               ? 0
                               : classs.filter((cl) => cl.class_no === value)[0]
-                                .branch_id,
+                                  .branch_id,
                           branch_name:
                             value === ""
                               ? ""
                               : classs.filter((cl) => cl.class_no === value)[0]
-                                .branch_name,
+                                  .branch_name,
                           dept_name:
                             value === ""
                               ? ""
                               : classs.filter((cl) => cl.class_no === value)[0]
-                                .dept_name,
+                                  .dept_name,
                         },
                       })
                     }
@@ -356,15 +356,15 @@ const page = () => {
                             value === ""
                               ? 0
                               : semester.filter(
-                                (sem) => sem.sem_no === value
-                              )[0].id,
+                                  (sem) => sem.sem_no === value
+                                )[0].id,
                           sem_no: value,
                           class_id:
                             value === ""
                               ? 0
                               : semester.filter(
-                                (sem) => sem.sem_no === value
-                              )[0].class_id,
+                                  (sem) => sem.sem_no === value
+                                )[0].class_id,
                         },
                       })
                     }

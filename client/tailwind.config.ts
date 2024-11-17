@@ -28,7 +28,11 @@ module.exports = {
   darkMode: "class",
   theme: {
     extend: {
-      // your config here
+      colors: {
+        skyBlue: '#BBE1FA',
+        softBlue: '#EAF6FF',
+        midTone: '#D2EBF7', // Optional middle tone
+      },
     },
   },
   plugins: [

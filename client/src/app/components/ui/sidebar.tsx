@@ -89,11 +89,11 @@ export const DesktopSidebar = ({
     <>
       <motion.div
         className={cn(
-          "h-full px-6 py-5 hidden  md:flex md:flex-col bg-[#1b262c] dark:bg-neutral-800 w-[300px] flex-shrink-0",
+          "h-full px-6 py-5 hidden  md:flex md:flex-col bg-[#1b262c] dark:bg-neutral-800 w-[250px] flex-shrink-0",
           className
         )}
         animate={{
-          width: animate ? (open ? "300px" : "80px") : "300px",
+          width: animate ? (open ? "250px" : "80px") : "250px",
           transition: { duration: 0.5, ease: "easeInOut" }, //aya chnage karjo speed mate sidebar
         }}
         onMouseEnter={() => setOpen(true)}
@@ -206,7 +206,7 @@ export function SidebarDemo() {
   const links = [
     {
       label: "Department",
-      href: "#",
+      href: "/dashboard/department",
       icon: (
         <IconBuildingSkyscraper className="h-7 w-7 flex-shrink-0" />
       ),
@@ -265,7 +265,7 @@ export function SidebarDemo() {
   return (
     <div
       className={cn(
-        "text-[#bbe1fa] flex flex-col md:flex-row dark:bg-neutral-800 w-full flex-1 max-w-7xl mx-auto overflow-hidden h-screen", // for your use case, use `h-screen` instead of `h-[60vh]`
+        "text-[#bbe1fa] text-lg flex flex-col md:flex-row dark:bg-neutral-800 w-full flex-1 max-w-7xl mx-auto overflow-hidden h-screen", // for your use case, use `h-screen` instead of `h-[60vh]`
       )}
     >
       <Sidebar open={open} setOpen={setOpen}>
