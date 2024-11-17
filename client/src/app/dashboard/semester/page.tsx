@@ -1,91 +1,264 @@
-'use client'
-import React, { useEffect, useState, useRef } from 'react'
+"use client";
+import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { IoClose } from "react-icons/io5";
 import { LuPencil } from "react-icons/lu";
-import { FaPlus } from 'react-icons/fa';
+import { FaPlus } from "react-icons/fa";
 
 const SemesterPage = () => {
-  const [uni_id, setUni_id] = useState('');
+  const [uni_id, setUni_id] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [allSemesters, setAllSemesters] = useState([{
-    id: 0,
-    semester_name: "",
-    branch_id: 0,
-    branch_name: ""
-  }]);
+  const [allSemesters, setAllSemesters] = useState([
+    {
+      id: 0,
+      sem_no: "",
+      branch_id: 0,
+      branch_name: "",
+      class_no: 0,
+      class_id: 0,
+      subject_faculty: [] as {
+        subject_id: number;
+        subject_name: string;
+        faculty_id: number;
+        faculty_name: string;
+      }[],
+    },
+  ]);
 
   const [semester, setSemester] = useState<{
     id: number | null;
-    semester_name: string;
-    branch_id: number | null;
+    sem_no: string;
+    class_id: number | null;
+    subject_faculty: {
+      subject_id: number;
+      subject_name: string;
+      faculty_id: number;
+      faculty_name: string;
+    }[];
   }>({
     id: null,
-    semester_name: "",
-    branch_id: null,
+    sem_no: "",
+    class_id: null,
+    subject_faculty: [],
   });
 
-  const [branch_name, setBranch_name] = useState('');
-  const [branches, setBranches] = useState([{ id: 0, branch_name: "", uni_id: 0 }]);
-  const [showDropdown, setShowDropdown] = useState(false);
-  const router = useRouter();
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [selectedBranch, setSelectedBranch] = useState({
+    id: 0,
+    branch_name: "",
+    dept_id: 0,
+    dept_name: "",
+  });
+  const [branches, setBranches] = useState([
+    {
+      id: 0,
+      branch_name: "",
+      dept_id: 0,
+      dept_name: "",
+    },
+  ]);
 
+  const [selectedClass, setSelectedClass] = useState({
+    id: 0,
+    class_no: "",
+    branch_id: 0,
+    branch_name: "",
+    dept_id: 0,
+    dept_name: "",
+  });
+  const [classes, setClasses] = useState([
+    {
+      id: 0,
+      class_no: "",
+      branch_id: 0,
+      branch_name: "",
+      dept_id: 0,
+      dept_name: "",
+    },
+  ]);
+  const [selectedDepartment, setSelectedDepartment] = useState({
+    id: 0,
+    department_name: "",
+    uni_id: 0,
+  });
+  const [departments, setDepartments] = useState([
+    {
+      id: 0,
+      department_name: "",
+      uni_id: 0,
+    },
+  ]);
+
+  const [subjects, setSubjects] = useState([
+    {
+      id: 0,
+      subject_name: "",
+      uni_id: 0,
+    },
+  ]);
+
+  const [faculties, setFaculties] = useState([
+    {
+      id: 0,
+      faculty_name: "",
+      uni_id: 0,
+    },
+  ]);
+  const [selectedSuject_Faculty, setSelectedSubject_Faculty] = useState({
+    subject_id: 0,
+    subject_name: "",
+    faculty_id: 0,
+    faculty_name: "",
+  });
+  const [showSubjectDropdown, setShowSubjectDropdown] = useState(false);
+  const [showFacultyDropdown, setShowFacultyDropdown] = useState(false);
+  const [showDepartmentDropdown, setShowDepartmentDropdown] = useState(false);
+  const [showBranchDropdown, setShowBranchDropdown] = useState(false);
+  const [showClassDropdown, setShowClassDropdown] = useState(false);
+  const router = useRouter();
+  const departmentdropdownRef = useRef<HTMLDivElement>(null);
+  const branchdropdownRef = useRef<HTMLDivElement>(null);
+  const classdropdownRef = useRef<HTMLDivElement>(null);
+  const subjectdropdownRef = useRef<HTMLDivElement>(null);
+  const facultydropdownRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     get_uni_id();
-  }, [])
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
+        departmentdropdownRef.current &&
+        !departmentdropdownRef.current.contains(event.target as Node)
       ) {
-        setShowDropdown(false);
+        setShowDepartmentDropdown(false);
+      }
+      if (
+        branchdropdownRef.current &&
+        !branchdropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowBranchDropdown(false);
+      }
+      if (
+        classdropdownRef.current &&
+        !classdropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowClassDropdown(false);
+      }
+      if (
+        subjectdropdownRef.current &&
+        !subjectdropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowSubjectDropdown(false);
+      }
+      if (
+        facultydropdownRef.current &&
+        !facultydropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowFacultyDropdown(false);
       }
     }
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [dropdownRef]);
+  }, [departmentdropdownRef, branchdropdownRef, classdropdownRef]);
 
   const get_uni_id = async () => {
     let customData;
     await fetch(window.location.href)
       .then((res) => {
-        customData = res.headers.get('uni_id');
+        customData = res.headers.get("uni_id");
         if (customData) {
           setUni_id(customData);
         }
       })
-      .catch((error) => console.error('Error fetching data:', error));
+      .catch((error) => console.error("Error fetching data:", error));
 
     await getBranches(customData);
+    await getClasses(customData);
+    await getDepartments(customData);
     await fetchSemesters(customData);
-  }
+    await fetchSubjects(customData);
+    await fetchFaculties(customData);
+  };
 
   const getBranches = async (id: any) => {
-    const response = await fetch(`http://localhost:3000/api/university/${id}/branch`);
+    const response = await fetch(
+      `http://localhost:3000/api/university/${id}/branch`
+    );
     const data = await response.json();
     if (Array.isArray(data.data)) {
       console.log(data.data);
       setBranches(data.data);
     } else {
-      console.log('No branches found');
+      console.log("No branches found");
     }
-  }
+  };
 
+  const getClasses = async (id: any) => {
+    const response = await fetch(
+      `http://localhost:3000/api/university/${id}/class`
+    );
+    const data = await response.json();
+    if (Array.isArray(data.data)) {
+      console.log(data.data);
+      setClasses(data.data);
+    } else {
+      console.log("No classes found");
+    }
+  };
+
+  const getDepartments = async (id: any) => {
+    const response = await fetch(
+      `http://localhost:3000/api/university/${id}/department`
+    );
+    const data = await response.json();
+    if (Array.isArray(data.data)) {
+      console.log(data.data);
+      setDepartments(data.data);
+    } else {
+      console.log("No departments found");
+    }
+  };
   const fetchSemesters = async (id: any) => {
-    const response = await fetch(`http://localhost:3000/api/university/${id}/semester`);
+    const response = await fetch(
+      `http://localhost:3000/api/university/${id}/semester`
+    );
     const data = await response.json();
     if (Array.isArray(data.data)) {
       console.log(data.data);
       setAllSemesters(data.data);
     } else {
-      console.log('No semesters found');
+      console.log("No semesters found");
     }
-  }
+  };
+
+  const fetchSubjects = async (id: any) => {
+    const response = await fetch(
+      `http://localhost:3000/api/university/${id}/subject`
+    );
+    const data = await response.json();
+    if (Array.isArray(data.data)) {
+      console.log(data.data);
+      setSubjects(data.data);
+    } else {
+      console.log("No subjects found");
+    }
+  };
+
+  const fetchFaculties = async (id: any) => {
+    const response = await fetch(
+      `http://localhost:3000/api/university/${id}/faculty`
+    );
+    const data = await response.json();
+    if (Array.isArray(data.data)) {
+      console.log(data.data);
+      setFaculties(data.data);
+    } else {
+      console.log("No faculties found");
+    }
+  };
 
   const handle_insert = () => {
     setIsModalOpen(true);
@@ -93,121 +266,232 @@ const SemesterPage = () => {
 
   const handle_edit = (sem: any) => {
     setIsModalOpen(true);
-    setSemester({ ...semester, semester_name: sem.semester_name, id: sem.id, branch_id: sem.branch_id });
-  }
+    setSemester({
+      ...semester,
+      sem_no: sem.sem_no,
+      id: sem.id,
+      class_id: sem.class_id,
+      subject_faculty: sem.subject_faculty,
+    });
+  };
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
+
     try {
       console.log(semester);
 
-      const url = semester.id === null ? `http://localhost:3000/api/university/${uni_id}/branch/${semester.branch_id}/semester` :
-        `http://localhost:3000/api/university/${uni_id}/branch/${semester.branch_id}/semester/${semester.id}`;
+      const url =
+        semester.id === null || semester.id === 0
+          ? `http://localhost:3000/api/university/${uni_id}/department/${selectedDepartment.id}/branch/${selectedBranch.id}/class/${selectedClass.id}/semester`
+          : `http://localhost:3000/api/university/${uni_id}/department/${selectedDepartment.id}/branch/${selectedBranch.id}/class/${selectedClass.id}/semester/${semester.id}`;
 
-      const method = semester.id === null ? 'POST' : 'PUT';
+      const method = semester.id === null || semester.id === 0 ? "POST" : "PUT";
 
       const response = await fetch(url, {
         method: method,
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(semester),
       });
       const result = await response.json();
-      console.log('Data successfully posted:', result);
+      console.log("Data successfully posted:", result);
 
-      if (result.function_name === 'update_semester') {
-        setAllSemesters((prev) => prev.map((sem) => sem.id === semester.id ? { ...sem, semester_name: semester.semester_name } : sem));
+      if (result.function_name === "update_semester") {
+        setAllSemesters((prev) =>
+          prev.map((sem) =>
+            sem.id === semester.id
+              ? {
+                  ...sem,
+                  sem_no: semester.sem_no,
+                  class_id: selectedClass.id,
+                  branch_id: selectedBranch.id,
+                  subject_faculty: semester.subject_faculty,
+                }
+              : sem
+          )
+        );
       }
 
-      if (result.function_name === 'create_semester') {
-        setAllSemesters((prev) => [...prev, result.data[0]]);
+      if (result.function_name === "create_semester") {
+        setAllSemesters((prev) => [
+          ...prev,
+          {
+            id: result.data[0].id,
+            sem_no: result.data[0].sem_no,
+            branch_id: selectedBranch.id,
+            branch_name: selectedBranch.branch_name,
+            class_no: selectedClass.id,
+            class_id: selectedClass.id,
+            subject_faculty: semester.subject_faculty,
+          },
+        ]);
       }
 
       setIsModalOpen(false);
-      setSemester({ id: null, semester_name: "", branch_id: null });
+      setSemester({
+        id: null,
+        sem_no: "",
+        class_id: null,
+        subject_faculty: [],
+      });
       router.refresh();
     } catch (error) {
-      console.error('Error posting data:', error);
+      console.error("Error posting data:", error);
     }
-  }
+  };
 
   const handle_delete = async (sem: any) => {
     const response = await fetch(
-      `http://localhost:3000/api/university/${uni_id}/branch/${sem.branch_id}/semester/${sem.id}`,
+      `http://localhost:3000/api/university/${uni_id}/department/${selectedDepartment.id}/branch/${selectedBranch.id}/class/${selectedClass.id}/semester/${sem.id}`,
       {
-        method: 'DELETE',
+        method: "DELETE",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       }
     );
 
     const data = await response.json();
     if (data.status === 201) {
-      console.log('Data successfully deleted:', data);
+      console.log("Data successfully deleted:", data);
       setAllSemesters(allSemesters.filter((data) => data.id !== sem.id));
-      setSemester({ id: null, semester_name: "", branch_id: null });
+      setSemester({
+        id: null,
+        sem_no: "",
+        class_id: null,
+        subject_faculty: [],
+      });
       router.refresh();
     } else {
-      console.error('Error deleting data:', data);
+      console.error("Error deleting data:", data);
     }
-  }
+  };
 
   const renderSemesters = allSemesters.map((data, index) => (
-    <div key={index} className='shadow-md hover:bg-slate-100 flex flex-col justify-center items-center w-full p-5 gap-0 font-bold rounded-sm'>
-      <p className=' text-lg text-slate-900'>{data.id}</p>
-      <p className=' text-2xl text-slate-950'>{data.semester_name}</p>
-      <p className=' text-xl text-slate-950'>Branch - {data.branch_name}</p>
-      <div className='flex gap-1 mt-5'>
-        <button onClick={() => handle_edit(data)} className='bg-green-600 px-3 py-1 rounded-md'><LuPencil size={20} className=' text-white '></LuPencil></button>
-        <button onClick={() => handle_delete(data)} className='bg-red-600 px-3 py-1 rounded-md'><IoClose size={20} className=' text-white'></IoClose></button>
+    <div
+      key={index}
+      className="shadow-md hover:bg-slate-100 flex flex-col justify-center items-center w-full p-5 gap-0 font-bold rounded-sm"
+    >
+      <p className=" text-lg text-slate-900">{data.id}</p>
+      <p className=" text-2xl text-slate-950">{data.sem_no}</p>
+      <p className=" text-xl text-slate-950">Branch - {data.branch_name}</p>
+      <div className="flex gap-1 mt-5">
+        <button
+          onClick={() => handle_edit(data)}
+          className="bg-green-600 px-3 py-1 rounded-md"
+        >
+          <LuPencil size={20} className=" text-white "></LuPencil>
+        </button>
+        <button
+          onClick={() => handle_delete(data)}
+          className="bg-red-600 px-3 py-1 rounded-md"
+        >
+          <IoClose size={20} className=" text-white"></IoClose>
+        </button>
       </div>
     </div>
-  ))
+  ));
 
   return (
     <>
-      <div className='flex flex-col gap-6 justify-center items-center p-5 w-full'>
-        <div className='flex justify-between w-full'>
-          <div className='text-3xl font-bold text-slate-950'>
-            Semester
-          </div>
-          <button onClick={handle_insert} className='flex gap-1 justify-center items-center text-xl bg-blue-600 py-1 px-3 text-white rounded-md'>
+      <div className="flex flex-col gap-6 justify-center items-center p-5 w-full">
+        <div className="flex justify-between w-full">
+          <div className="text-3xl font-bold text-slate-950">Semester</div>
+          <button
+            onClick={handle_insert}
+            className="flex gap-1 justify-center items-center text-xl bg-blue-600 py-1 px-3 text-white rounded-md"
+          >
             <FaPlus /> <div>New</div>
           </button>
         </div>
         {isModalOpen && (
           <div className="fixed top-0 left-0 right-0 bottom-0 bg-gray-900 bg-opacity-50 flex justify-center items-center">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-1/3 text-black">
               <h2 className="text-lg font-bold mb-4">Add New Semester</h2>
               <form onSubmit={handleSubmit}>
                 <input
                   type="text"
-                  value={semester.semester_name}
-                  placeholder='Enter Semester Name'
-                  onChange={(e) => setSemester({ ...semester, semester_name: e.target.value })}
+                  value={semester.sem_no}
+                  placeholder="Enter Semester Name"
+                  onChange={(e) =>
+                    setSemester({ ...semester, sem_no: e.target.value })
+                  }
                   className="mt-1 p-2 border border-gray-300 rounded-md w-full"
                 />
-                <div ref={dropdownRef} className='relative'>
+                <div ref={departmentdropdownRef} className="relative">
                   <input
-                    type='text'
-                    value={branch_name}
-                    onChange={(e) => setBranch_name(e.target.value)}
-                    placeholder='Branch'
-                    onFocus={() => setShowDropdown(true)}
+                    type="text"
+                    value={selectedDepartment.department_name}
+                    onChange={(e) =>
+                      setSelectedDepartment({
+                        ...selectedDepartment,
+                        department_name: e.target.value,
+                      })
+                    }
+                    placeholder="Department"
+                    onFocus={() => setShowDepartmentDropdown(true)}
                     className="mt-1 p-2 border border-gray-300 rounded-md w-full"
                   />
-                  {showDropdown && (
+                  {showDepartmentDropdown && (
+                    <div className="relative top-full left-0 bg-white border-gray-300 rounded-md shadow-md mt-1 w-full">
+                      {departments.map((dep, index) => (
+                        <div
+                          key={index}
+                          className="p-2 hover:bg-gray-100 cursor-pointer text-gray-500"
+                          onClick={() => {
+                            setSelectedDepartment({
+                              ...selectedDepartment,
+                              id: dep.id,
+                              department_name: dep.department_name,
+                              uni_id: dep.uni_id,
+                            });
+                            setShowDepartmentDropdown(false);
+                            setBranches((prev) =>
+                              prev.filter((branch) => branch.dept_id === dep.id)
+                            );
+                          }}
+                        >
+                          {dep.department_name}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div ref={branchdropdownRef} className="relative">
+                  <input
+                    type="text"
+                    value={selectedBranch.branch_name}
+                    onChange={(e) =>
+                      setSelectedBranch({
+                        ...selectedBranch,
+                        branch_name: e.target.value,
+                      })
+                    }
+                    placeholder="Branch"
+                    // disabled={selectedDepartment.id === 0}
+                    onFocus={() => setShowBranchDropdown(true)}
+                    className="mt-1 p-2 border border-gray-300 rounded-md w-full"
+                  />
+                  {showBranchDropdown && (
                     <div className="relative top-full left-0 bg-white border-gray-300 rounded-md shadow-md mt-1 w-full">
                       {branches.map((branch, index) => (
                         <div
                           key={index}
                           className="p-2 hover:bg-gray-100 cursor-pointer text-gray-500"
                           onClick={() => {
-                            setSemester({ ...semester, branch_id: branch.id });
-                            setBranch_name(branch.branch_name);
-                            setShowDropdown(false);
+                            setSelectedBranch({
+                              ...selectedBranch,
+                              id: branch.id,
+                              branch_name: branch.branch_name,
+                              dept_id: branch.dept_id,
+                              dept_name: branch.dept_name,
+                            });
+                            setShowBranchDropdown(false);
+                            setClasses((prev) =>
+                              prev.filter((cl) => cl.branch_id === branch.id)
+                            );
                           }}
                         >
                           {branch.branch_name}
@@ -216,8 +500,176 @@ const SemesterPage = () => {
                     </div>
                   )}
                 </div>
+                <div ref={classdropdownRef} className="relative">
+                  <input
+                    type="text"
+                    value={selectedClass.class_no}
+                    onChange={(e) =>
+                      setSelectedClass({
+                        ...selectedClass,
+                        class_no: e.target.value,
+                      })
+                    }
+                    // disabled={selectedBranch.id === 0}
+                    placeholder="Branch"
+                    onFocus={() => setShowClassDropdown(true)}
+                    className="mt-1 p-2 border border-gray-300 rounded-md w-full"
+                  />
+                  {showClassDropdown && (
+                    <div className="relative top-full left-0 bg-white border-gray-300 rounded-md shadow-md mt-1 w-full">
+                      {classes.map((cl, index) => (
+                        <div
+                          key={index}
+                          className="p-2 hover:bg-gray-100 cursor-pointer text-gray-500"
+                          onClick={() => {
+                            setSelectedClass({
+                              ...selectedClass,
+                              id: cl.id,
+                              class_no: cl.class_no,
+                              branch_id: cl.branch_id,
+                              branch_name: cl.branch_name,
+                              dept_id: cl.dept_id,
+                              dept_name: cl.dept_name,
+                            });
+                            setShowClassDropdown(false);
+                          }}
+                        >
+                          {cl.class_no}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                {semester.subject_faculty.map((sub_fac, index) => (
+                  <div key={index} className="flex gap-4">
+                    <div className="mt-1 p-2 border border-gray-300 rounded-md w-full">
+                      {sub_fac.subject_name}
+                    </div>
+                    <div className="mt-1 p-2 border border-gray-300 rounded-md w-full">
+                      {sub_fac.faculty_name}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setSemester({
+                          ...semester,
+                          subject_faculty: semester.subject_faculty.filter(
+                            (sub) => sub !== sub_fac
+                          ),
+                        })
+                      }
+                      className="text-black border border-red-600 px-4 py-2 m-1 rounded-md"
+                    >
+                      <IoClose />
+                    </button>
+                  </div>
+                ))}
+                <div className="flex gap-4">
+                  <div ref={subjectdropdownRef} className="">
+                    <input
+                      type="text"
+                      value={selectedSuject_Faculty.subject_name}
+                      onChange={(e) =>
+                        setSelectedSubject_Faculty({
+                          ...selectedSuject_Faculty,
+                          subject_name: e.target.value,
+                        })
+                      }
+                      placeholder="Subject"
+                      onFocus={() => setShowSubjectDropdown(true)}
+                      className="mt-1 p-2 border border-gray-300 rounded-md w-full"
+                    />
+                    {showSubjectDropdown && (
+                      <div className=" top-full left-0 bg-white border-gray-300 rounded-md shadow-md mt-1 w-full">
+                        {subjects.map((sub, index) => (
+                          <div
+                            key={index}
+                            className="p-2 hover:bg-gray-100 cursor-pointer text-gray-500"
+                            onClick={() => {
+                              setSelectedSubject_Faculty({
+                                ...selectedSuject_Faculty,
+                                subject_id: sub.id,
+                                subject_name: sub.subject_name,
+                              });
+
+                              setShowSubjectDropdown(false);
+                            }}
+                          >
+                            {sub.subject_name}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div ref={facultydropdownRef} className="relative">
+                    <input
+                      type="text"
+                      value={selectedSuject_Faculty.faculty_name}
+                      onChange={(e) =>
+                        setSelectedSubject_Faculty({
+                          ...selectedSuject_Faculty,
+                          faculty_name: e.target.value,
+                        })
+                      }
+                      placeholder="Faculty"
+                      onFocus={() => setShowFacultyDropdown(true)}
+                      className="mt-1 p-2 border border-gray-300 rounded-md w-full"
+                    />
+                    {showFacultyDropdown && (
+                      <div className=" top-full left-0 bg-white border-gray-300 rounded-md shadow-md mt-1 w-full">
+                        {faculties.map((fac, index) => (
+                          <div
+                            key={index}
+                            className="p-2 hover:bg-gray-100 cursor-pointer text-gray-500"
+                            onClick={() => {
+                              setSelectedSubject_Faculty({
+                                ...selectedSuject_Faculty,
+                                faculty_id: fac.id,
+                                faculty_name: fac.faculty_name,
+                              });
+
+                              setShowFacultyDropdown(false);
+                            }}
+                          >
+                            {fac.faculty_name}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
                 <div className="mt-4">
-                  <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-md">Submit</button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSemester({
+                        ...semester,
+                        subject_faculty: [
+                          ...semester.subject_faculty,
+                          selectedSuject_Faculty,
+                        ],
+                      });
+
+                      setSelectedSubject_Faculty({
+                        subject_id: 0,
+                        subject_name: "",
+                        faculty_id: 0,
+                        faculty_name: "",
+                      });
+                    }}
+                    className="text-black w-full border-dashed border border-black px-4 py-2 rounded-md"
+                  >
+                    Add Subject
+                  </button>
+                </div>
+                <div className="mt-4">
+                  <button
+                    type="submit"
+                    className="bg-blue-600 text-white px-4 py-2 rounded-md"
+                  >
+                    Submit
+                  </button>
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(false)}
@@ -230,12 +682,10 @@ const SemesterPage = () => {
             </div>
           </div>
         )}
-        <div className='grid grid-cols-3 gap-3 w-full'>
-          {renderSemesters}
-        </div>
+        <div className="grid grid-cols-3 gap-3 w-full">{renderSemesters}</div>
       </div>
     </>
-  )
-}
+  );
+};
 
 export default SemesterPage;

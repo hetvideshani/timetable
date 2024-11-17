@@ -21,7 +21,26 @@ const page = () => {
       branch_name: "",
       dept_name: "",
     },
-    semester: "",
+    semester: {
+      id: 0,
+      sem_no: "",
+      class_id: 0,
+    },
+    subject: [
+      {
+        id: 0,
+        subject_name: "",
+        faculty_id: 0,
+        faculty_name: "",
+        resource_required: [
+          {
+            resource_type: "",
+            resource_count: 0,
+          },
+        ],
+        uni_id: 0,
+      },
+    ],
   });
   const [showModal, setShowModal] = useState(true);
   const [department, setDepartment] = useState([
@@ -48,35 +67,27 @@ const page = () => {
       dept_name: "",
     },
   ]);
-  const [semester, setSemester] = useState("");
+  const [semester, setSemester] = useState([
+    {
+      id: 0,
+      sem_no: "",
+      class_id: 0,
+    },
+  ]);
+
+  const [subject, setSubject] = useState([
+    {
+      id: 0,
+      subject_name: "",
+      uni_id: 0,
+    },
+  ]);
   const [uni_id, setUni_id] = useState("");
-  const departmentOptions = [
-    ...new Set(
-      department
-        .filter((dept) => {
-          if (
-            data.branch.branch_name === "" ||
-            data.branch.branch_name === "Select branch"
-          ) {
-            return true;
-          }
-          return data.branch.dept_id === dept.id;
-        })
-        .map((dept) => dept.department_name)
-    ),
-  ];
+  const departmentOptions = department.map((dept) => dept.department_name);
   const branchOptions = [
     ...new Set(
       branch
         .filter((bran) => {
-          // Show all branches if no department is selected
-          if (
-            data.department.department_name === "" ||
-            data.department.department_name === "Select department"
-          ) {
-            return true;
-          }
-          // Otherwise, filter branches by selected department
           return bran.dept_name === data.department.department_name;
         })
         .map((bran) => bran.branch_name) // Extract branch names
@@ -86,18 +97,22 @@ const page = () => {
     ...new Set(
       classs
         .filter((cl) => {
-          if (
-            data.branch.branch_name === "" ||
-            data.branch.branch_name === "Select branch"
-          ) {
-            return true;
-          }
-          return cl.branch_id === data.branch.id;
+          console.log(cl.branch_id, data.branch.id);
+
+          return cl.branch_id == data.branch.id;
         })
         .map((cl) => cl.class_no)
     ),
   ];
-  const semesterOptions = ["Item 1", "Item 2", "Item 3"];
+  const semesterOptions = [
+    ...new Set(
+      semester
+        .filter((sem) => {
+          return sem.class_id === data.classes.id;
+        })
+        .map((sem) => sem.sem_no)
+    ),
+  ];
 
   // Fetch university ID on load
   useEffect(() => {
@@ -119,6 +134,8 @@ const page = () => {
     await getAllDepartments(customData);
     await getAllBranch(customData);
     await getAllClasses(customData);
+    await getAllSemester(customData);
+    await getAllSubjects(customData);
   };
 
   // Fetch all departments
@@ -166,6 +183,36 @@ const page = () => {
       setClass([]);
     }
   };
+
+  const getAllSemester = async (id: any) => {
+    const response = await fetch(
+      `http://localhost:3000/api/university/${id}/semester`
+    );
+
+    const data = await response.json();
+    if (Array.isArray(data.data)) {
+      console.log(data.data);
+      setSemester(data.data);
+    } else {
+      console.log("No data");
+      setSemester([]);
+    }
+  };
+
+  const getAllSubjects = async (id: any) => {
+    const response = await fetch(
+      `http://localhost:3000/api/university/${id}/subject`
+    );
+
+    const data = await response.json();
+    if (Array.isArray(data.data)) {
+      console.log(data.data);
+      setSubject(data.data);
+    } else {
+      console.log("No data");
+      setSubject([]);
+    }
+  };
   return (
     <div className="text-black flex justify-center">
       <button
@@ -192,6 +239,7 @@ const page = () => {
                     label="Department"
                     options={departmentOptions}
                     value={data.department.department_name}
+                    disabled={false}
                     onChange={(value) =>
                       setData({
                         ...data,
@@ -212,6 +260,10 @@ const page = () => {
                   <CustomDropdown
                     label="Branch"
                     options={branchOptions}
+                    disabled={
+                      data.department.department_name === "" ||
+                      data.department.department_name === "Select department"
+                    }
                     value={data.branch.branch_name}
                     onChange={(value:any) =>
                       setData({
@@ -221,7 +273,10 @@ const page = () => {
                             value === ""
                               ? 0
                               : branch.filter(
-                                  (bran) => bran.branch_name === value
+                                  (bran) =>
+                                    bran.branch_name === value &&
+                                    bran.dept_name ===
+                                      data.department.department_name
                                 )[0].id,
                           branch_name: value,
                           dept_id:
@@ -243,6 +298,10 @@ const page = () => {
                     label="Class"
                     options={classOptions}
                     value={data.classes.class_no}
+                    disabled={
+                      data.branch.branch_name === "" ||
+                      data.branch.branch_name === "Select branch"
+                    }
                     onChange={(value) =>
                       setData({
                         ...data,
@@ -277,8 +336,28 @@ const page = () => {
                   <CustomDropdown
                     label="Semester"
                     options={semesterOptions}
-                    value={data.semester}
-                    onChange={(value) => setData({ ...data, semester: value })}
+                    disabled={data.classes.class_no === 0}
+                    value={data.semester.sem_no}
+                    onChange={(value) =>
+                      setData({
+                        ...data,
+                        semester: {
+                          id:
+                            value === ""
+                              ? 0
+                              : semester.filter(
+                                  (sem) => sem.sem_no === value
+                                )[0].id,
+                          sem_no: value,
+                          class_id:
+                            value === ""
+                              ? 0
+                              : semester.filter(
+                                  (sem) => sem.sem_no === value
+                                )[0].class_id,
+                        },
+                      })
+                    }
                   />
                 </div>
               </div>
