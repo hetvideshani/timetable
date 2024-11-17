@@ -89,7 +89,7 @@ export const DesktopSidebar = ({
     <>
       <motion.div
         className={cn(
-          "h-full px-6 py-5 hidden  md:flex md:flex-col bg-[#1b262c] dark:bg-neutral-800 w-[250px] flex-shrink-0",
+          "h-full px-6 py-5 hidden  md:flex md:flex-col bg-[#1b262c] w-[250px] flex-shrink-0",
           className
         )}
         animate={{
@@ -192,6 +192,7 @@ export const SidebarLink = ({
 
 
 import {
+  IconDashboard,
   IconBuildingSkyscraper,
   IconLayout,
   IconSchool,
@@ -205,6 +206,13 @@ import {
 export function SidebarDemo() {
   const links = [
     {
+      label: "Dashboard",
+      href: "/dashboard",
+      icon: (
+        <IconDashboard className="h-7 w-7 flex-shrink-0" />
+      ),
+    },
+    {
       label: "Department",
       href: "/dashboard/department",
       icon: (
@@ -213,49 +221,49 @@ export function SidebarDemo() {
     },
     {
       label: "Branch",
-      href: "#",
+      href: "/dashboard/branch",
       icon: (
         <IconLayout className=" h-7 w-7 flex-shrink-0" />
       ),
     },
     {
       label: "Class",
-      href: "#",
+      href: "/dashboard/class",
       icon: (
         <IconSchool className=" h-7 w-7 flex-shrink-0" />
       ),
     },
     {
         label: "Session",
-        href: "#",
+        href: "/dashboard/session",
         icon: (
           <IconCalendarClock className=" h-7 w-7 flex-shrink-0" />
         ),
       },
     {
       label: "Semester",
-      href: "#",
+      href: "/dashboard/semester",
       icon: (
         <IconCertificate className=" h-7 w-7 flex-shrink-0" />
       ),
     },
       {
         label: "Resource",
-        href: "#",
+        href: "/dashboard/resource",
         icon: (
           <IconChalkboard className=" h-7 w-7 flex-shrink-0" />
         ),
       },
       {
         label: "Subject",
-        href: "#",
+        href: "/dashboard/subject",
         icon: (
           <IconBooks className=" h-7 w-7 flex-shrink-0" />
         ),
       },
       {
         label: "Faculty",
-        href: "#",
+        href: "/dashboard/faculty",
         icon: (
           <IconUsers className=" h-7 w-7 flex-shrink-0" />
         ),
