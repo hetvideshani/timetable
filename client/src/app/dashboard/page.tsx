@@ -123,8 +123,6 @@ const Page = () => {
     ...new Set(
       classs
         .filter((cl) => {
-          console.log(cl.branch_id, data.branch.id);
-
           return cl.branch_id == data.branch.id;
         })
         .map((cl) => cl.class_no)
@@ -186,7 +184,6 @@ const Page = () => {
 
     const data = await response.json();
     if (Array.isArray(data.data)) {
-      console.log(data.data);
       setBranch(data.data);
     } else {
       console.log("No data");
@@ -202,7 +199,6 @@ const Page = () => {
 
     const data = await response.json();
     if (Array.isArray(data.data)) {
-      console.log(data.data);
       setClass(data.data);
     } else {
       console.log("No data");
@@ -217,7 +213,6 @@ const Page = () => {
 
     const data = await response.json();
     if (Array.isArray(data.data)) {
-      console.log(data.data);
       setSemester(data.data);
     } else {
       console.log("No data");
@@ -232,11 +227,9 @@ const Page = () => {
 
     const data = await response.json();
     if (Array.isArray(data.data)) {
-      console.log(data.data);
       setAllResource(data.data);
     } else {
-      console.log("No data");
-      setResource([]);
+      setAllResource([]);
     }
   };
 
@@ -250,7 +243,6 @@ const Page = () => {
     });
 
     const res = await response.json();
-    console.log(res);
   };
   return (
     <div className="text-black flex justify-center">
@@ -409,36 +401,6 @@ const Page = () => {
                   />
                 </div>
               </div>
-
-              {/* <div className="flex bg-red-500 w-full">
-                {subject_facultyOptions.map((sub_fac, subindex) => {
-                  return (
-                    <div key={subindex}>
-                      <div className="flex tex-xl gap-4 font-bold">
-                        <div className="  ">{sub_fac.subject_name}</div>
-                        <div className="  ">{sub_fac.faculty_name}</div>
-                      </div>
-                      <div className="flex gap-2 justify-between ">
-                        {resourceOptions.map((res, index) => {
-                          return (
-                            <div className=" w-[30%]" key={index}>
-                              <label htmlFor="">{res}</label>
-                              <input
-                                type="text"
-                                className="border-2 border-gray-300 p-2 rounded-md"
-                                placeholder="Enter count"
-                                onChange={(e) => {
-                                  // setSubject_Faculty(newSubject);
-                                }}
-                              />
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div> */}
             </div>
 
             <div className="flex justify-between m-5">
@@ -460,8 +422,6 @@ const Page = () => {
                     })[0]
                     .subject_faculty.map((sub_fac, index) => {
                       if (index == 0) {
-                        console.log(sub_fac);
-
                         setSubject_Faculty((prev) => [
                           {
                             id: sub_fac.subject_id,
@@ -478,8 +438,6 @@ const Page = () => {
                           },
                         ]);
                       } else {
-                        console.log("heloooooooooooooooooooooooooo");
-
                         setSubject_Faculty((prev) => [
                           ...prev,
                           {
@@ -583,7 +541,6 @@ const Page = () => {
                     ...data,
                     subject: subject_faculty,
                   });
-                  console.log(subject_faculty);
                   sendData();
                 }}
               >

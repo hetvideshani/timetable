@@ -33,6 +33,11 @@ module.exports = {
         softBlue: '#EAF6FF',
         midTone: '#D2EBF7', // Optional middle tone
       },
+      animation: {
+        "bounce-slow": "bounce 1s .2s linear infinite",
+        "bounce-medium": "bounce 1s .4s linear infinite",
+        "bounce-fast": "bounce 1s .6s linear infinite",
+      },
     },
   },
   plugins: [

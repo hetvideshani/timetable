@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useRouter } from "next/navigation"; // Updated import
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -10,18 +10,49 @@ export default function Page() {
     email: "",
     password: "",
   });
+
+  const [errors, setErrors] = useState({
+    email: "",
+    password: "",
+  });
+
   const router = useRouter();
+
+  const validateForm = () => {
+    let isValid = true;
+    const newErrors = { email: "", password: "" };
+
+    // Email Validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!user.email.trim()) {
+      newErrors.email = "Email is required";
+      isValid = false;
+    } else if (!emailRegex.test(user.email)) {
+      newErrors.email = "Invalid email format";
+      isValid = false;
+    }
+
+    // Password Validation
+    if (!user.password.trim()) {
+      newErrors.password = "Password is required";
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setUser((prev) => ({ ...prev, [name]: value }));
+
+    // Reset errors for the field on change
+    setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const signIn = async (e: React.MouseEvent) => {
     e.preventDefault();
-    if (user.email && user.password) {
-      console.log(user);
-
+    if (validateForm()) {
       await fetch("http://localhost:3000/api/admin/login", {
         method: "POST",
         body: JSON.stringify(user),
@@ -42,13 +73,13 @@ export default function Page() {
           toast.error("An error occurred. Please try again.");
         });
     } else {
-      toast.warn("Please fill in all fields");
+      toast.warn("Please correct the highlighted fields");
     }
   };
 
   return (
     <div className="bg-gray-900 h-screen flex justify-center items-center">
-      <ToastContainer position="top-right" autoClose={5000} />
+      <ToastContainer position="top-center" autoClose={5000} />
       <div className="flex w-[90vw] max-w-4xl bg-white shadow-lg justify-around items-center rounded-2xl p-10 space-x-6">
         <div className="flex-[0.4] flex justify-center flex-col items-center">
           <div className="mb-4 text-center">
@@ -71,18 +102,28 @@ export default function Page() {
         <div className="flex-[0.6] flex justify-center flex-col items-center">
           <input
             type="email"
-            className="border border-gray-300 p-3 text-lg my-3 w-[80%] rounded-md focus:outline-none focus:border-blue-500 text-black"
+            className={`border border-gray-300 p-3 text-lg my-3 w-[80%] rounded-md focus:outline-none ${
+              errors.email && "border-red-500"
+            }`}
             placeholder="Email"
             name="email"
             onChange={handleInputChange}
           />
+          {errors.email && (
+            <p className="text-red-500 text-sm w-[80%]">{errors.email}</p>
+          )}
           <input
             type="password"
-            className="border border-gray-300 p-3 text-lg my-3 w-[80%] rounded-md focus:outline-none focus:border-blue-500 text-black"
+            className={`border border-gray-300 p-3 text-lg my-3 w-[80%] rounded-md focus:outline-none ${
+              errors.password && "border-red-500"
+            }`}
             placeholder="Password"
             name="password"
             onChange={handleInputChange}
           />
+          {errors.password && (
+            <p className="text-red-500 text-sm w-[80%]">{errors.password}</p>
+          )}
           <p className="text-blue-500 text-sm cursor-pointer hover:underline mt-2">
             Forgot password?
           </p>
