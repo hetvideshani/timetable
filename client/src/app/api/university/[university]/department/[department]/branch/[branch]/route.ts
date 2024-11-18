@@ -5,12 +5,12 @@ import { DELETE as del } from './class/[class]/route';
 export const PUT = async(req:any, res:any) => {
     const branch = await req.json()
     const  id  = req.url.split('branch/')[1]
-    const { branch_name } = branch
+    const { branch_name,dept_id } = branch
 
     try {
         const { data, error } = await supabase
             .from('branch')
-            .update({ branch_name })
+            .update({ branch_name,dept_id })
             .eq('id', id)
             .select()
             
