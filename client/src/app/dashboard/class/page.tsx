@@ -22,15 +22,15 @@ const page = () => {
   ]);
   const [one_class, setOneClass] = useState<{
     id: number | null;
-    class_no: number;
-    total_batches: number;
-    students_per_batch: number;
+    class_no: number | null;
+    total_batches: number | null;
+    students_per_batch: number | null;
     branch_id: number | null;
   }>({
     id: null,
-    class_no: 0,
-    total_batches: 0,
-    students_per_batch: 0,
+    class_no: null,
+    total_batches: null,
+    students_per_batch: null,
     branch_id: null,
   });
 
@@ -159,6 +159,24 @@ const page = () => {
   };
 
   const handle_insert = () => {
+    setSelectedDepartment({
+      id: 0,
+      department_name: "",
+      uni_id: 0,
+    });
+    setSelectedBranch({
+      id: 0,
+      branch_name: "",
+      dept_id: 0,
+      dept_name: "",
+    });
+    setOneClass({
+      id: 0,
+      class_no: null,
+      total_batches: null,
+      students_per_batch: null,
+      branch_id: 0,
+    });
     setIsModalOpen(true);
   };
 
@@ -192,10 +210,10 @@ const page = () => {
       setAllClasses(all_classes.filter((data) => data.id !== br.id));
       setOneClass({
         id: 0,
-        class_no: 0,
-        total_batches: 0,
-        students_per_batch: 0,
-        branch_id: 0,
+      class_no: null,
+      total_batches: null,
+      students_per_batch: null,
+      branch_id: 0,
       });
       router.refresh();
     }
@@ -239,15 +257,15 @@ const page = () => {
             prev.map((cl: any) =>
               cl.id === one_class.id
                 ? {
-                  ...cl,
-                  class_no: one_class.class_no,
-                  total_batches: one_class.total_batches,
-                  students_per_batch: one_class.students_per_batch,
-                  branch_id: one_class.branch_id,
-                  branch_name: selected_branch.branch_name,
-                  dept_id: selected_department.id,
-                  dept_name: selected_department.department_name,
-                }
+                    ...cl,
+                    class_no: one_class.class_no,
+                    total_batches: one_class.total_batches,
+                    students_per_batch: one_class.students_per_batch,
+                    branch_id: one_class.branch_id,
+                    branch_name: selected_branch.branch_name,
+                    dept_id: selected_department.id,
+                    dept_name: selected_department.department_name,
+                  }
                 : cl
             )
           );
@@ -275,9 +293,9 @@ const page = () => {
       setIsModalOpen(false);
       setOneClass({
         id: 0,
-        class_no: 0,
-        total_batches: 0,
-        students_per_batch: 0,
+        class_no: null,
+        total_batches: null,
+        students_per_batch: null,
         branch_id: 0,
       });
       router.refresh();
@@ -375,9 +393,10 @@ const page = () => {
 
               <form onSubmit={handleSubmit}>
                 <input
+                  required
                   id="data"
                   type="text"
-                  value={one_class.class_no}
+                  value={one_class.class_no || ""}
                   placeholder="Enter class no"
                   onChange={(e) =>
                     setOneClass({
@@ -388,16 +407,22 @@ const page = () => {
                   className="mt-1 p-2 border border-gray-300 rounded-md w-full"
                 />
 
-                <div ref={dropdownRef1} className="relative">
+                {/* <div ref={dropdownRef1} className="relative">
                   <input
                     type="text"
                     value={selected_department.department_name}
-                    onChange={(e) =>
+                    onChange={(e) => {
                       setSelectedDepartment({
                         ...selected_department,
                         department_name: e.target.value,
-                      })
-                    }
+                      });
+                      setSelectedBranch({
+                        id: 0,
+                        branch_name: "",
+                        dept_id: 0,
+                        dept_name: "",
+                      });
+                    }}
                     placeholder="Department"
                     onFocus={() => setShowDropdown1(true)}
                   />
@@ -463,12 +488,89 @@ const page = () => {
                       ))}
                     </div>
                   )}
+                </div> */}
+                <div className="relative">
+                  <select
+                    required
+                    value={selected_department.id || ""} // Controlled: use 'value'
+                    onChange={(e) => {
+                      const selectedDept = all_department.find(
+                        (dept) => dept.id === parseInt(e.target.value)
+                      );
+                      setSelectedDepartment(
+                        selectedDept || {
+                          id: 0,
+                          department_name: "",
+                          uni_id: 0,
+                        }
+                      );
+                      setSelectedBranch({
+                        id: 0,
+                        branch_name: "",
+                        dept_id: 0,
+                        dept_name: "",
+                      });
+                      setBranches(
+                        selectedDept
+                          ? all_branches.filter(
+                              (branch) => branch.dept_id === selectedDept.id
+                            )
+                          : []
+                      );
+                    }}
+                    className="border rounded-md px-2 py-1 w-full"
+                  >
+                    <option value="" disabled>
+                      Select Department
+                    </option>
+                    {all_department.map((dept) => (
+                      <option key={dept.id} value={dept.id}>
+                        {dept.department_name}
+                      </option>
+                    ))}
+                  </select>
+
+                  <div className="relative mt-4">
+                    <select
+                      required
+                      value={selected_branch.id || ""} // Controlled: use 'value'
+                      onChange={(e) => {
+                        const selectedBranch = branches.find(
+                          (branch) => branch.id === parseInt(e.target.value)
+                        );
+                        setSelectedBranch(
+                          selectedBranch || {
+                            id: 0,
+                            branch_name: "",
+                            dept_id: 0,
+                            dept_name: "",
+                          }
+                        );
+                        setOneClass({
+                          ...one_class,
+                          branch_id: selectedBranch?.id || 0,
+                        });
+                      }}
+                      className="border rounded-md px-2 py-1 w-full"
+                      disabled={branches.length === 0}
+                    >
+                      <option value="" disabled>
+                        Select Branch
+                      </option>
+                      {branches.map((branch) => (
+                        <option key={branch.id} value={branch.id}>
+                          {branch.branch_name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
 
                 <input
+                  required
                   id="data"
                   type="text"
-                  value={one_class.total_batches}
+                  value={one_class.total_batches || ""}
                   placeholder="Enter Total Batches"
                   onChange={(e) =>
                     setOneClass({
@@ -480,9 +582,10 @@ const page = () => {
                 />
 
                 <input
+                  required
                   id="data"
                   type="text"
-                  value={one_class.students_per_batch}
+                  value={one_class.students_per_batch || ""}
                   placeholder="Enter Student per batch"
                   onChange={(e) =>
                     setOneClass({
@@ -524,4 +627,4 @@ const page = () => {
   );
 };
 
-export default page
+export default page;
