@@ -26,6 +26,7 @@ const page = () => {
   });
 
   const [selected_department, setSelectedDepartment] = useState({ id: 0, department_name: "", uni_id: 0 });
+  const [previous_department, setPreviousDepartment] = useState({ id: 0, department_name: "", uni_id: 0 });
   const [department, setDepartment] = useState([{ id: 0, department_name: "", uni_id: 0 }]);
   const [showDropdown, setShowDropdown] = useState(false);
   const router = useRouter();
@@ -105,13 +106,9 @@ const page = () => {
       console.log(branch);
 
       const url = branch.id === null ? `http://localhost:3000/api/university/${uni_id}/department/${branch.dept_id}/branch` :
-        `http://localhost:3000/api/university/${uni_id}/department/${branch.dept_id}/branch/${branch.id}`;
+        `http://localhost:3000/api/university/${uni_id}/department/${previous_department.id}/branch/${branch.id}`;
 
       const method = branch.id === null ? 'POST' : 'PUT';
-
-      if (method === 'PUT') {
-        setBranch({ ...branch, dept_id: selected_department.id });
-      }
 
       const response = await fetch(url, {
         method: method,
@@ -171,7 +168,10 @@ const page = () => {
         <p className=' text-2xl text-slate-950'>{data.branch_name}</p>
         <p className=' text-xl text-slate-950'>Department - {data.dept_name}</p>
         <div className='flex gap-1 mt-5'>
-          <button onClick={(e) => { handle_edit(data); }} className='bg-green-600 px-3 py-1 rounded-md'><LuPencil size={20} className=' text-white '></LuPencil></button>
+          <button onClick={(e) => {
+            handle_edit(data);
+            setPreviousDepartment({ id: data.dept_id, department_name: data.dept_name, uni_id: Number(uni_id) });
+          }} className='bg-green-600 px-3 py-1 rounded-md'><LuPencil size={20} className=' text-white '></LuPencil></button>
           <button onClick={(e) => { handle_delete(data) }} className='bg-red-600 px-3 py-1 rounded-md'><IoClose size={20} className=' text-white'></IoClose></button>
         </div>
       </div>
@@ -204,7 +204,8 @@ const page = () => {
                   value={branch.branch_name}
                   placeholder='Enter Subject Name'
                   onChange={(e) => setBranch({ ...branch, branch_name: e.target.value })}
-                  className="mt-1 p-2 border border-gray-300 rounded-md w-full"
+                  className="mt-1 p-2 border border-gray-300 rounded-md w-full invalid:border-red-500"
+                  required
                 />
 
                 <div ref={dropdownRef} className='relative' >
@@ -224,6 +225,7 @@ const page = () => {
                           className="p-2 hover:bg-gray-100 cursor-pointer text-gray-500"
                           onClick={() => {
                             setSelectedDepartment({ id: type.id, department_name: type.department_name, uni_id: type.uni_id });
+                            setBranch({ ...branch, dept_id: type.id });
                             setShowDropdown(false);
                           }}
                         >
