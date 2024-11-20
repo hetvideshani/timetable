@@ -5,134 +5,178 @@ import { supabase } from "@/lib/dbConnect";
 import { create } from "domain";
 
 export async function schedule(params: any) {
-    console.log(params);
+  //   console.log(params);
 
-    const subject_faculty = params.subject_faculty
-    const { data: resource, error: resource_error } = await supabase.from('resource').select().eq('uni_id', params.uni_id)
-    const { data: session, error: session_error } = await supabase.from('session').select().eq('dept_id', params.department.id)
+  const subject_faculty = params.subject_faculty;
+  const { data: resource, error: resource_error } = await supabase
+    .from("resource")
+    .select()
+    .eq("uni_id", params.uni_id);
+  const { data: session, error: session_error } = await supabase
+    .from("session")
+    .select()
+    .eq("dept_id", params.department.id);
 
-    if (resource_error || session_error) {
-        console.log(resource_error, session_error);
-        return
+  if (resource_error || session_error) {
+    console.log(resource_error, session_error);
+    return;
+  }
+
+  const number_of_session = session ? session.length : 0;
+
+  const faculty = subject_faculty.map((sub_fac: any) => sub_fac.faculty_name);
+  // console.log(faculty);
+
+  const faculty_allocator = genAllocator(faculty, 5, number_of_session);
+  //   console.log(faculty_allocator);
+
+  // console.log(resource);
+  const resource_type = resource
+    ? [...new Set(resource.map((res: any) => res.resource_type))]
+    : [];
+  // console.log(resource_type);
+
+  let res_all: any = [];
+
+  resource_type.forEach((res_type: any) => {
+    const resource_name = resource
+      ? resource.filter((res: any) => res.resource_type === res_type)
+      : [];
+    // console.log(resource_name);
+
+    const all_resource_name = resource_name.map(
+      (res: any) => res.resource_name
+    );
+    // console.log(all_resource_name);
+
+    const resource_allocator = genAllocator(
+      all_resource_name,
+      5,
+      number_of_session
+    );
+    // console.log(resource_allocator);
+    res_all.push({ resource_allocator, res_type });
+  });
+  //   console.log(res_all);
+
+  //   const timeTable = createTimetable(5, number_of_session, [2]);
+
+  // allocator
+  let day_index = 0;
+  let session_index = 0;
+  let faculty_allocator_index = 0;
+  let resource_type_index = 0;
+  let res_name = res_all[0].resource_allocator[0].name;
+  console.log(res_name);
+  let i = 0;
+
+  let faculty_index = 0;
+  let resource_index = 0;
+
+  // sachhuuuuuuuuuuuuuuuu
+  while (true) {
+    if (resource_count_check(subject_faculty)) {
+      break;
     }
 
-    const number_of_session = session ? session.length : 0;
+    // day repeat and session cycle
+    if (session_index == number_of_session) {
+      day_index++;
+      session_index = 0;
+    }
 
-    const faculty = subject_faculty.map((sub_fac: any) =>
-        sub_fac.faculty_name
-    )
-    // console.log(faculty);
+    const resource_count = resource_check(
+      res_all,
+      session_index,
+      day_index,
+      resource_type[resource_type_index],
+      res_name
+    );
+    
+    console.log("resource_count", resource_count);
+    break;
 
-    const faculty_allocator = genAllocator(faculty, 5, number_of_session)
-    console.log(faculty_allocator);
-
-    // console.log(resource);  
-    const resource_type = resource ? [...new Set(resource.map((res: any) => res.resource_type))] : []
-    // console.log(resource_type);
-
-    let res_all: any = []
-
-    resource_type.forEach((res_type: any) => {
-        const resource_name = resource ? resource.filter((res: any) => res.resource_type === res_type) : []
-        console.log(resource_name);
-
-        const all_resource_name = resource_name.map((res: any) => res.resource_name)
-        console.log(all_resource_name);
-
-        const resource_allocator = genAllocator(all_resource_name, 5, number_of_session)
-        // console.log(resource_allocator);
-        res_all.push({ resource_allocator, res_type });
-    })
-    console.log(res_all);
-
-    const timeTable = createTimetable(5, number_of_session, [2])
-
-    let day_index = 0
-    let session_index = 0
-    let faculty_index = 0
-    let resource_index = 0
-    let i = 0
-
-    // while (true) {
-    //     if (day_index === 6) {
-    //         break
-    //     }
-    //     if (session_index >= number_of_session) {
-    //         session_index = 0
-    //         day_index++
-    //     }
-    //     if (faculty_index >= faculty_allocator.length) {
-    //         faculty_index = 0
-    //     }
-    //     if (resource_index >= res_all.length) {
-    //         resource_index = 0
-    //         faculty_index++
-    //     }
-
-    //     const faculty_name = faculty_allocator[faculty_index].name
-    //     console.log(faculty_name);
-    //     const resource_name = res_all[resource_index].name
-    //     console.log(resource_name);
-    //     const resource_type = res_all[resource_index].res_type
-    //     console.log(resource_type);
-
-
-
-    //     session_index++;
-    //     console.log(i);
-    //     i++;
+    if (same_fac_check() && resource_count < 1){
+        // assign
+        // session update
+        // faculty update
+        // resource update
+    }
+    // else if (faculty_check() && resource_count < 1) {
+    //     // assign
+    //     // session update
+    //     // faculty update
+    //     // resource update
     // }
-
-    while() {
-        
-    }
-
-
-
-
-    console.log(timeTable);
-
-    // subject_faculty.forEach((sub_fac: any) => {
-    //     const faculty_name = sub_fac.faculty_name
-    //     const subject_name = sub_fac.subject_name
-    //     const batch_no = sub_fac.batch_no
-    //     const resource_name = sub_fac.resource_name
-    //     const resource_type = sub_fac.resource_type
-
-    //     faculty_allocator.forEach((fac_alloc: any) => {
-
-    //         if (fac_alloc.name === faculty_name) {
-    //             fac_alloc.sessions.forEach((session: any, fac_alloc_index : number) => {
-    //                 if (session[session_index] == 0) {
-    //                     fac_alloc[fac_alloc_index][session_index] = 1
-    //                     fillTimetable(timeTable, day_index, session_index, faculty_name, subject_name, batch_no, resource_name, resource_type)
-    //                 }
-    //             })
-    //         }
-    //     })
-    // })
-
-    return res_all
+    // else {
+    //     // fac vandho
+    //     if () {
+    //     // index_fac_plus
+    //     }
+    //     // res vandho
+    //     if () {
+    //     // check all types if no empty then check another resources ok
+    //     }
+    // }
+  }
 }
-
-
-
-
-
 // faculty check
 
-const faculty_check = (faculty:any,row:any,col:any) => {
-    
-}
+const faculty_check = (faculty: any, row: any, col: any) => {};
 
-
+const resource_count_check = (subject_faculty: any): boolean => {
+  console.log(subject_faculty);
+  for (let i = 0; i < subject_faculty.length; i++) {
+    let sub_fac = subject_faculty[i];
+    for (let j = 0; j < sub_fac.resource_required.length; j++) {
+      if (sub_fac.resource_required[j].resource_count > 0) {
+        return false;
+      }
+    }
+  }
+  return true;
+};
 
 // resource check
-// 
-// 
+function resource_check(
+  res_all: any,
+  session_index: number,
+  day_index: number,
+  res_type: string,
+  res_name: string
+): number {
+  console.log(res_type);
+  let result = 2;
 
+  let sameType = res_all.filter((res: any) => res.res_type == res_type);
+  sameType = sameType.map((res: any) => res.resource_allocator);
+  //   console.log(sameType);
 
+  for (let i = 0; i < sameType.length; i++) {
+    let res = sameType[i];
+    for (let j = 0; j < res.length; j++) {
+      if (res[j].name == res_name) {
+        result = res[j].sessions[day_index][session_index];
+        return result;
+      }
+    }
+  }
 
+  return result;
+}
+
+// same faculty check
+function same_fac_check(
+  facultyName: string,
+  acc_row: number,
+  acc_col: number,
+  timeTable: any,
+  res_name: string
+): boolean {
+  return true;
+}
+
+// assign
 
 // const [data, setData] = useState({
 //     department: {
@@ -172,8 +216,3 @@ const faculty_check = (faculty:any,row:any,col:any) => {
 //         },
 //     ],
 // });
-
-
-
-
-
