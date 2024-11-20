@@ -233,7 +233,7 @@ const Page = () => {
         )}
       </div>
       <div className="grid grid-cols-3 w-full gap-5">
-        {department.length > 1 ? get_dept_data : null}
+        {department[0].id > 0 ? get_dept_data : null}
       </div>
     </div>
   );

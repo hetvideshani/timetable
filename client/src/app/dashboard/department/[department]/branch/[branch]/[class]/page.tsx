@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import { IoClose } from "react-icons/io5";
 import { LuPencil } from "react-icons/lu";
@@ -13,17 +13,74 @@ const SemesterPage = () => {
         id: 0,
         sem_no: 0,
         class_id: 0,
-        subject_id: [],
-        faculty_id: []
+        subject_faculty: [{
+            subject_id: 0,
+            subject_name: "",
+            faculty_id: 0,
+            faculty_name: ""
+        }]
     }]);
+
+
+
+    const [semester, setSemester] = useState<{
+        id: number | null;
+        sem_no: string;
+        class_id: number | null;
+        subject_faculty: {
+            subject_id: number;
+            subject_name: string;
+            faculty_id: number;
+            faculty_name: string;
+        }[];
+    }>({
+        id: null,
+        sem_no: "",
+        class_id: null,
+        subject_faculty: [],
+    });
+
+    const [subjects, setSubjects] = useState([
+        {
+            id: 0,
+            subject_name: "",
+            uni_id: 0,
+        },
+    ]);
+
+    const [faculties, setFaculties] = useState([
+        {
+            id: 0,
+            faculty_name: "",
+            uni_id: 0,
+        },
+    ]);
+    const [selectedSuject_Faculty, setSelectedSubject_Faculty] = useState({
+        subject_id: 0,
+        subject_name: "",
+        faculty_id: 0,
+        faculty_name: "",
+    });
+    const [showSubjectDropdown, setShowSubjectDropdown] = useState(false);
+    const [showFacultyDropdown, setShowFacultyDropdown] = useState(false);
+    const subjectdropdownRef = useRef<HTMLDivElement>(null);
+    const facultydropdownRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
     const params = useParams();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [inputData, setInputData] = useState({
+    const [inputData, setInputData] = useState<{
+        sem_no: number;
+        class_id: number;
+        subject_faculty: {
+            subject_id: number;
+            subject_name: string;
+            faculty_id: number;
+            faculty_name: string;
+        }[];
+    }>({
         sem_no: 0,
         class_id: 0,
-        subject_id: [],
-        faculty_id: []
+        subject_faculty: [],
     });
 
     const dept_id = params.department;
@@ -34,47 +91,100 @@ const SemesterPage = () => {
         get_uni_id();
     }, []);
 
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+
+            if (
+                subjectdropdownRef.current &&
+                !subjectdropdownRef.current.contains(event.target as Node)
+            ) {
+                setShowSubjectDropdown(false);
+            }
+            if (
+                facultydropdownRef.current &&
+                !facultydropdownRef.current.contains(event.target as Node)
+            ) {
+                setShowFacultyDropdown(false);
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [subjectdropdownRef, facultydropdownRef]);
+
     const get_uni_id = async () => {
         let customData;
         await fetch(window.location.href)
-           .then((res) => {
+            .then((res) => {
                 customData = res.headers.get('uni_id');
                 if (customData) {
                     setUni_id(customData);
                 }
             })
             .catch((error) => console.log("Error fetching data", error)
-        );
+            );
 
         await getSemesterData(customData);
+        await fetchSubjects(customData);
+        await fetchFaculties(customData);
     };
-    
-    const getSemesterData = async (uni_id : any) => {
+
+    const getSemesterData = async (uni_id: any) => {
         const response = await fetch(`http://localhost:3000/api/university/${uni_id}/department/${dept_id}/branch/${branch_id}/class/${class_id}/semester`);
         const data = await response.json();
         // console.log(`http://localhost:3000/api/university/${uni_id}/department/${dept_id}/branch/${branch_id}/class/${class_id}/semester`)
         if (Array.isArray(data.data)) {
             setSemesterData(data.data);
-            console.log("sesm " , semesterData);
+            console.log("sesm ", semesterData);
         } else {
             setSemesterData([]);
         }
         await getSubjectName();
     };
 
+    const fetchSubjects = async (id: any) => {
+        const response = await fetch(
+            `http://localhost:3000/api/university/${id}/subject`
+        );
+        const data = await response.json();
+        if (Array.isArray(data.data)) {
+            console.log(data.data);
+            setSubjects(data.data);
+        } else {
+            console.log("No subjects found");
+        }
+    };
+
+    const fetchFaculties = async (id: any) => {
+        const response = await fetch(
+            `http://localhost:3000/api/university/${id}/faculty`
+        );
+        const data = await response.json();
+        if (Array.isArray(data.data)) {
+            console.log(data.data);
+            setFaculties(data.data);
+        } else {
+            console.log("No faculties found");
+        }
+    };
+
+
     const getSubjectName = async () => {
         return semesterData.map(async (data) => {
-            console.log("dataaa:",data);
-            return data.subject_id.map(async (subject_id) => {
+            console.log("dataaa:", data);
+            return data.subject_faculty.map(async (subject: any) => {
+                const subject_id = subject.subject_id;
                 const response = await fetch(`http://localhost:3000/api/university/${uni_id}/department/${dept_id}/branch/${branch_id}/class/${class_id}/subject/${subject_id}`);
                 const data = await response.json();
-                return data.data[0].subject_name;   
+                return data.data[0].subject_name;
             });
         });
     }
     // console.log(getSubjectName());
 
-    const handle_delete = async (semester_id : any) => {
+    const handle_delete = async (semester_id: any) => {
         const response = await fetch(
             `http://localhost:3000/api/university/${uni_id}/department/${dept_id}/branch/${branch_id}/class/${class_id}/semester/${semester_id}`,
             {
@@ -98,21 +208,24 @@ const SemesterPage = () => {
         setIsModalOpen(true);
     };
 
-    const handle_edit = (sem_no : any, class_id : any, subject_id : any, faculty_id : any) => {
+    const handle_edit = (sem_no: any, class_id: any, subject_faculty: any) => {
         setIsModalOpen(true);
-        setInputData({ sem_no, class_id, subject_id, faculty_id });
+        setInputData({ sem_no, class_id, subject_faculty });
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
+
+        console.log(semester);
+
         e.preventDefault();
         try {
             const url =
                 semester_id === 0
                     ? `http://localhost:3000/api/university/${uni_id}/department/${dept_id}/branch/${branch_id}/class/${class_id}/semester`
                     : `http://localhost:3000/api/university/${uni_id}/department/${dept_id}/branch/${branch_id}/class/${class_id}/semester/${semester_id}`;
-    
+
             const method = semester_id === 0 ? "POST" : "PUT";
-    
+
             const response = await fetch(url, {
                 method: method,
                 headers: {
@@ -121,38 +234,36 @@ const SemesterPage = () => {
                 body: JSON.stringify({
                     sem_no: inputData.sem_no,
                     class_id: inputData.class_id,
-                    subject_id: inputData.subject_id,
-                    faculty_id: inputData.faculty_id
+                    subject_faculty: inputData.subject_faculty
                 }),
             });
             const result = await response.json();
             console.log("Data successfully posted:", result);
 
             if (result.function_name === "update_semester") {
-                setSemesterData((prevSemester) =>
-                    prevSemester.map((sem) =>
+                setSemesterData((prevSemester: any) =>
+                    prevSemester.map((sem: any) =>
                         sem.id === semester_id
                             ? { ...sem, ...inputData }
                             : sem
                     )
                 );
             }
-    
+
             if (result.function_name === "create_semester") {
                 setSemesterData((prevSemester) => [
                     ...prevSemester,
                     result.data[0],
                 ]);
             }
-    
+
             setIsModalOpen(false);
             setInputData({
                 sem_no: 0,
                 class_id: 0,
-                subject_id: [],
-                faculty_id: []
+                subject_faculty: []
             });
-            setSemester_id(0); 
+            setSemester_id(0);
             router.refresh();
         } catch (error) {
             console.error("Error posting data:", error);
@@ -166,12 +277,20 @@ const SemesterPage = () => {
             <p className="text-lg text-slate-900">ID: {data.id}</p>
             <p className="text-2xl text-slate-950">Semester No: {data.sem_no}</p>
             <p className="text-2xl text-slate-950">Class ID: {data.class_id}</p>
-            <p className="text-xl text-slate-950">Subjects: {data.subject_id.join(', ')}</p>
-            <p className="text-xl text-slate-950">Faculties: {data.faculty_id.join(', ')}</p>
+            {
+                data.subject_faculty.map((sub_fac) => (
+                    <div key={sub_fac.subject_id}>
+                        <p className="text-xl text-slate-950">Subject: {sub_fac.subject_name}</p>
+                        <p className="text-xl text-slate-950">Faculty: {sub_fac.faculty_name}</p>
+                    </div>
+                ))
+            }
+
+
             <div className="flex gap-1 mt-5">
                 <button
                     onClick={() => {
-                        handle_edit(data.sem_no, data.class_id, data.subject_id, data.faculty_id);
+                        handle_edit(data.sem_no, data.class_id, data.subject_faculty);
                         setSemester_id(data.id);
                     }}
                     className="bg-green-600 px-3 py-1 rounded-md"
@@ -220,22 +339,138 @@ const SemesterPage = () => {
                                     onChange={(e) => setInputData({ ...inputData, class_id: Number(e.target.value) })}
                                     className="mb-3 p-2 border border-gray-300 rounded-md w-full"
                                 />
-                                <label className='text-sm font-semibold'>Subject IDs (comma-separated)</label>
-                                <input
-                                    type="text"
-                                    value={inputData.subject_id.join(', ') || ''}
-                                    placeholder="Enter Subject IDs"
-                                    onChange={(e) => setInputData({ ...inputData, subject_id: e.target.value.split(',').map(Number) })}
-                                    className="mb-3 p-2 border border-gray-300 rounded-md w-full"
-                                />
-                                <label className='text-sm font-semibold'>Faculty IDs (comma-separated)</label>
-                                <input
-                                    type="text"
-                                    value={inputData.faculty_id.join(', ') || ''}
-                                    placeholder="Enter Faculty IDs"
-                                    onChange={(e) => setInputData({ ...inputData, faculty_id: e.target.value.split(',').map(Number) })}
-                                    className="p-2 border border-gray-300 rounded-md w-full"
-                                />
+
+                                {semester.subject_faculty.map((sub_fac, index) => (
+                                    <div key={index} className="flex gap-4">
+                                        <div className="mt-1 p-2 border border-gray-300 rounded-md w-full">
+                                            {sub_fac.subject_name}
+                                        </div>
+                                        <div className="mt-1 p-2 border border-gray-300 rounded-md w-full">
+                                            {sub_fac.faculty_name}
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                setSemester({
+                                                    ...semester,
+                                                    subject_faculty: semester.subject_faculty.filter(
+                                                        (sub) => sub !== sub_fac
+                                                    ),
+                                                })
+                                            }
+                                            className="text-black border border-red-600 px-4 py-2 m-1 rounded-md"
+                                        >
+                                            <IoClose />
+                                        </button>
+                                    </div>
+                                ))}
+                                <div className="flex gap-4">
+                                    <div ref={subjectdropdownRef} className="">
+                                        <input
+                                            type="text"
+                                            value={selectedSuject_Faculty.subject_name}
+                                            onChange={(e) =>
+                                                setSelectedSubject_Faculty({
+                                                    ...selectedSuject_Faculty,
+                                                    subject_name: e.target.value,
+                                                })
+                                            }
+                                            placeholder="Subject"
+                                            onFocus={() => setShowSubjectDropdown(true)}
+                                            className="mt-1 p-2 border border-gray-300 rounded-md w-full"
+                                        />
+                                        {showSubjectDropdown && (
+                                            <div className=" top-full left-0 bg-white border-gray-300 rounded-md shadow-md mt-1 w-full">
+                                                {subjects.map((sub, index) => (
+                                                    <div
+                                                        key={index}
+                                                        className="p-2 hover:bg-gray-100 cursor-pointer text-gray-500"
+                                                        onClick={() => {
+                                                            setSelectedSubject_Faculty({
+                                                                ...selectedSuject_Faculty,
+                                                                subject_id: sub.id,
+                                                                subject_name: sub.subject_name,
+                                                            });
+
+                                                            setShowSubjectDropdown(false);
+                                                        }}
+                                                    >
+                                                        {sub.subject_name}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div ref={facultydropdownRef} className="relative">
+                                        <input
+                                            type="text"
+                                            value={selectedSuject_Faculty.faculty_name}
+                                            onChange={(e) =>
+                                                setSelectedSubject_Faculty({
+                                                    ...selectedSuject_Faculty,
+                                                    faculty_name: e.target.value,
+                                                })
+                                            }
+                                            placeholder="Faculty"
+                                            onFocus={() => setShowFacultyDropdown(true)}
+                                            className="mt-1 p-2 border border-gray-300 rounded-md w-full"
+                                        />
+                                        {showFacultyDropdown && (
+                                            <div className=" top-full left-0 bg-white border-gray-300 rounded-md shadow-md mt-1 w-full">
+                                                {faculties.map((fac, index) => (
+                                                    <div
+                                                        key={index}
+                                                        className="p-2 hover:bg-gray-100 cursor-pointer text-gray-500"
+                                                        onClick={() => {
+                                                            setSelectedSubject_Faculty({
+                                                                ...selectedSuject_Faculty,
+                                                                faculty_id: fac.id,
+                                                                faculty_name: fac.faculty_name,
+                                                            });
+
+                                                            setShowFacultyDropdown(false);
+                                                        }}
+                                                    >
+                                                        {fac.faculty_name}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className="mt-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setSemester({
+                                                ...semester,
+                                                subject_faculty: [
+                                                    ...semester.subject_faculty,
+                                                    selectedSuject_Faculty,
+                                                ],
+                                            });
+
+                                            setInputData({
+                                                ...inputData,
+                                                subject_faculty: [
+                                                    ...inputData.subject_faculty,
+                                                    selectedSuject_Faculty
+                                                ]
+                                            })
+
+                                            setSelectedSubject_Faculty({
+                                                subject_id: 0,
+                                                subject_name: "",
+                                                faculty_id: 0,
+                                                faculty_name: "",
+                                            });
+                                        }}
+                                        className="text-black w-full border-dashed border border-black px-4 py-2 rounded-md"
+                                    >
+                                        Add Subject
+                                    </button>
+                                </div>
 
                                 <div className="mt-4">
                                     <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-md">Submit</button>
@@ -252,7 +487,7 @@ const SemesterPage = () => {
                     </div>
                 )}
             </div>
-            <div className="flex flex-col gap-3 w-full">
+            <div className="grid grid-cols-3 gap-3 w-full">
                 {get_semester_data}
             </div>
         </div>
