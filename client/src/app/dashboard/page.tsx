@@ -118,39 +118,34 @@ const Page = () => {
   ]);
 
   const handleResourceChange = (
-    index: number,
-    field: "resource_type" | "resource_name",
+    field: string,
     value: string
   ) => {
-    const updatedResources = [...data.resource];
-    updatedResources[index][field] = value;
-  
-    // Clear resource_name if the type changes
-    if (field === "resource_type") {
-      updatedResources[index].resource_name = "";
-    }
-  
-    setData((prev) => ({ ...prev, resource: updatedResources }));
+    setData((prev) => {
+      if (
+        !prev.resource.some(
+          (res) => res.resource_name === value && res.resource_type === field
+        )
+      ) {
+        return {
+          ...prev,
+          resource: [
+            ...prev.resource,
+            { resource_name: value, resource_type: field },
+          ],
+        };
+      }
+      return prev; 
+    });
   };
   
-  const addResource = () => {
+  const removeResource = (resourceName: string) => {
     setData((prev) => ({
       ...prev,
-      resource: [...prev.resource, { resource_type: "", resource_name: "" }],
+      resource: prev.resource.filter((res) => res.resource_name !== resourceName),
     }));
   };
   
-  const removeResource = (index: number) => {
-    setData((prev) => ({
-      ...prev,
-      resource: prev.resource.filter((_, i) => i !== index),
-    }));
-  };
-
-  const resource_nameOptions = (type:any) => [
-    ...new Set(allResource.map((res) => res.resource_type === type))
-  ]
-
   const resourceOptions = [
     ...new Set(allResource.map((res) => res.resource_type)),
   ];
@@ -187,6 +182,12 @@ const Page = () => {
   // Fetch university ID on load
   useEffect(() => {
     get_uni_id();
+    setData((prev) => ({
+      ...prev,
+      resource: prev.resource.filter(
+        (res) => res.resource_name && res.resource_type
+      ),
+    }));
   }, []);
 
   // get university ID from the URL
@@ -615,65 +616,46 @@ const Page = () => {
                 <p className="text-gray-400 text-sm">
                   Add details required for generating the timetable!
                 </p>
-
+                <div className="flex gap-3">
                 {
-                  <div className="space-y-4">
-                  {data.resource.map((res, index) => (
-                    <div key={index} className="flex gap-4 items-center">
-                      {/* Dropdown for resource type */}
-                      <select
-                        name="resource_type"
-                        value={res.resource_type}
-                        onChange={(e) => handleResourceChange(index, "resource_type", e.target.value)}
-                        className="border border-gray-300 p-3 rounded-md text-black focus:outline-none focus:border-blue-500"
-                      >
-                        <option value="">Select Resource Type</option>
-                        {resourceOptions.map((type, i) => (
-                          <option key={i} value={type}>
-                            {type}
+                  resourceOptions.map((value, index) => (
+                    <div>
+                      <div>{value}</div>
+                      <select key={index} 
+                      onChange={(e) => handleResourceChange(value, e.target.value )}
+                      className="border border-gray-300 p-3 rounded-md text-black focus:outline-none focus:border-blue-500">
+                      <option value="">Select Resource</option>
+                      {
+                        allResource.filter((r) => r.resource_type === value).map((r, i) => (
+                          <option key={i} value={r.resource_name}>
+                            {r.resource_name}
                           </option>
-                        ))}
+                        ))
+                      }
                       </select>
-                
-                      {/* Dropdown for resource name */}
-                      <select
-                        name="resource_name"
-                        value={res.resource_name}
-                        onChange={(e) => handleResourceChange(index, "resource_name", e.target.value)}
-                        className="border border-gray-300 p-3 rounded-md text-black focus:outline-none focus:border-blue-500"
-                      >
-                        <option value="">Select Resource Name</option>
-                        {res.resource_type &&
-                          allResource
-                            .filter((r) => r.resource_type === res.resource_type)
-                            .map((r, i) => (
-                              <option key={i} value={r.resource_name}>
-                                {r.resource_name}
-                              </option>
-                            ))}
-                      </select>
-                
-                      {/* Remove resource button */}
-                      <button
-                        type="button"
-                        className="text-gray-600 hover:text-red-500"
-                        onClick={() => removeResource(index)}
-                      >
-                        <IoClose size={20} />
-                      </button>
                     </div>
-                  ))}
-                
-                  {/* Add resource button */}
-                  <button
-                    type="button"
-                    onClick={addResource}
-                    className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md"
-                  >
-                    Add Resource
-                  </button>
-                </div>
+                  ))
                 }
+                </div>
+                <div className="mt-4">
+                    <h2 className="text-lg font-semibold">Selected Resources:</h2>
+                    <div className="grid grid-cols-6 gap-2 mt-2">
+                      {data.resource.map((res, index) => (
+                        <div
+                          key={index}
+                          className="bg-gray-100 border border-gray-300 rounded-md p-2 flex items-center gap-2"
+                        >
+                          <span>{res.resource_name}</span>
+                          <button
+                            onClick={() => removeResource(res.resource_name)}
+                            className="text-red-500 hover:text-red-700"
+                          >
+                            <IoClose size={20} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
               </div>
               <div className="flex justify-between m-5">
               <button
