@@ -117,12 +117,14 @@ const page = () => {
 
   const get_sub_data = subject.map((data, index) => {
     return (
-      <div className='shadow-md hover:bg-slate-100 flex flex-col justify-center items-center w-full p-5 gap-0 font-bold rounded-sm' key={index}>
-        <p className=' text-lg text-slate-900'>{data.id}</p>
-        <p className=' text-2xl text-slate-950'>{data.subject_name}</p>
-        <div className='flex gap-1 mt-5'>
-          <button onClick={(e) => { handle_edit(data.subject_name); setSubject_id(data.id) }} className='bg-green-600 px-3 py-1 rounded-md'><LuPencil size={20} className=' text-white '></LuPencil></button>
-          <button onClick={(e) => { handle_delete(data.id) }} className='bg-red-600 px-3 py-1 rounded-md'><IoClose size={20} className=' text-white'></IoClose></button>
+      <div className='main_content hover:shadow-none shadow-md flex  w-full font-bold rounded-sm' key={index}>
+        <div className='edit_delete flex flex-col gap-1'>
+          <button onClick={(e) => { handle_edit(data.subject_name); setSubject_id(data.id) }} className='hover:bg-green-600 border border-green-600 text-green-600 hover:text-white p-2 rounded-md'><LuPencil size={20}></LuPencil></button>
+          <button onClick={(e) => { handle_delete(data.id) }} className='hover:bg-red-600 border border-red-600 text-red-600 hover:text-white p-2 rounded-md'><IoClose size={20} ></IoClose></button>
+        </div>
+        <div className='right_content  w-full flex flex-col gap-0 p-5'>
+          <p className=' text-lg text-slate-900'>{data.id}</p>
+          <p className=' text-2xl text-slate-950'>{data.subject_name}</p>
         </div>
       </div>
     )

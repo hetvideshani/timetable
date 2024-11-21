@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { IoClose } from "react-icons/io5";
 import { LuPencil } from "react-icons/lu";
 import { FaPlus } from 'react-icons/fa';
+import { HoverEffect } from '@/app/components/ui/card-hover-effect';
 
 const page = () => {
   const [uni_id, setUni_id] = useState('');
@@ -164,27 +165,24 @@ const page = () => {
     }
   }
 
-  const get_branch_data = all_branches.map((data, index) => {
-    return (
-      <div className='shadow-md hover:bg-slate-100 flex flex-col justify-center items-center w-full p-5 gap-0 font-bold rounded-sm' key={index} onClick={() => setBranch({ id: data.id, branch_name: data.branch_name, dept_id: data.dept_id })}>
-        <p className=' text-lg text-slate-900'>{data.id}</p>
-        <p className=' text-2xl text-slate-950'>{data.branch_name}</p>
-        <p className=' text-xl text-slate-950'>Department - {data.dept_name}</p>
-        <div className='flex gap-1 mt-5'>
-          <button onClick={(e) => { handle_edit(data); }} className='bg-green-600 px-3 py-1 rounded-md'><LuPencil size={20} className=' text-white '></LuPencil></button>
-          <button onClick={(e) => { handle_delete(data) }} className='bg-red-600 px-3 py-1 rounded-md'><IoClose size={20} className=' text-white'></IoClose></button>
-        </div>
-      </div>
-    )
-  })
+  // const get_branch_data = all_branches.map((data, index) => {
+  //   return (
+  //     <div className='shadow-md hover:bg-slate-100 flex flex-col justify-center items-center w-full p-5 gap-0 font-bold rounded-sm' key={index} onClick={() => setBranch({ id: data.id, branch_name: data.branch_name, dept_id: data.dept_id })}>
+  //       <p className=' text-lg text-slate-900'>{data.id}</p>
+  //       <p className=' text-2xl text-slate-950'>{data.branch_name}</p>
+  //       <p className=' text-xl text-slate-950'>Department - {data.dept_name}</p>
+  //       <div className='flex gap-1 mt-5'>
+  //         <button onClick={(e) => { handle_edit(data); }} className='bg-green-600 px-3 py-1 rounded-md'><LuPencil size={20} className=' text-white '></LuPencil></button>
+  //         <button onClick={(e) => { handle_delete(data) }} className='bg-red-600 px-3 py-1 rounded-md'><IoClose size={20} className=' text-white'></IoClose></button>
+  //       </div>
+  //     </div>
+  //   )
+  // })
 
   return (
     <>
       <div className='flex flex-col gap-6 justify-center items-center p-5 w-full'>
         <div className='flex justify-between w-full'>
-          <div>
-
-          </div>
           <div className='text-3xl font-bold text-slate-950'>
             Branch
           </div>
@@ -193,7 +191,7 @@ const page = () => {
           </button>
         </div>
         {isModalOpen && (
-          <div className="fixed top-0 left-0 right-0 bottom-0 bg-gray-900 bg-opacity-50 flex justify-center items-center">
+          <div className="fixed z-50 top-0 left-0 right-0 bottom-0 bg-gray-900 bg-opacity-50 flex justify-center items-center">
             <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
               <h2 className="text-lg font-bold mb-4">Add New Branch</h2>
 
@@ -249,8 +247,12 @@ const page = () => {
             </div>
           </div>
         )}
-        <div className="grid grid-cols-3 w-full gap-5">
-          {all_branches.length > 1 ? get_branch_data : null}
+        <div className="w-full gap-5">
+          {/* {all_branches.length > 1 ? get_branch_data : null} */}
+          <div className="w-full px-8">
+            <HoverEffect items={all_branches} />
+          </div>
+
         </div>
       </div>
 

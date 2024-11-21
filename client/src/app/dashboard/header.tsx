@@ -11,7 +11,7 @@ const Header = () => {
       <div className="flex gap-10 mx-2">
         <div>
           {/* <Image src="/globe.svg" alt="Logout" width={30} height={30} /> */}
-          <IconUserCircle size={35}></IconUserCircle>
+          <IconUserCircle size={35} className="text-[#bbe1fa]"></IconUserCircle>
         </div>
       </div>
     </div>

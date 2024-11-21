@@ -17,7 +17,7 @@ import { SidebarDemo } from "../components/ui/sidebar";
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
 
   return (
-    <div className="main_body w-full h-[100vh] flex flex-col bg-white text-[#BBE1FA]">
+    <div className="main_body w-full flex flex-col bg-slate-200 ">
       <div className=" bg-[#1B262C] ">
         <Header />
       </div>
