@@ -1,6 +1,27 @@
 import { error } from "console";
 import { genAllocator } from "./resourceAllocator";
-//   [[[{ fac_name : "", subject_name : "", batch_no : 0, resource_type : ""}, {}, {}, {}, {}], [], [null], [], [], [null], [], []], [], [], [], []];
+// [
+// [
+//   [
+//     { fac_name : "", subject_name : "", batch_no : 0, resource_type : ""}, 
+//     {}, 
+//     {}, 
+//     {}, 
+//     {}
+//   ], 
+//   [], 
+//   [null], 
+//   [], 
+//   [], 
+//   [null], 
+//   [], 
+//   []
+// ], 
+// [], 
+// [], 
+// [], 
+// []
+// ];
 
 export function createTimetable(
   numOfDays: number,
@@ -29,7 +50,8 @@ export function fillTimetable(
   fac_name: string,
   subject_name: string,
   batch_no: number,
-  resource_type: string
+  resource_name: string,
+  resource_type:string
 ) {
   if (timeTable[day][session][0] == "null") {
     throw new Error("Cannot allocate resources to this session");
@@ -39,10 +61,11 @@ export function fillTimetable(
     subject_name,
     batch_no,
     resource_type,
+    resource_name
   });
 }
 
-function getFilteredTimeTable(timeTable: any[], filter_by: string) {
+export function getFilteredTimeTable(timeTable: any[], filter_by: string) {
   let filteredTimeTable = timeTable.map((day) => {
     return day.map((session: any) => {
       // Loop through each slot in the session
@@ -54,7 +77,8 @@ function getFilteredTimeTable(timeTable: any[], filter_by: string) {
           slot.fac_name == filter_by ||
           slot.subject_name == filter_by ||
           slot.batch_no == filter_by ||
-          slot.resource_type == filter_by
+          slot.resource_type == filter_by ||
+          slot.resource_name == filter_by
         ) {
           return slot;
         }

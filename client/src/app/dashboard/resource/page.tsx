@@ -232,7 +232,7 @@ const page = () => {
         )}
       </div>
       <div className="grid grid-cols-3 w-full gap-5">
-        {resource[0].id > 0 ? get_res_data : null}
+        {resource.length > 0 ? get_res_data : null}
       </div>
     </div>
   )

@@ -12,7 +12,7 @@ const page = () => {
     const [branches, setBranches] = useState([{
         id:0,
         branch_name: "",
-        dept_id:0,
+        dept_id:0,  
     }]);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -201,7 +201,7 @@ const page = () => {
         )}
       </div>
       <div className="grid grid-cols-3 w-full gap-5">
-        {branches.length > 1 ? get_branch_data : null}
+        {branches[0].id > 0 ? get_branch_data : null}
       </div>
     </div>
     );
