@@ -5,7 +5,7 @@ import { supabase } from "@/lib/dbConnect";
 import { create } from "domain";
 
 export async function schedule(params: any) {
-    //   console.log(params);
+    console.log(params);
 
     const subject_faculty = params.subject_faculty;
     const selected_resource = params.resource;

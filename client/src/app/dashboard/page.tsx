@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import CustomDropdown from "./dropdown";
 import { Modal, ModalTrigger } from "../components/ui/animated-modal";
+import { log } from "console";
+import { IoClose } from "react-icons/io5";
 
 const Page = () => {
   const [data, setData] = useState({
@@ -27,6 +29,13 @@ const Page = () => {
       sem_no: "",
       class_id: 0,
     },
+    resource: [
+      {
+        capacity: 0,
+        resource_type: "",
+        resource_name: ""
+      }
+    ],
     subject: [
       {
         id: 0,
@@ -45,6 +54,7 @@ const Page = () => {
   });
   const [showModal, setShowModal] = useState(true);
   const [showModal2, setShowModal2] = useState(false);
+  const [showModal3, setShowModal3] = useState(false);
   const [department, setDepartment] = useState([
     {
       id: 0,
@@ -103,12 +113,47 @@ const Page = () => {
   const [allResource, setAllResource] = useState([
     {
       id: 0,
+      capacity : 0,
+      resource_name: "",
       resource_type: "",
     },
   ]);
+
+  const handleResourceChange = (
+    field: string,
+    value: string
+  ) => {
+    const cap = allResource.find((res) => res.resource_name === value)
+    setData((prev) => {
+      if (
+        cap &&
+        !prev.resource.some(
+          (res) => res.resource_name === value && res.resource_type === field
+        )
+      ) {
+        return {
+          ...prev,
+          resource: [
+            ...prev.resource,
+            { resource_name: value, resource_type: field, capacity: cap.capacity || 0 },
+          ],
+        };
+      }
+      return prev; 
+    });
+  };
+  
+  const removeResource = (resourceName: string) => {
+    setData((prev) => ({
+      ...prev,
+      resource: prev.resource.filter((res) => res.resource_name !== resourceName),
+    }));
+  };
+  
   const resourceOptions = [
     ...new Set(allResource.map((res) => res.resource_type)),
   ];
+  
   const departmentOptions = department.map((dept) => dept.department_name);
   const branchOptions = [
     ...new Set(
@@ -141,6 +186,12 @@ const Page = () => {
   // Fetch university ID on load
   useEffect(() => {
     get_uni_id();
+    setData((prev) => ({
+      ...prev,
+      resource: prev.resource.filter(
+        (res) => res.resource_name && res.resource_type
+      ),
+    }));
   }, []);
 
   // get university ID from the URL
@@ -231,6 +282,7 @@ const Page = () => {
     } else {
       setAllResource([]);
     }
+    
   };
 
   const sendData = async () => {
@@ -520,7 +572,7 @@ const Page = () => {
             <div className="flex justify-between m-5">
               <button
                 className="bg-red-600 p-2 rounded-md"
-                onClick={() => setShowModal(false)}
+                onClick={() => setShowModal2(false)}
               >
                 Close
               </button>
@@ -534,6 +586,15 @@ const Page = () => {
                 prev
               </button>
               <button
+                className="bg-blue-600 p-2 rounded-md"
+                onClick={() => {
+                  setShowModal2(false);
+                  setShowModal3(true);
+                }}
+              >
+                next
+              </button>
+              <button
                 className="bg-green-600 p-2 rounded-md"
                 onClick={() => {
                   setShowModal(false);
@@ -541,7 +602,6 @@ const Page = () => {
                     ...data,
                     subject: subject_faculty,
                   });
-                  sendData();
                 }}
               >
                 Save
@@ -550,6 +610,87 @@ const Page = () => {
           </div>
         </div>
       )}
+
+      {
+        showModal3 && (
+          <div className="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-center">
+            <div className="bg-white w-fit p-5 rounded-md">
+              <div className="flex flex-col justify-center items-center">
+                <h1 className="text-2xl font-bold">Create TimeTable</h1>
+                <p className="text-gray-400 text-sm">
+                  Add details required for generating the timetable!
+                </p>
+                <div className="flex gap-3">
+                {
+                  resourceOptions.map((value, index) => (
+                    <div>
+                      <div>{value}</div>
+                      <select key={index} 
+                      onChange={(e) => handleResourceChange(value, e.target.value )}
+                      className="border border-gray-300 p-3 rounded-md text-black focus:outline-none focus:border-blue-500">
+                      <option value="">Select Resource</option>
+                      {
+                        allResource.filter((r) => r.resource_type === value).map((r, i) => (
+                          <option key={i} value={r.resource_name}>
+                            {r.resource_name}
+                          </option>
+                        ))
+                      }
+                      </select>
+                    </div>
+                  ))
+                }
+                </div>
+                <div className="mt-4">
+                    <h2 className="text-lg font-semibold">Selected Resources:</h2>
+                    <div className="grid grid-cols-6 gap-2 mt-2">
+                      {data.resource.map((res, index) => (
+                        <div
+                          key={index}
+                          className="bg-gray-100 border border-gray-300 rounded-md p-2 flex items-center gap-2"
+                        >
+                          <span>{res.resource_name}</span>
+                          <button
+                            onClick={() => removeResource(res.resource_name)}
+                            className="text-red-500 hover:text-red-700"
+                          >
+                            <IoClose size={20} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+              </div>
+              <div className="flex justify-between m-5">
+              <button
+                className="bg-red-600 p-2 rounded-md"
+                onClick={() => setShowModal3(false)}
+              >
+                Close
+              </button>
+              <button
+                className="bg-blue-600 p-2 rounded-md"
+                onClick={() => {
+                  setShowModal2(true);
+                  setShowModal3(false);
+                }}
+              >
+                prev
+              </button>
+              <button
+                className="bg-green-600 p-2 rounded-md"
+                onClick={() => {
+                  setShowModal3(false);
+                  sendData();
+                }}
+              >
+                Save
+              </button>
+            </div>
+            </div>
+          </div>
+        )
+      }
     </div>
   );
 };
