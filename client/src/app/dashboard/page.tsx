@@ -31,6 +31,7 @@ const Page = () => {
     },
     resource: [
       {
+        capacity: 0,
         resource_type: "",
         resource_name: ""
       }
@@ -112,6 +113,7 @@ const Page = () => {
   const [allResource, setAllResource] = useState([
     {
       id: 0,
+      capacity : 0,
       resource_name: "",
       resource_type: "",
     },
@@ -121,8 +123,10 @@ const Page = () => {
     field: string,
     value: string
   ) => {
+    const cap = allResource.find((res) => res.resource_name === value)
     setData((prev) => {
       if (
+        cap &&
         !prev.resource.some(
           (res) => res.resource_name === value && res.resource_type === field
         )
@@ -131,7 +135,7 @@ const Page = () => {
           ...prev,
           resource: [
             ...prev.resource,
-            { resource_name: value, resource_type: field },
+            { resource_name: value, resource_type: field, capacity: cap.capacity || 0 },
           ],
         };
       }
