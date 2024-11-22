@@ -39,5 +39,4 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-/src/lib/resourceAllocator.js
-/src/lib/timetableHandler.js
+random.txt

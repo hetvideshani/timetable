@@ -62,17 +62,25 @@ export async function generateAllocators(
     const data = await response.json();
     const resources = data.data;
 
-    // console.log(resources);
-
     for (const resource of resources) {
       try {
         const key = await addResourceTypeToRedis(uniId, resource.resource_type);
 
-        const exists = await redis.lLen(key);
-        if (exists > 0) {
-          console.log(
-            `Resource ${resource.resource_name} already exists. Skipping...`
-          );
+        const res_exists = await redis.lRange(key, 0, -1);
+        let exists = false;
+
+        for (const item of res_exists) {
+          const parsedItem = JSON.parse(item);
+          if (parsedItem[resource.resource_name]) {
+            console.log(
+              `Resource ${resource.faculty_name} already exists. Skipping...`
+            );
+            exists = true;
+            break;
+          }
+        }
+
+        if (exists) {
           continue;
         }
         let allocator = genAllocator(
@@ -83,45 +91,66 @@ export async function generateAllocators(
         const res = { [resource.resource_name]: allocator };
 
         await redis.rPush(key, JSON.stringify(res));
-
-        if (facuilty) {
-          const fac_res = await fetch("http://localhost:3000/api/faculty", {
-            method: "GET",
-          });
-          if (!fac_res.ok) {
-            throw new Error(
-              `Failed to fetch faculty: ${fac_res.status} ${fac_res.statusText}`
-            );
-          }
-          const fac_data = await fac_res.json();
-          const faculties = fac_data.data;
-          const fac_key = await addResourceTypeToRedis(
-            uniId,
-            "Faculty"
-          );
-          for (const faculty of faculties) {
-            const fac_exists = await redis.lLen(fac_key);
-            if (fac_exists > 0) {
-              console.log(
-                `Resource ${faculty.fac_name} already exists. Skipping...`
-              );
-              continue;
-            }
-            let fac_allocator = genAllocator(
-              [faculty.fac_name],
-              numOfDays,
-              numOfSessions
-            );
-            const fac_res = { [faculty.fac_name]: fac_allocator };
-            await redis.rPush(fac_key, JSON.stringify(fac_res));
-          }               
-        }
-        // console.log(allocator);
       } catch (innerError) {
         console.error(
           `Error processing resource ${resource.resource_name}:`,
           innerError
         );
+      }
+    }
+
+    if (facuilty) {
+      const fac_res = await fetch(
+        `http://localhost:3000/api/university/${uniId}/faculty`,
+        {
+          method: "GET",
+        }
+      );
+
+      if (!fac_res.ok) {
+        throw new Error(
+          `Failed to fetch faculty: ${fac_res.status} ${fac_res.statusText}`
+        );
+      }
+
+      const fac_data = await fac_res.json();
+      const faculties = fac_data.data;
+
+      for (const faculty of faculties) {
+        try {
+          const fac_key = await addResourceTypeToRedis(uniId, "Faculty");
+
+          const fac_exists = await redis.lRange(fac_key, 0, -1);
+          let exists = false;
+
+          for (const item of fac_exists) {
+            const parsedItem = JSON.parse(item);
+            if (parsedItem[faculty.faculty_name]) {
+              console.log(
+                `Resource ${faculty.faculty_name} already exists. Skipping...`
+              );
+              exists = true;
+              break;
+            }
+          }
+
+          if (exists) {
+            continue;
+          }
+          let fac_allocator = genAllocator(
+            [faculty.faculty_name],
+            numOfDays,
+            numOfSessions
+          );
+          const fac_res = { [faculty.faculty_name]: fac_allocator };
+
+          await redis.rPush(fac_key, JSON.stringify(fac_res));
+        } catch (innerError) {
+          console.error(
+            `Error processing resource ${faculty.faculty_name}:`,
+            innerError
+          );
+        }
       }
     }
   } catch (error) {
@@ -171,36 +200,47 @@ export async function getAllocator(
   }
 }
 
-export async function updateAllocator(
-  uniId: number,
-  resourceType: string,
-  resourceName: string,
-  session?: number,
-  day?: number,
-  capacity?: number,
-  addStudents?: number
-) {
+export async function updateAllocator({
+  uniId,
+  resourceType,
+  resourceName,
+  session,
+  day,
+  capacity,
+  addStudents,
+  faculty,
+}: {
+  uniId: number;
+  resourceType: string;
+  resourceName: string;
+  session?: number;
+  day?: number;
+  capacity?: number;
+  addStudents?: number;
+  faculty?: boolean;
+}) {
   try {
     await redis.connect();
     const key = `${uniId}:${resourceType}`;
+    
     const exists = await redis.exists(key);
     if (!exists) {
       throw new Error(`Resource type ${resourceType} not found`);
     }
+
     const allocators = await redis.lRange(key, 0, -1);
+    
     for (let i = 0; i < allocators.length; i++) {
       const data = JSON.parse(allocators[i]);
+
       if (data[resourceName]) {
-        if (day==undefined || session==undefined || capacity==undefined || addStudents == undefined) {
-          throw new Error("Missing required fields");
-        }
-        if (resourceName == "Faculty") {
-          allocators[i] = JSON.stringify({ [resourceName]: 1 });
+        if (faculty) {
+          updateFacultyAllocator(data, resourceName, day, session);
         } else {
-          fillAllocator(data[resourceName], resourceName, day!, session!, capacity!, addStudents!);
-          allocators[i] = JSON.stringify(data);
-          console.log(data[resourceName][0]);
+          updateGeneralAllocator(data, resourceName, day, session, capacity, addStudents);
         }
+
+        allocators[i] = JSON.stringify(data);
         await redis.lSet(key, i, allocators[i]);
         break;
       }
@@ -212,8 +252,44 @@ export async function updateAllocator(
       await redis.disconnect();
     }
   }
-  
 }
+
+function updateFacultyAllocator(
+  data: any,
+  resourceName: string,
+  day?: number,
+  session?: number
+) {
+  if (day === undefined || session === undefined) {
+    throw new Error("Missing required fields for faculty allocator");
+  }
+
+  console.log("faculty", data[resourceName]);
+  data[resourceName][0].sessions[day][session] = 1;
+  console.log("Updated faculty allocator", data[resourceName]);
+}
+
+function updateGeneralAllocator(
+  data: any,
+  resourceName: string,
+  day?: number,
+  session?: number,
+  capacity?: number,
+  addStudents?: number
+) {
+  if (
+    day === undefined ||
+    session === undefined ||
+    capacity === undefined ||
+    addStudents === undefined
+  ) {
+    throw new Error("Missing required fields for general allocator");
+  }
+
+  fillAllocator(data[resourceName], resourceName, day, session, capacity, addStudents);
+  console.log("Updated general allocator", data[resourceName][0]);
+}
+
 
 async function addResourceTypeToRedis(
   uniID: number,
