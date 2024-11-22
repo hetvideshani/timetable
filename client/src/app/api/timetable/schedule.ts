@@ -40,7 +40,7 @@ export async function schedule(params: any) {
 
     let res_all: any = [];
 
-    resource_type.forEach((res_type: any) => {
+    resource_type.forEach(async (res_type: any) => {
         const resource_name = selected_resource
             ? selected_resource.filter((res: any) => res.resource_type === res_type)
             : [];
@@ -50,16 +50,17 @@ export async function schedule(params: any) {
             (res: any) => res.resource_name
         );
         // console.log(all_resource_name);
-
-        const resource_allocator = genAllocator(
-            all_resource_name,
-            5,
-            number_of_session
-        );
-        // console.log(resource_allocator);
-        res_all.push({ resource_allocator, res_type });
+        let temp :any = []
+        all_resource_name.forEach(async (resName: any) => {
+            let acc = genAllocator([resName], 5, number_of_session)
+            temp.push(acc);
+        })
+        console.log("temp :", temp);
+        res_all.push({ resource_allocator : temp.map((res: any) => res[0]), res_type });
+        console.log("res all - " , res_all);
     });
-    // console.log("res all - " + res_all);
+    console.log("res all final - " , res_all);
+
 
     // return res_all
     const timeTable = createTimetable(5, number_of_session, [2]);
@@ -111,8 +112,8 @@ export async function schedule(params: any) {
                     faculty_allocator[faculty_index].sessions[i][j] = 1;
                     fillAllocator(res_all[resource_index].resource_allocator, res_all[resource_index].resource_allocator[second_resource_index].name, i, j, 40, 20);
                     // res_all[resource_index].resource_allocator[second_resource_index].sessions[i][j] = 1;
+                    console.log("resource count", subject_faculty[faculty_index].resource_required[resource_index].resource_count);
                     subject_faculty[faculty_index].resource_required[resource_index].resource_count--;
-
                     resource_index++;
                     // console.log(second_resource_index);
                 }
