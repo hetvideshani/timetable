@@ -1,4 +1,4 @@
-import redis from "./redis";
+import redis, { connectRedis, disconnectRedis } from "./redis";
 
 export function genAllocator(
   resource: string[],
@@ -169,7 +169,7 @@ export async function getAllocator(
 ): Promise<any> {
   console.log("reached");
   try {
-    await redis.connect();
+    await connectRedis();
     const key = `${uniId}:${resourceType}`;
     const exists = await redis.exists(key);
     if (!exists) {
@@ -185,18 +185,12 @@ export async function getAllocator(
       }
       throw new Error(`Resource ${resourceName} not found`);
     } else {
-      let res = [];
-      for (const allocator of allocators) {
-        res.push(JSON.parse(allocator));
-      }
-      return res;
+      return allocators.map((allocator) => JSON.parse(allocator));
     }
   } catch (error) {
     console.error("Error fetching allocator:", error);
   } finally {
-    if (redis.isOpen) {
-      await redis.disconnect();
-    }
+    disconnectRedis();
   }
 }
 
@@ -222,14 +216,14 @@ export async function updateAllocator({
   try {
     await redis.connect();
     const key = `${uniId}:${resourceType}`;
-    
+
     const exists = await redis.exists(key);
     if (!exists) {
       throw new Error(`Resource type ${resourceType} not found`);
     }
 
     const allocators = await redis.lRange(key, 0, -1);
-    
+
     for (let i = 0; i < allocators.length; i++) {
       const data = JSON.parse(allocators[i]);
 
@@ -237,7 +231,14 @@ export async function updateAllocator({
         if (faculty) {
           updateFacultyAllocator(data, resourceName, day, session);
         } else {
-          updateGeneralAllocator(data, resourceName, day, session, capacity, addStudents);
+          updateGeneralAllocator(
+            data,
+            resourceName,
+            day,
+            session,
+            capacity,
+            addStudents
+          );
         }
 
         allocators[i] = JSON.stringify(data);
@@ -286,10 +287,103 @@ function updateGeneralAllocator(
     throw new Error("Missing required fields for general allocator");
   }
 
-  fillAllocator(data[resourceName], resourceName, day, session, capacity, addStudents);
+  fillAllocator(
+    data[resourceName],
+    resourceName,
+    day,
+    session,
+    capacity,
+    addStudents
+  );
   console.log("Updated general allocator", data[resourceName][0]);
 }
 
+export async function updateAllAllocators({
+  uniId,
+  resourceType,
+  resourceAllocator,
+}: {
+  uniId: number;
+  resourceType: string;
+  resourceAllocator: any[];
+}) {
+  await connectRedis();
+  const key = `${uniId}:${resourceType}`;
+  const exists = await redis.exists(key);
+
+  if (!exists) {
+    throw new Error(`Resource type ${resourceType} not found`);
+  }
+
+  const allocators = await redis.lRange(key, 0, -1);
+
+  for (let i = 0; i < allocators.length; i++) {
+    const data = JSON.parse(allocators[i]);
+    const resourceName = Object.keys(data)[0];
+    const updatedResource = resourceAllocator.find(
+      (resource) => resource.name === resourceName
+    );
+
+    if (updatedResource) {
+      const updatedAllocator = updatedResource.sessions;
+      data[resourceName][0].sessions = updatedAllocator;
+      allocators[i] = JSON.stringify(data);
+      await redis.lSet(key, i, allocators[i]);
+    }
+  }
+}
+
+export async function deleteAllocator(
+  uniId: number,
+  resourceType: string,
+  resourceName: string
+) {
+  try {
+    await redis.connect();
+    const key = `${uniId}:${resourceType}`;
+
+    const exists = await redis.exists(key);
+    if (!exists) {
+      throw new Error(`Resource type ${resourceType} not found`);
+    }
+
+    const allocators = await redis.lRange(key, 0, -1);
+
+    for (let i = 0; i < allocators.length; i++) {
+      const data = JSON.parse(allocators[i]);
+
+      if (data[resourceName]) {
+        allocators.splice(i, 1);
+        await redis.lSet(key, i, JSON.stringify(data));
+        break;
+      }
+    }
+  } catch (error) {
+    console.error("Error deleting allocator:", error);
+  } finally {
+    if (redis.isOpen) {
+      await redis.disconnect();
+    }
+  }
+}
+
+export async function deleteAllAllocators(uniId: number, resourceType: string) {
+  try {
+    await connectRedis();
+    const key = `${uniId}:${resourceType}`;
+
+    const exists = await redis.exists(key);
+    if (!exists) {
+      throw new Error(`Resource type ${resourceType} not found`);
+    }
+
+    await redis.del(key);
+  } catch (error) {
+    console.error("Error deleting all allocators:", error);
+  } finally {
+    await disconnectRedis();
+  }
+}
 
 async function addResourceTypeToRedis(
   uniID: number,

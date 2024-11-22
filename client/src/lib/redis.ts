@@ -31,6 +31,22 @@ redis.on("error", (err) => {
   }
 });
 
+export async function connectRedis() {
+  if (!redis.isOpen) await redis.connect();
+}
+
+export async function disconnectRedis() {
+  if (redis.isOpen) {
+    console.log("Disconnecting Redis", redis.isOpen);
+    try {
+      await redis.disconnect();
+    } catch (disconnectError) {
+      console.error("Error disconnecting Redis:", disconnectError);
+    }
+  }
+}
+
+
 // (async () => {
 //     try {
 //       await client.connect();
