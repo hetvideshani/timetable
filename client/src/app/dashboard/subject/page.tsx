@@ -119,11 +119,10 @@ const page = () => {
     return (
       <div className='main_content hover:shadow-none shadow-md flex  w-full font-bold rounded-sm' key={index}>
         <div className='edit_delete flex flex-col gap-1'>
-          <button onClick={(e) => { handle_edit(data.subject_name); setSubject_id(data.id) }} className='hover:bg-green-600 border border-green-600 text-green-600 hover:text-white p-2 rounded-md'><LuPencil size={20}></LuPencil></button>
-          <button onClick={(e) => { handle_delete(data.id) }} className='hover:bg-red-600 border border-red-600 text-red-600 hover:text-white p-2 rounded-md'><IoClose size={20} ></IoClose></button>
+          <button onClick={(e) => { handle_edit(data.subject_name); setSubject_id(data.id) }} className='hover:bg-green-600 border border-green-600 text-green-600 hover:text-white p-1 rounded-md'><LuPencil size={15}></LuPencil></button>
+          <button onClick={(e) => { handle_delete(data.id) }} className='hover:bg-red-600 border border-red-600 text-red-600 hover:text-white p-1 rounded-md'><IoClose size={15} ></IoClose></button>
         </div>
         <div className='right_content  w-full flex flex-col gap-0 p-5'>
-          <p className=' text-lg text-slate-900'>{data.id}</p>
           <p className=' text-2xl text-slate-950'>{data.subject_name}</p>
         </div>
       </div>
@@ -133,11 +132,8 @@ const page = () => {
   return (
     <div className='flex flex-col gap-6 justify-center items-center p-5 w-full'>
       <div className='flex justify-between w-full'>
-        <div>
-
-        </div>
         <div className='text-3xl font-bold text-slate-950'>
-          Subject
+          Subjects
         </div>
         <button onClick={handle_insert} className='flex gap-1 justify-center items-center text-xl bg-blue-600 py-1 px-3 text-white rounded-md'>
           <FaPlus></FaPlus> <div>New</div>
@@ -173,7 +169,7 @@ const page = () => {
             </div>
           </div>
         )}
-      <div className="grid grid-cols-3 w-full gap-5">
+      <div className="grid grid-cols-4 w-full gap-5">
         {subject.length > 1 ? get_sub_data : null}
       </div>
     </div>
