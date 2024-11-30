@@ -244,14 +244,13 @@ const select_resource = (
   session: any
 ) => {
   let res = res_all[resource_index].resource_allocator.filter(
-    (res: any) => res.sessions[day][session] < 1
+    (res: any) => res.sessions[day][session] < 1    
   );
   let random_index = Math.floor(Math.random() * res.length);
   let res_name = res[random_index].name;
   let index = res_all[resource_index].resource_allocator.findIndex(
     (res: any) => res.name == res_name
   );
-
   return index;
 };
 
