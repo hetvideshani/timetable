@@ -5,7 +5,7 @@ import { deleteAllAllocators, generateAllocators } from "@/lib/resourceAllocator
 export async function POST(req: any, res: any) {
     try {
         const body = await req.json();
-        console.log(body);
+        console.log(body);  
         const response = await schedule(body)
         // await deleteAllAllocators(29, 'Faculty');
         // await deleteAllAllocators(29, 'Auditorium');

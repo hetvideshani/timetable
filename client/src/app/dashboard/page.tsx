@@ -183,6 +183,8 @@ const Page = () => {
     ),
   ];
 
+  const [toggleDropdown , setToggleDropdown] = useState(false)
+
   // Fetch university ID on load
   useEffect(() => {
     get_uni_id();
@@ -613,53 +615,62 @@ const Page = () => {
 
       {
         showModal3 && (
-          <div className="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-center">
+          <div className="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 z-10 flex justify-center items-center">
             <div className="bg-white w-fit p-5 rounded-md">
               <div className="flex flex-col justify-center items-center">
                 <h1 className="text-2xl font-bold">Create TimeTable</h1>
                 <p className="text-gray-400 text-sm">
                   Add details required for generating the timetable!
                 </p>
-                <div className="flex gap-3">
-                {
-                  resourceOptions.map((value, index) => (
-                    <div>
-                      <div>{value}</div>
-                      <select key={index} 
-                      onChange={(e) => handleResourceChange(value, e.target.value )}
-                      className="border border-gray-300 p-3 rounded-md text-black focus:outline-none focus:border-blue-500">
-                      <option value="">Select Resource</option>
-                      {
-                        allResource.filter((r) => r.resource_type === value).map((r, i) => (
-                          <option key={i} value={r.resource_name}>
-                            {r.resource_name}
-                          </option>
-                        ))
-                      }
-                      </select>
-                    </div>
-                  ))
-                }
+                <div className="flex flex-col h-96 gap-3">
+                  <input type="text" name="" placeholder="Select Resource" 
+                  onClick={() => setToggleDropdown(true)}
+                  value={data.resource.map((name:any) => name.resource_name).join(' , ')} id="" />
+                    {
+                      toggleDropdown && 
+                      (<div className="flex flex-col gap-1">
+                        {
+                          allResource.map((res, index) => (
+                          <label htmlFor={`resource-${index}`} key={index}>
+                              <input type="checkbox" name="" id="" onChange={() => 
+                                {
+                                  const newResource = [...data.resource];
+                                  if (newResource.includes(res)) {
+                                    newResource.splice(newResource.indexOf(res), 1);
+                                  } else {
+                                    newResource.push(res);
+                                  }
+                                  setData({
+                                   ...data,
+                                    resource: newResource,
+                                  });
+                                  
+                                }
+                              }/>
+                              {res.resource_name}
+                          </label>
+                          ))
+                        }
+                      </div>)
+                    }
+                  {/* {// resourceOptions.map((value, index) => (
+                  //   <div>
+                  //     <div>{value}</div>
+                  //     <select key={index} 
+                  //     onChange={(e) => handleResourceChange(value, e.target.value )}
+                  //     className="border border-gray-300 p-3 rounded-md text-black focus:outline-none focus:border-blue-500">
+                  //     <option value="">Select Resource</option>
+                  //     {
+                  //       allResource.filter((r) => r.resource_type === value).map((r, i) => (
+                  //         <option key={i} value={r.resource_name}>
+                  //           {r.resource_name}
+                  //         </option>
+                  //       ))
+                  //     }
+                  //     </select>
+                  //   </div>
+                  // ))} */}
                 </div>
-                <div className="mt-4">
-                    <h2 className="text-lg font-semibold">Selected Resources:</h2>
-                    <div className="grid grid-cols-6 gap-2 mt-2">
-                      {data.resource.map((res, index) => (
-                        <div
-                          key={index}
-                          className="bg-gray-100 border border-gray-300 rounded-md p-2 flex items-center gap-2"
-                        >
-                          <span>{res.resource_name}</span>
-                          <button
-                            onClick={() => removeResource(res.resource_name)}
-                            className="text-red-500 hover:text-red-700"
-                          >
-                            <IoClose size={20} />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
               </div>
               <div className="flex justify-between m-5">
               <button
