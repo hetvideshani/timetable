@@ -11,7 +11,6 @@ import { supabase } from "@/lib/dbConnect";
 import { create } from "domain";
 
 export async function schedule(params: any) {
-  console.log(params);
 
   const subject_faculty = params.subject_faculty;
   const selected_resource = params.resource;
@@ -26,13 +25,9 @@ export async function schedule(params: any) {
     return;
   }
 
-  // return selected_resource
-
   const number_of_session = session ? session.length : 0;
 
   const faculty = subject_faculty.map((sub_fac: any) => sub_fac.faculty_name);
-  // console.log("faculty name " , faculty);
-  // return faculty
 
   let faculty_allocator: any = [];
 
@@ -42,15 +37,9 @@ export async function schedule(params: any) {
   }
   faculty_allocator = faculty_allocator.map((fac: any) => fac[0]);
 
-  //   const faculty_allocator = genAllocator(faculty, 5, number_of_session);
-  // console.log("faculty allocator " , faculty_allocator, faculty_allocatorr);
-  // return faculty_allocator
-
-  // console.log(resource);
   const resource_type = selected_resource
     ? [...new Set(selected_resource.map((res: any) => res.resource_type))]
     : [];
-  // console.log("resource type - " + resource_type);
 
   let res_all: any = [];
 
@@ -58,20 +47,14 @@ export async function schedule(params: any) {
     const resource_name = selected_resource
       ? selected_resource.filter((res: any) => res.resource_type === res_type)
       : [];
-    // console.log(resource_name);
 
     const all_resource_name = resource_name.map(
       (res: any) => res.resource_name
     );
-    // console.log(all_resource_name);
     let temp: any = [];
-    // all_resource_name.forEach(async (resName: any) => {
-    //     let acc = genAllocator([resName], 5, number_of_session)
-    //     temp.push(acc);
-    // })
+
     for (const resName of all_resource_name) {
       try {
-        //   console.log(resName);
         const acc = await getAllocator(
           params.uni_id,
           res_type as string,
@@ -83,26 +66,13 @@ export async function schedule(params: any) {
       }
     }
 
-    // console.log("temp :", temp);
     res_all.push({
       resource_allocator: temp.map((res: any) => res[0]),
       res_type,
     });
-    // console.log("res all - " , res_all);
   }
-  // console.log("res all final - " , res_all);
 
-  //   return res_all
   const timeTable = createTimetable(5, number_of_session, [2]);
-
-  // allocator
-  // let day_index = 0;
-  // let session_index = 0;
-  // let faculty_allocator_index = 0;
-  // let resource_type_index = 0;
-  // let res_name = res_all[0].resource_allocator[0].name;
-  // console.log(res_name);
-  // let i = 0;
 
   let faculty_index = 0;
   let resource_index = 0;
@@ -115,7 +85,6 @@ export async function schedule(params: any) {
 
       console.log("day", i, "session", j);
 
-      // check for previous session
       // if (timeTable) {
       //     // all
 
@@ -133,7 +102,6 @@ export async function schedule(params: any) {
         j
       );
 
-      console.log(faculty_index);
 
       if (faculty_index != -1) {
         resource_index = res_all.findIndex(
@@ -170,37 +138,40 @@ export async function schedule(params: any) {
             40,
             20
           );
-          // res_all[resource_index].resource_allocator[second_resource_index].sessions[i][j] = 1;
           console.log(
-            "resource count",
+            "resource count prev ",
             subject_faculty[faculty_index].resource_required[resource_index]
               .resource_count
           );
-          subject_faculty[faculty_index].resource_required[resource_index]
-            .resource_count--;
+          if (subject_faculty[faculty_index].resource_required[resource_index]
+            .resource_count > 0) {
+              subject_faculty[faculty_index].resource_required[resource_index]
+                .resource_count--;
+              console.log("resource name : ", resource_type[resource_index]);
+              console.log("faucklty name ", subject_faculty[faculty_index].faculty_name);
+              console.log("resource count upd ", subject_faculty[faculty_index].resource_required[resource_index].resource_count);
+              }
           resource_index++;
-          // console.log(second_resource_index);
         }
 
-        // console.log(second_resource_index);
       }
     }
   }
-  try {
-    // await updateAllocator({});
-    await updateAllAllocators({
-      uniId: params.uni_id,
-      resourceType: "Auditorium",
-      resourceAllocator: res_all[1].resource_allocator,
-    });
-    await updateAllAllocators({
-      uniId: params.uni_id,
-      resourceType: "Lab",
-      resourceAllocator: res_all[0].resource_allocator,
-    });
-  } catch (error) {
-    console.error("Error updating allocator:", error);
-  }
+  // try {
+  //   // await updateAllocator({});
+  //   await updateAllAllocators({
+  //     uniId: params.uni_id,
+  //     resourceType: "Auditorium",
+  //     resourceAllocator: res_all[1].resource_allocator,
+  //   });
+  //   await updateAllAllocators({
+  //     uniId: params.uni_id,
+  //     resourceType: "Lab",
+  //     resourceAllocator: res_all[0].resource_allocator,
+  //   });
+  // } catch (error) {
+  //   console.error("Error updating allocator:", error);
+  // }
   return timeTable;
 }
 // faculty check
@@ -212,17 +183,27 @@ const select_faculty = (
   day: any,
   session: any
 ) => {
-  let faculty = subject_faculty.filter((sub_fac: any) =>
+  let faculty = subject_faculty.map((sub_fac: any) =>
     sub_fac.resource_required.filter(
       (res: any) => res.resource_type == res_type && res.resource_count > 0
     )
   );
+  let available_faculty = subject_faculty.map((sub_fac: any) =>
+    sub_fac.resource_required.filter(
+      (res: any) => res.resource_type == res_type && res.resource_count > 0
+    )
+  )
+  // let faculty = subject_faculty.filter((sub_fac: any) =>
+  //   sub_fac.resource_required.filter(
+  //     (res: any) => res.resource_type == res_type && res.resource_count > 0
+  //   )
+  // );
 
-  let available_faculty = faculty_allocator.filter(
-    (fac: any) =>
-      faculty.filter((facc: any) => facc.faculty_name == fac.name) &&
-      fac.sessions[day][session] < 1
-  );
+  // let available_faculty = faculty_allocator.filter(
+  //   (fac: any) =>
+  //     faculty.filter((facc: any) => facc.faculty_name == fac.name) &&
+  //     fac.sessions[day][session] < 1
+  // );
 
   if (available_faculty.length == 0) {
     return -1;
@@ -269,7 +250,6 @@ const faculty_check = (
 };
 
 const resource_count_check = (subject_faculty: any): boolean => {
-  console.log(subject_faculty);
   for (let i = 0; i < subject_faculty.length; i++) {
     let sub_fac = subject_faculty[i];
     for (let j = 0; j < sub_fac.resource_required.length; j++) {
@@ -289,12 +269,10 @@ function resource_check(
   res_type: string,
   res_name: string
 ): number {
-  // console.log(res_type);
   let result = 0;
 
   let sameType = res_all.filter((res: any) => res.res_type == res_type);
   sameType = sameType.map((res: any) => res.resource_allocator);
-  //   console.log(sameType);
 
   for (let i = 0; i < sameType.length; i++) {
     let res = sameType[i];
