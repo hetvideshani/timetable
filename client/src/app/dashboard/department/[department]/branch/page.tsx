@@ -5,6 +5,7 @@ import { IoClose } from "react-icons/io5";
 import { LuPencil } from "react-icons/lu";
 import { FaPlus } from "react-icons/fa";
 import { useRouter } from "next/navigation";
+import { FiEdit, FiTrash2 } from 'react-icons/fi';
 
 const page = () => {
     const [uni_id, setUni_id] = useState('');
@@ -127,28 +128,18 @@ const page = () => {
     const get_branch_data = branches.map((data,index) => {
         return (
         <div
-        className="shadow-md hover:bg-slate-100 flex flex-col justify-center items-center w-full p-5 gap-0 font-bold rounded-sm"
+        className='main_content group shadow-md relative justify-center items-center w-full font-bold rounded-sm'
         key={index} onClick={() => {router.push(`/dashboard/department/${department_id}/branch/${data.id}`)}}>
-        <p className=" text-lg text-slate-900">{data.id}</p>
-        <p className=" text-2xl text-slate-950">{data.branch_name}</p>
-        <div className="flex gap-1 mt-5">
-          <button
-          onClick={(e) => {
+        
+        <div className='edit_delete opacity-0 group-hover:opacity-100 group-hover:backdrop-blur-md group-hover:bg-gray-900 group-hover:bg-opacity-10 transition-all duration-1000  flex  border-black justify-center items-center h-full p-2 w-full absolute'>
+          <button onClick={(e) => {
             handle_edit(data.branch_name);
             setBranch_id(data.id);
-          }}
-            className="bg-green-600 px-3 py-1 rounded-md"
-          >
-            <LuPencil size={20} className=" text-white "></LuPencil>
-          </button>
-          <button
-            onClick={() => {
-              handle_delete(data.id);
-            }}
-            className="bg-red-600 px-3 py-1 rounded-md"
-          >
-            <IoClose size={20} className=" text-white"></IoClose>
-          </button>
+          }} className='flex gap-1 focus:z-10  hover:text-green-600 border-r border-black p-2'><FiEdit size={20} /><span>Edit</span></button>
+          <button onClick={(e) => { handle_delete(data.id) }} className='flex gap-1 hover:z-10  hover:text-red-600 p-2'><FiTrash2 size={20} /><span>Delete</span></button>
+        </div>
+        <div className='right_content w-full items-center flex flex-col gap-0 p-10 '>
+          <p className=" text-2xl text-slate-950">{data.branch_name}</p>  
         </div>
       </div>)
     })
@@ -165,7 +156,7 @@ const page = () => {
         </button>
 
         {isModalOpen && (
-          <div className="fixed top-0 left-0 right-0 bottom-0 bg-gray-900 bg-opacity-50 flex justify-center items-center">
+          <div className="fixed z-10 top-0 left-0 right-0 bottom-0 bg-gray-900 bg-opacity-50 flex justify-center items-center">
             <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
               <h2 className="text-lg font-bold mb-4">Add New Branch</h2>
 
@@ -200,7 +191,7 @@ const page = () => {
           </div>
         )}
       </div>
-      <div className="grid grid-cols-3 w-full gap-5">
+      <div className="grid grid-cols-4 w-full gap-5">
         {branches[0].id > 0 ? get_branch_data : null}
       </div>
     </div>

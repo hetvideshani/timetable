@@ -5,6 +5,7 @@ import { IoClose } from "react-icons/io5";
 import { LuPencil } from "react-icons/lu";
 import { FaPlus } from "react-icons/fa";
 import { HoverEffect } from "@/app/components/ui/card-hover-effect";
+import { FiEdit, FiTrash2 } from "react-icons/fi";
 
 const page = () => {
   const [validationState, setValidationState] = useState<{
@@ -215,7 +216,7 @@ const page = () => {
   const get_branch_data = all_branches.map((data, index) => {
     return (
       <div
-        className="shadow-md hover:bg-slate-100 flex flex-col justify-center items-center w-full p-5 gap-0 font-bold rounded-sm"
+         className='main_content group shadow-md relative justify-center items-center w-full font-bold rounded-sm'
         key={index}
         onClick={() =>
           setBranch({
@@ -225,27 +226,16 @@ const page = () => {
           })
         }
       >
-        <p className=" text-lg text-slate-900">{data.id}</p>
-        <p className=" text-2xl text-slate-950">{data.branch_name}</p>
-        <p className=" text-xl text-slate-950">Department - {data.dept_name}</p>
-        <div className="flex gap-1 mt-5">
-          <button
-            onClick={(e) => {
+        <div className='edit_delete opacity-0 group-hover:opacity-100 group-hover:backdrop-blur-md group-hover:bg-gray-900 group-hover:bg-opacity-10 transition-all duration-1000  flex  border-black justify-center items-center h-full p-2 w-full absolute'>
+          <button onClick={(e) => {
               handle_edit(data);
               setPreviousDepartment({ id: data.dept_id, department_name: data.dept_name, uni_id: Number(uni_id) });
-            }}
-            className="bg-green-600 px-3 py-1 rounded-md"
-          >
-            <LuPencil size={20} className=" text-white "></LuPencil>
-          </button>
-          <button
-            onClick={(e) => {
-              handle_delete(data);
-            }}
-            className="bg-red-600 px-3 py-1 rounded-md"
-          >
-            <IoClose size={20} className=" text-white"></IoClose>
-          </button>
+            }} className='flex gap-1 hover:text-green-600 border-r border-black p-2'><FiEdit size={20} /><span>Edit</span></button>
+          <button onClick={(e) => { handle_delete(data) }} className='flex gap-1 hover:text-red-600 p-2'><FiTrash2 size={20} /><span>Delete</span></button>
+        </div>
+        <div className='right_content w-full flex flex-col gap-0 p-5 '>
+          <p className=" text-2xl text-slate-950">{data.branch_name}</p>
+          <p className=" text-xl text-slate-950">Department - {data.dept_name}</p>
         </div>
       </div>
     );
@@ -418,12 +408,8 @@ const page = () => {
             </div>
           </div>
         )}
-        <div className="w-full gap-5">
-          {/* {all_branches.length > 1 ? get_branch_data : null} */}
-          <div className="w-full px-8">
-            <HoverEffect items={all_branches} />
-          </div>
-
+        <div className="w-full grid grid-cols-3 gap-5">
+          {all_branches.length > 1 ? get_branch_data : null}
         </div>
       </div>
     </>
