@@ -20,6 +20,7 @@ const page = () => {
     dept_name: ""
   }]);
 
+  const [duration, setDuration] = useState("")
   const [session, setSession] = useState<{
     id: number | null;
     session_sequence: number | null;
@@ -167,16 +168,17 @@ const page = () => {
 
   const get_session_data = all_sessions.map((data, index) => {
     return (
-      <div className='main_content group shadow-md relative justify-center items-center w-full font-bold rounded-sm' key={index} onClick={() => setSession({ id: data.id, session_sequence: data.session_sequence, duration: data.duration, dept_id: data.dept_id, do_nothing: data.do_nothing })}>
+      <div className='main_content group rounded-lg shadow-md relative justify-center items-center w-full font-bold' key={index} onClick={() => setSession({ id: data.id, session_sequence: data.session_sequence, duration: data.duration, dept_id: data.dept_id, do_nothing: data.do_nothing })}>
         <div className='edit_delete opacity-0 group-hover:opacity-100 group-hover:backdrop-blur-md group-hover:bg-gray-900 group-hover:bg-opacity-10 transition-all duration-1000  flex  border-black justify-center items-center h-full p-2 w-full absolute'>
           <button onClick={(e) => { handle_edit(data); }} className='flex gap-1 hover:text-green-600 border-r border-black p-2'><FiEdit size={20} /><span>Edit</span></button>
           <button onClick={(e) => { handle_delete(data) }} className='flex gap-1 hover:text-red-600 p-2'><FiTrash2 size={20} /><span>Delete</span></button>
         </div>
-        <div className='right_content w-full flex flex-col gap-0 p-5 '>
+        <div className='right_content w-full items-center flex flex-col gap-0 p-5 '>
           <p className=' text-2xl text-slate-950'>{data.session_sequence}</p>
           <p className=' text-xl text-slate-950'>{data.do_nothing? 'Break' : 'Allocated'}</p>
-          <p className=' text-xl text-slate-950'>Duration - {data.duration}</p>
-          <p className=' text-xl text-slate-950'>Department - {data.dept_name}</p>
+          <p className=' text-xl text-slate-950'> {
+          Math.floor(data.duration / 60).toString().padStart(2, "0") + " : " + (data.duration % 60).toString().padStart(2, "0") +  " : 00"}</p>
+          <p className=' text-xl text-slate-950'>Dept - {data.dept_name}</p>
         </div>
       </div>
     )

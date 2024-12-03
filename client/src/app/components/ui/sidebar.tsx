@@ -89,7 +89,7 @@ export const DesktopSidebar = ({
     <>
       <motion.div
         className={cn(
-          "h-full px-6 py-5 hidden  md:flex md:flex-col bg-[#1b262c] w-[250px] flex-shrink-0",
+          "h-full px-6 py-5 hidden md:flex md:flex-col bg-[#DBD3D3] w-[250px] flex-shrink-0",
           className
         )}
         animate={{
@@ -116,7 +116,7 @@ export const MobileSidebar = ({
     <>
       <div
         className={cn(
-          "h-10 px-4 py-4 flex flex-row md:hidden  items-center justify-between bg-neutral-100 dark:bg-neutral-800 w-full"
+          "h-10 px-4 py-4 flex flex-row md:hidden  items-center justify-between bg-[#DBD3D3] w-full"
         )}
         {...props}
       >
@@ -137,12 +137,12 @@ export const MobileSidebar = ({
                 ease: "easeInOut",
               }}
               className={cn(
-                "fixed h-full w-full inset-0 bg-white dark:bg-neutral-900 p-10 z-[100] flex flex-col justify-between",
+                "fixed h-full w-full inset-0 p-10 z-[100] flex flex-col justify-between",
                 className
               )}
             >
               <div
-                className="absolute right-10 top-10 z-50 text-neutral-800 dark:text-neutral-200"
+                className="absolute right-10 top-10 z-50 "
                 onClick={() => setOpen(!open)}
               >
                 <IconX />
@@ -273,7 +273,7 @@ export function SidebarDemo() {
   return (
     <div
       className={cn(
-        "text-[#bbe1fa] text-lg flex flex-col md:flex-row dark:bg-neutral-800 w-full flex-1 max-w-7xl mx-auto overflow-hidden h-screen", // for your use case, use `h-screen` instead of `h-[60vh]`
+        "text-[#070F2B] text-lg flex flex-col md:flex-row bg-[#DBD3D3]  w-full flex-1 max-w-7xl mx-auto overflow-hidden h-screen", // for your use case, use `h-screen` instead of `h-[60vh]`
       )}
     >
       <Sidebar open={open} setOpen={setOpen}>
@@ -313,7 +313,7 @@ export const Logo = () => {
   return (
     <Link
       href="#"
-      className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
+      className="font-normal flex space-x-2 items-center text-sm text-[#070F2B] py-1 relative z-20"
     >
       <div className="h-5 w-6 bg-black dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
       <motion.span
@@ -330,7 +330,7 @@ export const LogoIcon = () => {
   return (
     <Link
       href="#"
-      className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20"
+      className="font-normal flex space-x-2 items-center text-sm text-[#070F2B] py-1 relative z-20"
     >
       <div className="h-5 w-6 bg-black dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
     </Link>
@@ -340,7 +340,7 @@ export const LogoIcon = () => {
 // Dummy dashboard component with content
 const Dashboard = () => {
   return (
-    <div className="flex flex-1">
+    <div className="flex flex-1 text-[#070F2B]">
       <div className="p-2 md:p-10 rounded-tl-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 flex flex-col gap-2 flex-1 w-full h-full">
         <div className="flex gap-2">
           {[...new Array(4)].map((i) => (
