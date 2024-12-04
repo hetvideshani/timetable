@@ -2,9 +2,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import CustomDropdown from "./dropdown";
-import { Modal, ModalTrigger } from "../components/ui/animated-modal";
-import { log } from "console";
-import { IoClose } from "react-icons/io5";
+import { IoClose, IoFilter, IoSearch } from "react-icons/io5";
+import { FaArrowLeftLong, FaArrowRightLong } from "react-icons/fa6";
 
 const Page = () => {
   const [data, setData] = useState({
@@ -33,8 +32,8 @@ const Page = () => {
       {
         capacity: 0,
         resource_type: "",
-        resource_name: ""
-      }
+        resource_name: "",
+      },
     ],
     subject: [
       {
@@ -55,6 +54,36 @@ const Page = () => {
   const [showModal, setShowModal] = useState(true);
   const [showModal2, setShowModal2] = useState(false);
   const [showModal3, setShowModal3] = useState(false);
+  const handleResourceChange = (resourceType: any, resourceName: any) => {
+    // Check if the resource is already in the data
+    const isSelected = data.resource.some(
+      (r) => r.resource_name === resourceName
+    );
+
+    if (isSelected) {
+      // Remove the resource if it is already selected
+      setData((prevData) => ({
+        ...prevData,
+        resource: prevData.resource.filter(
+          (r) => r.resource_name !== resourceName
+        ),
+      }));
+    } else {
+      // Add the resource if it is not selected
+      setData((prevData) => ({
+        ...prevData,
+        resource: [
+          ...prevData.resource,
+          {
+            capacity: 0,
+            resource_type: resourceType,
+            resource_name: resourceName,
+          },
+        ],
+      }));
+    }
+  };
+
   const [department, setDepartment] = useState([
     {
       id: 0,
@@ -113,47 +142,22 @@ const Page = () => {
   const [allResource, setAllResource] = useState([
     {
       id: 0,
-      capacity : 0,
+      capacity: 0,
       resource_name: "",
       resource_type: "",
     },
   ]);
-
-  const handleResourceChange = (
-    field: string,
-    value: string
-  ) => {
-    const cap = allResource.find((res) => res.resource_name === value)
-    setData((prev) => {
-      if (
-        cap &&
-        !prev.resource.some(
-          (res) => res.resource_name === value && res.resource_type === field
-        )
-      ) {
-        return {
-          ...prev,
-          resource: [
-            ...prev.resource,
-            { resource_name: value, resource_type: field, capacity: cap.capacity || 0 },
-          ],
-        };
-      }
-      return prev; 
-    });
-  };
-  
-  const removeResource = (resourceName: string) => {
-    setData((prev) => ({
-      ...prev,
-      resource: prev.resource.filter((res) => res.resource_name !== resourceName),
-    }));
-  };
-  
+  const [filterResoruce, setFilterResource] = useState([
+    {
+      id: 0,
+      capacity: 0,
+      resource_name: "",
+      resource_type: "",
+    },
+  ]);
   const resourceOptions = [
     ...new Set(allResource.map((res) => res.resource_type)),
   ];
-  
   const departmentOptions = department.map((dept) => dept.department_name);
   const branchOptions = [
     ...new Set(
@@ -182,8 +186,6 @@ const Page = () => {
         .map((sem) => sem.sem_no)
     ),
   ];
-
-  const [toggleDropdown , setToggleDropdown] = useState(false)
 
   // Fetch university ID on load
   useEffect(() => {
@@ -258,7 +260,7 @@ const Page = () => {
       setClass([]);
     }
   };
-
+  // fetch all semester
   const getAllSemester = async (id: any) => {
     const response = await fetch(
       `http://localhost:3000/api/university/${id}/semester`
@@ -273,6 +275,7 @@ const Page = () => {
     }
   };
 
+  // fetch all resource
   const getAllResources = async (id: any) => {
     const response = await fetch(
       `http://localhost:3000/api/university/${id}/resource`
@@ -281,10 +284,10 @@ const Page = () => {
     const data = await response.json();
     if (Array.isArray(data.data)) {
       setAllResource(data.data);
+      setFilterResource(data.data);
     } else {
       setAllResource([]);
     }
-    
   };
 
   const sendData = async () => {
@@ -301,29 +304,29 @@ const Page = () => {
   return (
     <div className="text-black flex justify-center">
       <div className="pt-10 flex " onClick={() => setShowModal(true)}>
-        <button className="relative flex h-[50px] w-40 items-center justify-center overflow-hidden bg-[#BBE1FA] font-medium text-[#1B262C] shadow-2xl transition-all duration-300 before:absolute before:inset-0 before:border-0 before:border-[#0F4C75] before:duration-100 before:ease-linear hover:bg-[#1B262C] hover:text-[#BBE1FA] rounded-lg">
+        <button className="relative  flex h-[50px] w-40 items-center justify-center overflow-hidden bg-[#BBE1FA] font-medium text-[#1B262C] shadow-2xl transition-all duration-300 before:absolute before:inset-0 before:border-0 before:border-[#0F4C75] before:duration-100 before:ease-linear hover:bg-[#1B262C] hover:text-[#BBE1FA] rounded-lg">
           <span className="relative z-10">Create Time Table</span>
         </button>
-        {/* <Modal>
-          <ModalTrigger className="bg-black dark:bg-white dark:text-black text-white flex justify-center group/modal-btn">
-            <span className="group-hover/modal-btn:translate-x-40 text-center transition duration-500">
-              Create Time Table
-            </span>
-            <div className="-translate-x-40 group-hover/modal-btn:translate-x-0 flex items-center justify-center absolute inset-0 transition duration-500 text-white z-20">
-              📅
-            </div>
-          </ModalTrigger>
-        </Modal> */}
       </div>
 
       {showModal && (
-        <div className="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-center">
+        <div className="fixed z-10 top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-center">
           <div className="bg-white w-[50vw] p-5 rounded-md">
-            <div className="flex flex-col justify-center items-center">
-              <h1 className="text-2xl font-bold">Create TimeTable</h1>
-              <p className="text-gray-400 text-sm">
-                Add details required for generating the timetable!
-              </p>
+            <div className="flex relative">
+              <div className="flex-1 text-center ">
+                <h1 className="text-2xl font-bold">Create TimeTable</h1>
+                <p className="text-gray-400 text-sm">
+                  Add details required for generating the timetable!
+                </p>
+              </div>
+              <div className="absolute right-0">
+                <button
+                  className="hover:text-red-500"
+                  onClick={() => setShowModal(false)}
+                >
+                  <IoClose size={30} />
+                </button>
+              </div>
             </div>
 
             <div className="m-5">
@@ -457,15 +460,17 @@ const Page = () => {
               </div>
             </div>
 
-            <div className="flex justify-between m-5">
+            <div className="flex justify-end m-5">
               <button
-                className="bg-red-600 p-2 rounded-md"
-                onClick={() => setShowModal(false)}
-              >
-                Close
-              </button>
-              <button
-                className="bg-blue-600 p-2 rounded-md"
+                className=" bg-gray-700 text-white gap-2 hover:bg-gray-800 transition flex justify-center items-center px-3 py-2 rounded-sm disabled:opacity-45 disabled:cursor-not-allowed"
+                disabled={
+                  data.department.department_name == "" ||
+                  data.branch.branch_name == "" ||
+                  data.classes.class_no == 0 ||
+                  data.semester.sem_no == ""
+                    ? true
+                    : false
+                }
                 onClick={() => {
                   setShowModal(false);
                   setShowModal2(true);
@@ -512,13 +517,10 @@ const Page = () => {
                     });
                 }}
               >
-                next
-              </button>
-              <button
-                className="bg-green-600 p-2 rounded-md"
-                onClick={() => setShowModal(false)}
-              >
-                Save
+                Next
+                <span>
+                  <FaArrowRightLong />
+                </span>
               </button>
             </div>
           </div>
@@ -526,32 +528,49 @@ const Page = () => {
       )}
 
       {showModal2 && (
-        <div className="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white w-[50vw] p-5 rounded-md">
-            <div className="flex flex-col justify-center items-center">
-              <h1 className="text-2xl font-bold">Create TimeTable</h1>
-              <p className="text-gray-400 text-sm">
-                Add details required for generating the timetable!
-              </p>
+        <div className="fixed z-10 top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-5  rounded-md">
+            <div className="flex relative">
+              <div className="flex-1 text-center ">
+                <h1 className="text-2xl font-bold">Create TimeTable</h1>
+                <p className="text-gray-400 text-sm">
+                  Add details required for generating the timetable!
+                </p>
+              </div>
+              <div className="absolute right-0">
+                <button
+                  className="hover:text-red-500"
+                  onClick={() => setShowModal2(false)}
+                >
+                  <IoClose size={30} />
+                </button>
+              </div>
             </div>
 
             {/* subject and faculty wise resource */}
             <div className="">
               {subject_faculty.map((sub_fac, subindex) => {
                 return (
-                  <div key={subindex}>
-                    <div className="flex tex-xl gap-4 font-bold">
-                      <div className="  ">{sub_fac.subject_name}</div>
-                      <div className="  ">{sub_fac.faculty_name}</div>
+                  <div key={subindex} className="p-1 ">
+                    <div className="flex gap-2 items-baseline">
+                      <div className="font-bold  text-lg ">
+                        {sub_fac.subject_name}
+                      </div>
+
+                      <div className="text-sm text-gray-400 ">
+                        {sub_fac.faculty_name}
+                      </div>
                     </div>
-                    <div className="flex gap-2 justify-between ">
+                    <div className="flex gap-4 py-1 ">
                       {resourceOptions.map((res, index) => {
                         return (
-                          <div className=" w-[30%]" key={index}>
-                            <label htmlFor="">{res}</label>
+                          <div className="flex flex-col relative " key={index}>
+                            <label className="absolute text-xs text-gray-500 left-2 bg-white px-1 -top-2">
+                              {res}
+                            </label>
                             <input
                               type="text"
-                              className="border-2 border-gray-300 p-2 rounded-md"
+                              className="border-2 border-gray-300 p-1.5 rounded-md"
                               placeholder="Enter count"
                               onChange={(e) => {
                                 const newSubject = [...subject_faculty];
@@ -573,30 +592,30 @@ const Page = () => {
             </div>
             <div className="flex justify-between m-5">
               <button
-                className="bg-red-600 p-2 rounded-md"
-                onClick={() => setShowModal2(false)}
-              >
-                Close
-              </button>
-              <button
-                className="bg-blue-600 p-2 rounded-md"
+                className=" bg-gray-700 text-white gap-2 hover:bg-gray-800 transition flex justify-center items-center px-3 py-2 rounded-sm "
                 onClick={() => {
                   setShowModal2(false);
                   setShowModal(true);
                 }}
               >
-                prev
+                <span>
+                  <FaArrowLeftLong />
+                </span>
+                Prev
               </button>
               <button
-                className="bg-blue-600 p-2 rounded-md"
+                className=" bg-gray-700 text-white gap-2 hover:bg-gray-800 transition flex justify-center items-center px-3 py-2 rounded-sm disabled:opacity-45 disabled:cursor-not-allowed"
                 onClick={() => {
                   setShowModal2(false);
                   setShowModal3(true);
                 }}
               >
-                next
+                Next
+                <span>
+                  <FaArrowRightLong />
+                </span>
               </button>
-              <button
+              {/* <button
                 className="bg-green-600 p-2 rounded-md"
                 onClick={() => {
                   setShowModal(false);
@@ -607,101 +626,132 @@ const Page = () => {
                 }}
               >
                 Save
-              </button>
+              </button> */}
             </div>
           </div>
         </div>
       )}
 
-      {
-        showModal3 && (
-          <div className="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 z-10 flex justify-center items-center">
-            <div className="bg-white w-fit p-5 rounded-md">
-              <div className="flex flex-col justify-center items-center">
+      {showModal3 && (
+        <div className="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 z-10 flex justify-center items-center">
+          <div className="bg-white w-fit p-5 rounded-md shadow-lg">
+            <div className="flex relative">
+              <div className="flex-1 text-center ">
                 <h1 className="text-2xl font-bold">Create TimeTable</h1>
                 <p className="text-gray-400 text-sm">
                   Add details required for generating the timetable!
                 </p>
-                <div className="flex flex-col h-96 gap-3">
-                  <input type="text" name="" placeholder="Select Resource" 
-                  onClick={() => setToggleDropdown(true)}
-                  value={data.resource.map((name:any) => name.resource_name).join(' , ')} id="" />
-                    {
-                      toggleDropdown && 
-                      (<div className="flex flex-col gap-1">
-                        {
-                          allResource.map((res, index) => (
-                          <label htmlFor={`resource-${index}`} key={index}>
-                              <input type="checkbox" name="" id="" onChange={() => 
-                                {
-                                  const newResource = [...data.resource];
-                                  if (newResource.includes(res)) {
-                                    newResource.splice(newResource.indexOf(res), 1);
-                                  } else {
-                                    newResource.push(res);
-                                  }
-                                  setData({
-                                   ...data,
-                                    resource: newResource,
-                                  });
-                                  
-                                }
-                              }/>
-                              {res.resource_name}
-                          </label>
-                          ))
-                        }
-                      </div>)
-                    }
-                  {/* {// resourceOptions.map((value, index) => (
-                  //   <div>
-                  //     <div>{value}</div>
-                  //     <select key={index} 
-                  //     onChange={(e) => handleResourceChange(value, e.target.value )}
-                  //     className="border border-gray-300 p-3 rounded-md text-black focus:outline-none focus:border-blue-500">
-                  //     <option value="">Select Resource</option>
-                  //     {
-                  //       allResource.filter((r) => r.resource_type === value).map((r, i) => (
-                  //         <option key={i} value={r.resource_name}>
-                  //           {r.resource_name}
-                  //         </option>
-                  //       ))
-                  //     }
-                  //     </select>
-                  //   </div>
-                  // ))} */}
+              </div>
+              <div className="absolute right-0">
+                <button
+                  className="hover:text-red-500"
+                  onClick={() => setShowModal3(false)}
+                >
+                  <IoClose size={30} />
+                </button>
+              </div>
+            </div>
+            <div className="flex flex-col justify-center items-center">
+              <div className="flex flex-col gap-3">
+                <div className="flex justify-center items-center gap-2">
+                  <div className="flex w-[80%] border border-gray-300 hover:ring-2 hover:ring-gray-700 rounded-lg p-2 my-2 items-center">
+                    <div>
+                      <IoSearch size={20} />
+                    </div>
+                    <input
+                      type="text"
+                      className="rounded-md w-full text-black focus:outline-none px-2"
+                      placeholder="Search Resource"
+                      onChange={(e) => {
+                        setFilterResource(
+                          allResource.filter((res) =>
+                            res.resource_name
+                              .toLowerCase()
+                              .includes(e.target.value.toLowerCase())
+                          )
+                        );
+                      }}
+                    />
+                  </div>
+                  <div className="p-2.5 border border-gray-300 hover:ring-2 hover:ring-gray-700 rounded-lg cursor-pointer">
+                    <IoFilter size={20} />
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-3">
+                  {resourceOptions.map((resType) => (
+                    <div key={resType}>
+                      <div className="font-semibold text-lg mb-2">
+                        {resType}
+                      </div>
+                      <div className="grid grid-cols-5 gap-4">
+                        {filterResoruce.length > 0 &&
+                        filterResoruce.filter((r) => {
+                          return r.resource_type === resType;
+                        }) ? (
+                          filterResoruce.map((allres) =>
+                            allres.resource_type === resType ? (
+                              <div
+                                key={allres.id}
+                                className="flex items-center gap-2 p-2 border border-gray-300 rounded-md shadow-sm hover:shadow-md"
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={data.resource.some(
+                                    (r) =>
+                                      r.resource_name === allres.resource_name
+                                  )}
+                                  className="accent-green-600 h-5 w-5 cursor-pointer"
+                                  onChange={() => {
+                                    handleResourceChange(
+                                      allres.resource_type,
+                                      allres.resource_name
+                                    );
+                                  }}
+                                />
+                                <label className="text-gray-700">
+                                  {allres.resource_name}
+                                </label>
+                              </div>
+                            ) : null
+                          )
+                        ) : (
+                          <span className="text-gray-400 ">
+                            No resources found
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-              <div className="flex justify-between m-5">
-              <button
-                className="bg-red-600 p-2 rounded-md"
-                onClick={() => setShowModal3(false)}
-              >
-                Close
-              </button>
-              <button
-                className="bg-blue-600 p-2 rounded-md"
-                onClick={() => {
-                  setShowModal2(true);
-                  setShowModal3(false);
-                }}
-              >
-                prev
-              </button>
-              <button
-                className="bg-green-600 p-2 rounded-md"
-                onClick={() => {
-                  setShowModal3(false);
-                  sendData();
-                }}
-              >
-                Save
-              </button>
-            </div>
+              <div className="flex justify-between m-5 w-full">
+                <button
+                  className=" bg-gray-700 text-white gap-2 hover:bg-gray-800 transition flex justify-center items-center px-3 py-2 rounded-sm "
+                  onClick={() => {
+                    setShowModal3(false);
+                    setShowModal2(true);
+                  }}
+                >
+                  <span>
+                    <FaArrowLeftLong />
+                  </span>
+                  Prev
+                </button>
+                <button
+                  className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
+                  onClick={() => {
+                    setShowModal3(false);
+                    sendData();
+                  }}
+                >
+                  Save
+                </button>
+              </div>
             </div>
           </div>
-        )
-      }
+        </div>
+      )}
     </div>
   );
 };

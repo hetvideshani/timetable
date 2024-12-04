@@ -211,10 +211,10 @@ const page = () => {
       setAllClasses(all_classes.filter((data) => data.id !== br.id));
       setOneClass({
         id: 0,
-      class_no: null,
-      total_batches: null,
-      students_per_batch: null,
-      branch_id: 0,
+        class_no: null,
+        total_batches: null,
+        students_per_batch: null,
+        branch_id: 0,
       });
       router.refresh();
     }
@@ -308,7 +308,7 @@ const page = () => {
   const get_class_data = all_classes.map((data, index) => {
     return (
       <div
-        className='main_content group shadow-md relative justify-center items-center w-full font-bold rounded-sm'
+        className="main_content group shadow-md relative justify-center items-center w-full font-bold rounded-sm"
         key={index}
         onClick={() => {
           setOneClass({
@@ -341,13 +341,30 @@ const page = () => {
           });
         }}
       >
-        
-        <div className='edit_delete opacity-0 group-hover:opacity-100 group-hover:backdrop-blur-md group-hover:bg-gray-900 group-hover:bg-opacity-10 transition-all duration-1000  flex  border-black justify-center items-center h-full p-2 w-full absolute'>
-          <button onClick={(e) => { handle_edit(data); }} className='flex gap-1 hover:text-green-600 border-r border-black p-2'><FiEdit size={20} /><span>Edit</span></button>
-          <button onClick={(e) => { handle_delete(data) }} className='flex gap-1 hover:text-red-600 p-2'><FiTrash2 size={20} /><span>Delete</span></button>
+        <div className="edit_delete opacity-0 group-hover:opacity-100 group-hover:backdrop-blur-md group-hover:bg-gray-900 group-hover:bg-opacity-10 transition-all duration-1000  flex  border-black justify-center items-center h-full p-2 w-full absolute">
+          <button
+            onClick={(e) => {
+              handle_edit(data);
+            }}
+            className="flex gap-1 hover:text-green-600 border-r border-black p-2"
+          >
+            <FiEdit size={20} />
+            <span>Edit</span>
+          </button>
+          <button
+            onClick={(e) => {
+              handle_delete(data);
+            }}
+            className="flex gap-1 hover:text-red-600 p-2"
+          >
+            <FiTrash2 size={20} />
+            <span>Delete</span>
+          </button>
         </div>
-        <div className='right_content w-full flex flex-col gap-0 p-5 '>
-          <p className=" text-xl text-slate-950">Department : {data.dept_name}</p>
+        <div className="right_content w-full flex flex-col gap-0 p-5 ">
+          <p className=" text-xl text-slate-950">
+            Department : {data.dept_name}
+          </p>
           <p className=" text-xl text-slate-950">Branch : {data.branch_name}</p>
           <p className=" text-xl text-slate-950">Class No : {data.class_no}</p>
           <p className=" text-xl text-slate-950">
@@ -371,14 +388,26 @@ const page = () => {
             onClick={handle_insert}
             className="flex gap-1 justify-center items-center text-xl bg-blue-600 py-1 px-3 text-white rounded-md"
           >
-            <FaPlus></FaPlus> <div>Add New Class</div>
+            <FaPlus></FaPlus> <div>Add Class</div>
           </button>
         </div>
 
         {isModalOpen && (
           <div className="fixed z-10 top-0 left-0 right-0 bottom-0 bg-gray-900 bg-opacity-50 flex justify-center items-center">
             <div className="bg-white p-6 rounded-lg shadow-lg w-1/3 text-black">
-              <h2 className="text-lg  font-bold mb-4">Add New Class</h2>
+              <div className="flex relative">
+                <div className="flex-1 ">
+                  <h1 className="text-lg font-bold mb-4">Add New Class</h1>
+                </div>
+                <div className="absolute right-0">
+                  <button
+                    className="hover:text-red-500"
+                    onClick={() => setIsModalOpen(false)}
+                  >
+                    <IoClose size={24} />
+                  </button>
+                </div>
+              </div>
 
               <form onSubmit={handleSubmit}>
                 <input
@@ -396,10 +425,11 @@ const page = () => {
                   className="mt-1 p-2 border border-gray-300 rounded-md w-full"
                 />
 
-                {/* <div ref={dropdownRef1} className="relative">
+                <div ref={dropdownRef1} className="relative">
                   <input
                     type="text"
                     value={selected_department.department_name}
+                    className={`bg-gray-50 border text-gray-900  rounded-md border-gray-300  block w-full mt-1 p-2.5`}
                     onChange={(e) => {
                       setSelectedDepartment({
                         ...selected_department,
@@ -446,6 +476,7 @@ const page = () => {
                   <input
                     type="text"
                     value={selected_branch.branch_name}
+                    className={`bg-gray-50  text-gray-900  rounded-md border border-gray-300 block w-full p-2.5 mt-1`}
                     onChange={(e) =>
                       setSelectedBranch({
                         ...selected_branch,
@@ -477,8 +508,8 @@ const page = () => {
                       ))}
                     </div>
                   )}
-                </div> */}
-                <div className="relative">
+                </div>
+                {/* <div className="relative">
                   <select
                     required
                     value={selected_department.id || ""} // Controlled: use 'value'
@@ -553,7 +584,7 @@ const page = () => {
                       ))}
                     </select>
                   </div>
-                </div>
+                </div> */}
 
                 <input
                   required
@@ -591,14 +622,6 @@ const page = () => {
                     className="bg-blue-600 text-white px-4 py-2 rounded-md"
                   >
                     Submit
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setIsModalOpen(false)}
-                    className="ml-2 bg-red-600 text-white px-4 py-2 rounded-md"
-                  >
-                    Cancel
                   </button>
                 </div>
               </form>
