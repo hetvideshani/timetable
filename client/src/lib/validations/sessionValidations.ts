@@ -1,7 +1,7 @@
 import * as Yup from 'yup';
 
 export const sessionSchema = Yup.object().shape({
-    session_sequence: Yup.string().required('Session sequence is required'),
+    session_sequence: Yup.number().required('Session sequence is required'),
     do_nothing: Yup.bool().required('Do nothing is required'),
-    duration: Yup.string().required('Duration is required'),
+    duration: Yup.number().required('Duration is required'),
 });
