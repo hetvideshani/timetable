@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { IoClose } from "react-icons/io5";
 import { LuPencil } from "react-icons/lu";
 import { FaPlus } from "react-icons/fa";
+import { FiEdit, FiTrash2 } from "react-icons/fi";
 
 const SemesterPage = () => {
   const [uni_id, setUni_id] = useState("");
@@ -372,24 +373,34 @@ const SemesterPage = () => {
   const renderSemesters = allSemesters.map((data, index) => (
     <div
       key={index}
-      className="shadow-md hover:bg-slate-100 flex flex-col justify-center items-center w-full p-5 gap-0 font-bold rounded-sm"
+      className="main_content group shadow-md relative justify-center items-center w-full font-bold rounded-sm"
     >
-      <p className=" text-lg text-slate-900">{data.id}</p>
-      <p className=" text-2xl text-slate-950">{data.sem_no}</p>
-      <p className=" text-xl text-slate-950">Branch - {data.branch_name}</p>
-      <div className="flex gap-1 mt-5">
+      <div className="edit_delete opacity-0 group-hover:opacity-100 group-hover:backdrop-blur-md group-hover:bg-gray-900 group-hover:bg-opacity-10 transition-all duration-1000  flex  border-black justify-center items-center h-full p-2 w-full absolute">
         <button
-          onClick={() => handle_edit(data)}
-          className="bg-green-600 px-3 py-1 rounded-md"
+          onClick={(e) => {
+            handle_edit(data);
+          }}
+          className="flex gap-1 hover:text-green-600 border-r border-black p-2"
         >
-          <LuPencil size={20} className=" text-white "></LuPencil>
+          <FiEdit size={20} />
+          <span>Edit</span>
         </button>
         <button
-          onClick={() => handle_delete(data)}
-          className="bg-red-600 px-3 py-1 rounded-md"
+          onClick={(e) => {
+            handle_delete(data);
+          }}
+          className="flex gap-1 hover:text-red-600 p-2"
         >
-          <IoClose size={20} className=" text-white"></IoClose>
+          <FiTrash2 size={20} />
+          <span>Delete</span>
         </button>
+      </div>
+      <div className="right_content w-full flex flex-col gap-0 p-5 ">
+        <p className=" text-2xl text-slate-950">Sem : {data.sem_no}</p>
+        <p className=" text-xl text-slate-950">Branch - {data.branch_name}</p>
+        <p className=" text-xl text-slate-950">
+          {data.subject_faculty.map((name) => name.subject_name).join(", ")}
+        </p>
       </div>
     </div>
   ));
@@ -407,9 +418,21 @@ const SemesterPage = () => {
           </button>
         </div>
         {isModalOpen && (
-          <div className="fixed top-0 left-0 right-0 bottom-0 bg-gray-900 bg-opacity-50 flex justify-center items-center">
+          <div className="fixed z-10 top-0 left-0 right-0 bottom-0 bg-gray-900 bg-opacity-50 flex justify-center items-center">
             <div className="bg-white p-6 rounded-lg shadow-lg w-1/3 text-black">
-              <h2 className="text-lg font-bold mb-4">Add New Semester</h2>
+              <div className="flex relative">
+                <div className="flex-1 ">
+                  <h1 className="text-lg font-bold mb-4">Add New Semester</h1>
+                </div>
+                <div className="absolute right-0">
+                  <button
+                    className="hover:text-red-500"
+                    onClick={() => setIsModalOpen(false)}
+                  >
+                    <IoClose size={24} />
+                  </button>
+                </div>
+              </div>
               <form onSubmit={handleSubmit}>
                 <input
                   type="text"
@@ -511,7 +534,7 @@ const SemesterPage = () => {
                       })
                     }
                     // disabled={selectedBranch.id === 0}
-                    placeholder="Branch"
+                    placeholder="Class"
                     onFocus={() => setShowClassDropdown(true)}
                     className="mt-1 p-2 border border-gray-300 rounded-md w-full"
                   />
@@ -669,13 +692,6 @@ const SemesterPage = () => {
                     className="bg-blue-600 text-white px-4 py-2 rounded-md"
                   >
                     Submit
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setIsModalOpen(false)}
-                    className="ml-2 bg-red-600 text-white px-4 py-2 rounded-md"
-                  >
-                    Cancel
                   </button>
                 </div>
               </form>
