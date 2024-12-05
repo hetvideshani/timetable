@@ -1,21 +1,10 @@
 // src/app/dashboard/page.tsx
 
-import Link from "next/link";
 import Header from "./header";
-import { FloatingDock } from "@/app/components/ui/floating-dock";
-import {
-  IconBrandGithub,
-  IconBrandX,
-  IconExchange,
-  IconHome,
-  IconNewSection,
-  IconTerminal2,
-} from "@tabler/icons-react";
-import Image from "next/image";
+
 import { SidebarDemo } from "../components/ui/sidebar";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
-
   return (
     <div className="main_body w-full flex flex-col bg-[#DBD3D3] ">
       <div className=" shadow-lg">
@@ -25,7 +14,9 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
         <div className="flex flex-col items-center justify-center h-screen ">
           <SidebarDemo />
         </div>
-        <div className="flex-1 overflow-y-auto drop-shadow-md bg-[#DBD3D3]">{children}</div>
+        <div className="flex-1 overflow-y-auto drop-shadow-md bg-[#DBD3D3]">
+          {children}
+        </div>
       </div>
     </div>
   );
