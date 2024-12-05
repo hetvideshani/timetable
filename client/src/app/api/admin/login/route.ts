@@ -4,9 +4,15 @@ import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import dotenv from "dotenv";
+import { validationMiddleware } from "@/middleware/validationsMiddleware";
+import { loginSchema } from "@/lib/validations/adminValidations";
 dotenv.config();
 
 export const POST = async (req: Request, res: Response) => {
+
+  const validateError = await validationMiddleware(req, loginSchema);
+  if (validateError) return validateError; 
+
   const body = await req.json();
   const { email, password } = body;
 

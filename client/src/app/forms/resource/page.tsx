@@ -225,7 +225,7 @@ export default function Resource() {
                 className="p-4 border border-gray-200 rounded-md flex shadow-sm text-gray-700 m-1"
               >
                 <div>
-                  <p className="font-bold">{res.name}</p>
+                  <p className="font-bold">{res.resource_name}</p>
                   <p className="text-xs text-gray-400">{res.type}</p>
                 </div>
                 <div className="flex space-x-2">

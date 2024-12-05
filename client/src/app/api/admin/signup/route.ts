@@ -1,8 +1,14 @@
 import { supabase } from "@/lib/dbConnect";
 import { NextResponse } from "next/server";
 import { hash } from "bcrypt";
+import { validationMiddleware } from "@/middleware/validationsMiddleware";
+import { registerSchema } from "@/lib/validations/adminValidations";
 
 export const POST = async (req: Request, res: Response) => {
+
+  const validateError = await validationMiddleware(req, registerSchema);
+  if (validateError) return validateError;
+
   const body = await req.json();
   const { username, email, password, university } = body;
   const hashedPassword = await hash(password, 10);
