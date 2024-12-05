@@ -3,8 +3,18 @@ import { FaDiagramSuccessor } from 'react-icons/fa6';
 import { IoClose } from 'react-icons/io5';
 import { IconError404 } from '@tabler/icons-react';
 
-const Alerts = ({ status, function_name, isModalOpen }: { status: number; function_name: string; isModalOpen: boolean }) => {
+const Alerts = ({ status, function_name, isModalOpen, onConfirm }: { status: number; function_name: string; isModalOpen: boolean, onConfirm: (confirm: boolean) => void }) => {
     const [model, setModel] = useState(isModalOpen);
+
+    const handleCancel = () => {
+        setModel(false);
+        onConfirm(false); 
+      };
+    
+      const handleConfirm = () => {
+        setModel(false);
+        onConfirm(true); 
+      };
   
     function_name = function_name.split("_")[0];
   
@@ -29,24 +39,25 @@ const Alerts = ({ status, function_name, isModalOpen }: { status: number; functi
                 </div>
               </>
             ) : status === 1 ? (
-              <>
-                <div className="text-center font-medium text-gray-800">
-                  Do you want to remove this item?
+                <div className="text-center">
+                  <p className="font-medium text-gray-800 mb-4">
+                    Do you want to remove this item?
+                  </p>
+                  <div className="flex justify-center gap-2">
+                    <button
+                      onClick={handleCancel}
+                      className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleConfirm}
+                      className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                    >
+                      Yes
+                    </button>
+                  </div>
                 </div>
-                <div className="flex justify-end gap-2 mt-4">
-                  <button
-                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
-                    onClick={() => setModel(false)}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
-                  >
-                    Yes
-                  </button>
-                </div>
-              </>
             ) : (
               <>
                 <IconError404 className="text-red-500 w-12 h-12" />

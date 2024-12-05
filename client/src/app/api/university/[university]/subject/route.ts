@@ -9,6 +9,8 @@ export const POST = async(req:Request, res:Response)=>{
     if (validateError) return validateError;
 
     const subject = await req.json()
+    console.log(subject);
+    
     const id = req.url!.split("university/")[1].split('/')[0]
     const { subject_name } = subject
 
