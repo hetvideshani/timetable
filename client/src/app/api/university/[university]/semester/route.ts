@@ -79,7 +79,7 @@ export const GET = async (req: any, res: any) => {
             }
         }
 
-        const final_semester = []
+        const final_semester : any = []
 
         semester.map((s) => {
             s.semester_data.map((sem) => {

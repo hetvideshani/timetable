@@ -1,8 +1,14 @@
 import { supabase } from '@/lib/dbConnect';
 import { NextResponse } from 'next/server';
 import { DELETE as del } from './class/[class]/route';
+import { validationMiddleware } from '@/middleware/validationsMiddleware';
+import { branchSchema_2 } from '@/lib/validations/branchValidations';
 
 export const PUT = async (req: any, res: any) => {
+
+    const validationError = await validationMiddleware(req, branchSchema_2)
+    if (validationError) return validationError;
+
     const branch = await req.json()
     const  id  = req.url.split('branch/')[1]
     const { branch_name,dept_id } = branch

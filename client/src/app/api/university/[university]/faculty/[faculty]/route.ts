@@ -1,7 +1,13 @@
 import { supabase } from '@/lib/dbConnect';
+import { facultySchema } from '@/lib/validations/facultyValidations';
+import { validationMiddleware } from '@/middleware/validationsMiddleware';
 import { NextResponse } from 'next/server';
 
 export const PUT = async(req:Request,res:Response)=>{
+
+    const validateError = await validationMiddleware(req, facultySchema);
+    if (validateError) return validateError;
+
     const faculty = await req.json();
     const id = req.url!.split("faculty/")[1]
     const { faculty_name } = faculty

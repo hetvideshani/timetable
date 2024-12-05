@@ -1,7 +1,13 @@
 import { supabase } from '@/lib/dbConnect';
+import { branchSchema } from '@/lib/validations/branchValidations';
+import { validationMiddleware } from '@/middleware/validationsMiddleware';
 import { NextResponse } from 'next/server';
 
 export const POST = async(req:any, res:any) => {
+
+    const validateError = await validationMiddleware(req, branchSchema)
+    if (validateError) return validateError
+
     const branch = await req.json()
     const id = req.url!.split("department/")[1].split("/")[0]
     const { branch_name } = branch

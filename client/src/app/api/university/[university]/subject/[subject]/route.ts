@@ -1,7 +1,13 @@
 import { supabase } from '@/lib/dbConnect';
+import { subjectSchema } from '@/lib/validations/subjectValidations';
+import { validationMiddleware } from '@/middleware/validationsMiddleware';
 import { NextResponse } from 'next/server';
 
 export const PUT = async(req:Request, res:Response)=>{
+    
+    const validateError = await validationMiddleware(req, subjectSchema);
+    if (validateError) return validateError;
+
     const subject = await req.json();
     const id = req.url!.split("subject/")[1]
     const { subject_name } = subject

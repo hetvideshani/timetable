@@ -1,7 +1,13 @@
 import { supabase } from '@/lib/dbConnect';
+import { semesterSchema } from '@/lib/validations/semesterValidations';
+import { validationMiddleware } from '@/middleware/validationsMiddleware';
 import { NextResponse } from 'next/server';
 
 export const PUT = async (req:any, res:any) => {
+
+    const validateError = await validationMiddleware(req, semesterSchema)
+    if (validateError) return validateError;
+
     const semester = await req.json()
     const { sem_no,subject_faculty } = semester
     const id = req.url.split('semester/')[1]

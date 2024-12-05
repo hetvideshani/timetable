@@ -1,7 +1,13 @@
 import { supabase } from '@/lib/dbConnect';
+import { resourceSchema } from '@/lib/validations/resourceValidations';
+import { validationMiddleware } from '@/middleware/validationsMiddleware';
 import { NextResponse } from 'next/server';
 
 export const PUT = async (req:any, res: any) => {
+
+    const validateError = await validationMiddleware(req, resourceSchema);
+    if (validateError) return validateError;
+
     const resource = await req.json();
     const { resource_name, resource_type, capacity, duration } = resource
     const id = req.url!.split("resource/")[1]

@@ -1,8 +1,14 @@
 import { supabase } from '@/lib/dbConnect';
 import { NextResponse } from 'next/server';
 import { DELETE as del } from './branch/[branch]/route';
+import { validationMiddleware } from '@/middleware/validationsMiddleware';
+import { facultySchema } from '@/lib/validations/facultyValidations';
 
 export const PUT = async(req:any, res:any)=>{
+
+    const validateError = await validationMiddleware(req, facultySchema);
+    if (validateError) return validateError;
+
     const department = await req.json();
     const id = req.url!.split("department/")[1]
     const { department_name } = department

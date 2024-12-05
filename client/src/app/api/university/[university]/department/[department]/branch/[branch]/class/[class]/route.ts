@@ -1,7 +1,13 @@
 import { supabase } from '@/lib/dbConnect';
+import { classSchema_2 } from '@/lib/validations/classValidations';
+import { validationMiddleware } from '@/middleware/validationsMiddleware';
 import { NextResponse } from 'next/server';
 
 export const PUT = async(req:any, res:any) => {
+
+    const validateError = await validationMiddleware(req, classSchema_2)
+    if (validateError) return validateError;
+
     const Class = await req.json()
     const  id  = req.url.split('class/')[1]
     const { class_no, total_batches, students_per_batch, branch_id } = Class
