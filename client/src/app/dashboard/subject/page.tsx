@@ -5,6 +5,7 @@ import { LuPencil } from "react-icons/lu";
 import { FaPlus } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
+import Alerts from "../alerts";
 
 const page = () => {
   const [uni_id, setUni_id] = useState("");
@@ -17,6 +18,7 @@ const page = () => {
     },
   ]);
 
+  const [alertData, setAlertData] = useState({ status: 0, function_name: '', isModalOpen: false });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [inputData, setInputData] = useState("");
   const router = useRouter();
@@ -67,6 +69,8 @@ const page = () => {
       router.refresh();
     }
 
+    setAlertData({status: data.status, function_name: data.function_name, isModalOpen: true});
+
     // window.location.href = '/dashboard/subject'
   };
 
@@ -99,6 +103,8 @@ const page = () => {
       const result = await response.json();
       console.log("Data successfully posted:", result);
 
+      setAlertData({status: result.status, function_name: result.function_name, isModalOpen: true});
+
       if (result.function_name === "update_subject") {
         setSubject((prev: any) =>
           prev.map((sub: any) =>
@@ -111,13 +117,18 @@ const page = () => {
         setSubject((prev) => [...prev, result.data[0]]);
       }
 
+      // alerts(result.status, result.function_name, true)
+
       setIsModalOpen(false);
       setInputData("");
       setSubject_id(0);
       router.refresh();
     } catch (error) {
       console.error("Error posting data:", error);
+      setAlertData({status: 500, function_name: 'error', isModalOpen: true});
     }
+
+    
   };
 
   const get_sub_data = subject.map((data, index) => {
@@ -204,6 +215,11 @@ const page = () => {
           </div>
         </div>
       )}
+      {
+        alertData.isModalOpen && (
+              <Alerts status={alertData.status} isModalOpen={alertData.isModalOpen} function_name={alertData.function_name}></Alerts>
+        )
+      }
       <div className="grid grid-cols-4 w-full gap-5">
         {subject.length > 1 ? get_sub_data : null}
       </div>

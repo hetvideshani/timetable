@@ -7,7 +7,7 @@ import { registerSchema } from "@/lib/validations/adminValidations";
 export const POST = async (req: Request, res: Response) => {
 
   const validateError = await validationMiddleware(req, registerSchema);
-  if (validateError) return validateError;
+  if (validateError.status==400) return validateError; 
 
   const body = await req.json();
   const { username, email, password, university } = body;
