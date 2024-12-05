@@ -6,12 +6,12 @@ import { branchSchema_2 } from '@/lib/validations/branchValidations';
 
 export const PUT = async (req: any, res: any) => {
 
-    const validationError = await validationMiddleware(req, branchSchema_2)
-    if (validationError) return validationError;
+    const validate = await validationMiddleware(req, branchSchema_2)
+    if (validate.status == 400) return validate;
 
-    const branch = await req.json()
+    const branch = await validate.json()
     const  id  = req.url.split('branch/')[1]
-    const { branch_name,dept_id } = branch
+    const { branch_name,dept_id } = branch.body
 
     try {
         const { data, error } = await supabase

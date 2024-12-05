@@ -5,12 +5,12 @@ import { NextResponse } from 'next/server';
 
 export const POST = async(req:any, res:any)=>{
 
-    const validateError = await validationMiddleware(req, facultySchema);
-    if (validateError) return validateError;
+    const validate = await validationMiddleware(req, facultySchema);
+    if (validate.status == 400) return validate;
 
-    const faculty = await req.json()
+    const faculty = await validate.json()
     const id = req.url!.split("university/")[1].split('/')[0]
-    const { faculty_name } = faculty
+    const { faculty_name } = faculty.body
 
     try {
         const { data:fac_data, error:fac_error } = await supabase

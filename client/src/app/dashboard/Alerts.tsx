@@ -62,7 +62,7 @@ const Alerts = ({ status, function_name, isModalOpen, onConfirm }: { status: num
               <>
                 <IconError404 className="text-red-500 w-12 h-12" />
                 <div className="text-center font-medium text-gray-800">
-                  Error {function_name}ing the data!
+                  Error {function_name} !
                 </div>
               </>
             )}

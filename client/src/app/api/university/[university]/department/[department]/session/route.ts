@@ -5,12 +5,12 @@ import { NextResponse } from 'next/server';
 
 export const POST = async (req: any, res: any) => {
 
-    const validateError = await validationMiddleware(req, sessionSchema)
-    if (validateError) return validateError
+    const validate = await validationMiddleware(req, sessionSchema)
+    if (validate.status == 400) return validate
 
-    const session = await req.json()
+    const session = await validate.json()
     const id = req.url!.split("department/")[1].split("/")[0]
-    const { session_sequence, do_nothing, duration } = session
+    const { session_sequence, do_nothing, duration } = session.body
 
     try {
         const { data, error } = await supabase

@@ -53,56 +53,6 @@ const page = () => {
       setSubject([]);
     }
   };
-  //   setAlertData({
-  //     status: 1,
-  //     function_name: 'delete',
-  //     isModalOpen: true,
-  //     onConfirm: (confirm: boolean) => {}
-  //   });
-  
-  //   const onConfirm = async (confirm: boolean) => {
-  //     if (confirm) {
-  //       try {
-  //         const response = await fetch(
-  //           `http://localhost:3000/api/university/${uni_id}/subject/${sub_id}`,
-  //           { method: 'DELETE' }
-  //         );
-  
-  //         if (response.status === 201) {
-  //           console.log(`Item with ID ${sub_id} deleted successfully`);
-  //           setSubject((prev) => prev.filter((sub) => sub.id !== sub_id)); // Remove the deleted subject
-  //           setAlertData({
-  //             status: 201,
-  //             function_name: 'delete_success',
-  //             isModalOpen: false,
-  //             onConfirm: (confirm: boolean) => {}
-  //           });
-  //         } else {
-  //           console.error('Failed to delete the item');
-  //           setAlertData({
-  //             status: 500,
-  //             function_name: 'delete_error',
-  //             isModalOpen: true,
-  //             onConfirm: (confirm: boolean) => {}
-  //           });
-  //         }
-  //       } catch (error) {
-  //         console.error('Error deleting the item:', error);
-  //         setAlertData({
-  //           status: 500,
-  //           function_name: 'delete_error',
-  //           isModalOpen: true,
-  //           onConfirm: (confirm: boolean) => {}
-  //         });
-  //       }
-  //     } else {
-  //       console.log('Delete action canceled');
-  //       setAlertData((prev) => ({ ...prev, isModalOpen: false }));
-  //     }
-  //   };
-  
-  //   setAlertData((prev) => ({ ...prev, onConfirm : (confirm: boolean) => {} }));
-  // };
 
   const handle_delete = (sub_id: number) => {
     setAlertData({
@@ -123,27 +73,25 @@ const page = () => {
                 status: 201,
                 function_name: "delete_success",
                 isModalOpen: true,
-                onConfirm: (confirm: boolean) => {}, // Close modal on acknowledgment
+                onConfirm: (confirm: boolean) => {}, 
               });
             } else {
               throw new Error("Unexpected response status");
             }
           } catch (error) {
-            // Failure: reopen modal with error message
             setAlertData({
               status: 500,
               function_name: "delete_error",
               isModalOpen: true,
-              onConfirm: (confirm: boolean) => {}, // Close modal on acknowledgment
+              onConfirm: (confirm: boolean) => {}, 
             });
             console.error("Error deleting subject:", error);
           }
+          router.refresh();
         } else {
-          // Handle cancel
           setAlertData((prev) => ({ ...prev, isModalOpen: false }));
+          router.refresh();
         }
-        // Refresh the page after completion
-        router.refresh();
       },
     });
   };

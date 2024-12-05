@@ -10,12 +10,10 @@ dotenv.config();
 
 export const POST = async (req: Request, res: Response) => {
 
-  const validateError = await validationMiddleware(req, loginSchema);
-
+  const validate = await validationMiddleware(req, loginSchema);
+  if (validate.status==400) return validate; 
   
-  if (validateError.status==400) return validateError; 
-  
-  const body = await validateError.json();
+  const body = await validate.json();
   const { email, password } = body.body;
   console.log("Email", email);
   console.log("Password",password)

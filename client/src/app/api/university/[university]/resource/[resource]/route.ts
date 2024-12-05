@@ -5,11 +5,11 @@ import { NextResponse } from 'next/server';
 
 export const PUT = async (req:any, res: any) => {
 
-    const validateError = await validationMiddleware(req, resourceSchema);
-    if (validateError) return validateError;
+    const validate = await validationMiddleware(req, resourceSchema);
+    if (validate.status == 400) return validate;
 
-    const resource = await req.json();
-    const { resource_name, resource_type, capacity, duration } = resource
+    const resource = await validate.json();
+    const { resource_name, resource_type, capacity, duration } = resource.body
     const id = req.url!.split("resource/")[1]
     
     try {
