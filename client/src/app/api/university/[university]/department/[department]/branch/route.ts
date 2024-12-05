@@ -5,12 +5,12 @@ import { NextResponse } from 'next/server';
 
 export const POST = async(req:any, res:any) => {
 
-    const validateError = await validationMiddleware(req, branchSchema)
-    if (validateError) return validateError
+    const validate = await validationMiddleware(req, branchSchema)
+    if (validate.status == 400) return validate
 
-    const branch = await req.json()
+    const branch = await validate.json()
     const id = req.url!.split("department/")[1].split("/")[0]
-    const { branch_name } = branch
+    const { branch_name } = branch.body
 
     try {
         const { data, error } = await supabase

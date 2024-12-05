@@ -5,12 +5,12 @@ import { NextResponse } from 'next/server';
 
 export const POST = async (req: any, res: any) => {
 
-    const validateError = await validationMiddleware(req, classSchema)
-    if (validateError) return validateError
+    const validate = await validationMiddleware(req, classSchema)
+    if (validate.status == 400) return validate
 
-    const class_data = await req.json()
+    const class_data = await validate.json()
     const id = req.url!.split("branch/")[1].split("/")[0]
-    const { class_no, total_batches, students_per_batch } = class_data
+    const { class_no, total_batches, students_per_batch } = class_data.body
     try {
         const { data, error } = await supabase
             .from('class')
