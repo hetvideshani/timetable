@@ -12,10 +12,11 @@ import { create } from "domain";
 
 export async function schedule(params: any) {
   // console.log(params);
-
-  const subject_faculty = params.subject_faculty;
+  const initial_Subject_faculty = params.subject_faculty;
+  let subject_faculty = initial_Subject_faculty;
   const selected_resource = params.resource;
-
+  const total_batches = params.classes.total_batches;
+  const students_per_batch = params.classes.students_per_batch;
   const { data: session, error: session_error } = await supabase
     .from("session")
     .select()
@@ -77,116 +78,140 @@ export async function schedule(params: any) {
 
   let faculty_index = 0;
   let resource_index = 0;
+  for (let b = 0; b < total_batches; b++) {
+    console.log("batch "+(b+1));
+    subject_faculty = initial_Subject_faculty;
+    for (let i = 0; i < 5; i++) {
+      for (let j = 0; j < number_of_session; j++) {
+        if (timeTable[i][j][0] == "null") {
+          continue;
+        }
 
-  for (let i = 0; i < 5; i++) {
-    for (let j = 0; j < number_of_session; j++) {
-      if (timeTable[i][j][0] == "null") {
-        continue;
-      }
+        console.log("day", i, "session", j);
 
-      console.log("day", i, "session", j);
+        // if (timeTable) {
+        //     // all
 
-      // if (timeTable) {
-      //     // all
+        // }
 
-      // }
-
-      if (resource_index == resource_type.length) {
-        resource_index = 0;
-      }
-
-      faculty_index = select_faculty(
-        subject_faculty,
-        faculty_allocator,
-        resource_type[resource_index],
-        i,
-        j
-      );
-
-      while (faculty_index == -1 && resource_index < resource_type.length) {
-        console.log("gh");
+        if (resource_index == resource_type.length) {
+          resource_index = 0;
+        }
+        let flag = 0
         
-        resource_index++;
-        faculty_index = select_faculty(
-        subject_faculty,
-        faculty_allocator,
-        resource_type[resource_index],
-        i,
-        j
-        );
-      }
+        
+        if (timeTable[i][j].length != 0) {
+          let fill_sub_fac = same_fac_check(subject_faculty, i, j, timeTable, res_all, students_per_batch);
+          
+
+          flag = 1;
+        }
 
 
 
-      if (faculty_index != -1) {
-        let r_i = res_all.findIndex(
-          (res: any) => res.res_type == resource_type[resource_index]
-        );
-
-        let second_resource_index = select_resource(
-          res_all,
-          r_i,
-          i,
-          j
-        );
-
-        if (second_resource_index != -1) {
-          fillTimetable(
-            timeTable,
+        if (flag == 0) {
+          
+          faculty_index = select_faculty(
+            subject_faculty,
+            faculty_allocator,
+            resource_type[resource_index],
             i,
-            j,
-            subject_faculty[faculty_index].faculty_name,
-            subject_faculty[faculty_index].subject_name,
-            1,
-            res_all[r_i].resource_allocator[second_resource_index]
-              .name,
-            resource_type[resource_index] as string
+            j
           );
-          faculty_allocator[faculty_index].sessions[i][j] = 1;
-          fillAllocator(
-            res_all[r_i].resource_allocator,
-            res_all[r_i].resource_allocator[second_resource_index]
-              .name,
-            i,
-            j,
-            40,
-            20
-          );
-          // res_all[resource_index].resource_allocator[second_resource_index].sessions[i][j] = 1;
-          // console.log(
-          //   "resource count",
-          //   subject_faculty[faculty_index].resource_required[resource_index]
-          //     .resource_count
-          // );
-          let fac_res_index = subject_faculty[faculty_index].resource_required.findIndex(
-            (res: any) =>
-              res.resource_type == resource_type[resource_index]
-          );
-          console.table(subject_faculty[faculty_index].faculty_name)
-          console.table(subject_faculty[faculty_index].resource_required[fac_res_index]);
-          subject_faculty[faculty_index].resource_required[fac_res_index].resource_count--;
-          resource_index++;
+          while (faculty_index == -1 && resource_index < resource_type.length) {
+            // console.log("gh");
+          
+            resource_index++;
+            faculty_index = select_faculty(
+              subject_faculty,
+              faculty_allocator,
+              resource_type[resource_index],
+              i,
+              j
+            );
+          }
+          if (faculty_index != -1) {
+            let r_i = res_all.findIndex(
+              (res: any) => res.res_type == resource_type[resource_index]
+            );
+  
+            let second_resource_index = select_resource(
+              res_all,
+              r_i,
+              i,
+              j
+            );
+  
+            if (second_resource_index != -1) {
+              fillTimetable(
+                timeTable,
+                i,
+                j,
+                subject_faculty[faculty_index].faculty_name,
+                subject_faculty[faculty_index].subject_name,
+                b+1,
+                res_all[r_i].resource_allocator[second_resource_index]
+                  .name,
+                resource_type[resource_index] as string
+              );
+              faculty_allocator[faculty_index].sessions[i][j] = 1;
+              let res_name = res_all[r_i].resource_allocator[second_resource_index].name;
+              let res_capacity = selected_resource.find((res: any) => res.resource_name == res_name).resource_capacity;
+              try {
+                
+                fillAllocator(
+                  res_all[r_i].resource_allocator,
+                res_all[r_i].resource_allocator[second_resource_index]
+                  .name,
+                i,
+                j,
+                res_capacity,
+                students_per_batch
+              );
+              } catch (err) {
+                console.error("timepasss == ",err);
+              }
+              
+              // res_all[resource_index].resource_allocator[second_resource_index].sessions[i][j] = 1;
+              // console.log(
+              //   "resource count",
+              //   subject_faculty[faculty_index].resource_required[resource_index]
+              //     .resource_count
+              // );
+
+              let fac_res_index = subject_faculty[faculty_index].resource_required.findIndex(
+                (res: any) =>
+                  res.resource_type == resource_type[resource_index]
+              );
+              console.table(subject_faculty[faculty_index].faculty_name)
+              console.table(subject_faculty[faculty_index].resource_required[fac_res_index]);
+              subject_faculty[faculty_index].resource_required[fac_res_index].resource_count--;
+              resource_index++;
+            }
+          
+            // console.log(second_resource_index);
+
+          }
         }
         
-        // console.log(second_resource_index);
       }
     }
   }
-  // try {
-  //   // await updateAllocator({});
-  //   await updateAllAllocators({
-  //     uniId: params.uni_id,
-  //     resourceType: "Auditorium",
-  //     resourceAllocator: res_all[1].resource_allocator,
-  //   });
-  //   await updateAllAllocators({
-  //     uniId: params.uni_id,
-  //     resourceType: "Lab",
-  //     resourceAllocator: res_all[0].resource_allocator,
-  //   });
-  // } catch (error) {
-  //   console.error("Error updating allocator:", error);
-  // }
+  try {
+    // await updateAllocator({});
+    await updateAllAllocators({
+      uniId: params.uni_id,
+      resourceType: "Auditorium",
+      resourceAllocator: res_all[1].resource_allocator,
+    });
+    await updateAllAllocators({
+      uniId: params.uni_id,
+      resourceType: "Lab",
+      resourceAllocator: res_all[0].resource_allocator,
+    });
+  } catch (error) {
+    console.error("Error updating allocator:", error);
+  }
   return timeTable;
 }
 // faculty check
@@ -325,13 +350,62 @@ function resource_check(
 
 // same faculty check
 function same_fac_check(
-  facultyName: string,
-  acc_row: number,
-  acc_col: number,
+  subject_faculty: any,
+  day: number,
+  session: number,
   timeTable: any,
-  res_name: string
-): boolean {
-  return true;
+  res_all: any,
+  students_per_batch: number
+) {
+
+  for (let i = 0; i < timeTable[day][session].length; i++) {
+    const batch_object = timeTable[day][session][i];
+    
+    let f_index:any=subject_faculty.findIndex((fac:any)=>fac.faculty_name==batch_object.fac_name)
+
+    if (f_index != -1) {
+      let r_index = subject_faculty[f_index].resource_required.findIndex((res: any) => res.resource_type == batch_object.resource_type)
+      if (r_index != -1) {
+        if (subject_faculty[f_index].resource_required[r_index].resource_count > 0) {
+          let res_index = res_all.findIndex(
+            (res: any) => res.res_type == batch_object.resource_type
+          );
+          let res_name = batch_object.resource_name;
+          let res_capacity = res_all[res_index].resource_allocator.find(
+            (res: any) => res.name == res_name
+          ).capacity;
+          try {
+            fillAllocator(
+              res_all[res_index].resource_allocator,
+              res_name,
+              day,
+              session,
+              res_capacity,
+              students_per_batch
+            );
+            
+          } catch (err) {
+            console.error("timepasss == ", err);
+            continue;
+          }
+          subject_faculty[f_index].resource_required[r_index].resource_count--;
+          return {};
+        }
+      }
+    }
+
+    // for (let j = 0; j < subject_faculty.length; j++){
+    //   if (subject_faculty[j].faculty_name == batch_object.fac_name) {
+    //     for (let k = 0; k < subject_faculty[j].resource_required.length; k++){
+    //       if (subject_faculty[j].resource_required[k].resource_type == batch_object.resource_type && subject_faculty[j].resource_required[k].resource_count>0) {
+    //         res_all.
+    //       }
+    //     }
+    //   }
+    // }
+    
+  }
+  return false;
 }
 
 // assign
