@@ -1204,38 +1204,32 @@ const Page = () => {
   return (
     <div className="text-black flex flex-col items-center justify-center">
       <div className="pt-10 flex " onClick={() => setShowModal(true)}>
-        <button className="relative  flex h-[50px] w-40 items-center justify-center overflow-hidden bg-[#BBE1FA] font-medium text-[#1B262C] shadow-2xl transition-all duration-300 before:absolute before:inset-0 before:border-0 before:border-[#0F4C75] before:duration-100 before:ease-linear hover:bg-[#1B262C] hover:text-[#BBE1FA] rounded-lg">
+        <button className="relative  flex h-[50px] w-40 items-center justify-center overflow-hidden bg-[#1F1717] font-medium text-[#FCF5ED] shadow-2xl transition-all duration-300 before:absolute before:inset-0 before:border-0 before:border-[#2d2020] before:duration-100 before:ease-linear hover:bg-[#FCF5ED] hover:text-[#1F1717] rounded-lg">
           <span className="relative z-10">Create Time Table</span>
         </button>
       </div>
-      <div className="mt-10">
+      <div className="mt-10 ">
         {/* <Timetable timetable={timetable} /> */}
         <div
-          className=" shadow-md relative justify-center items-center w-full font-bold rounded-sm cursor-pointer"
+          className=" shadow-xl relative justify-center rounded-xl items-center w-full font-bold cursor-pointer"
           onClick={() => {
             setTimetableModal(true);
             setTimetableData(timetable);
           }}
         >
-          <div className="right_content w-full flex flex-col gap-0 p-5 ">
-            <p className=" text-xl text-slate-950">
-              Department - {timetable.department_name}
-            </p>
-            <p className=" text-xl text-slate-950">
-              Branch - {timetable.branch_name}
-            </p>
-            <p className=" text-xl text-slate-950">
-              Class - {timetable.class_no}
-            </p>
-            <p className=" text-xl text-slate-950">
-              Sem : {timetable.semester}
-            </p>
+          <div className="w-full flex flex-col gap-1 p-10 justify-center items-center text-2xl">
+            <div>{timetable.department_name} - {timetable.branch_name}</div>
+            <div>{timetable.class_no} / {timetable.class_no + 4}</div>
+            <div>Semester - {timetable.semester}</div>
           </div>
         </div>
       </div>
       {timetableModal && (
-        <div className="absolute z-20 top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white w-[90vw] h-[90vh] overflow-y-auto p-5 rounded-md">
+        <div className="absolute text-[#181C14] z-20 top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-center">
+          <div className="bg-[#FCF5ED] w-[100vw] h-[100vh] overflow-y-auto p-3">
+            <div className="flex w-full justify-end " onClick={() => {
+              setTimetableModal(false);
+            }}><IoClose size={20} className="hover:text-red-600 hover:cursor-pointer"></IoClose></div>
             <Timetable timetable={timetableData} />
           </div>
         </div>

@@ -34,7 +34,7 @@ const Header = () => {
   };
 
   return (
-    <div className="flex justify-between bg-[#DBD3D3] text-[#070F2B] shadow-lg items-center px-3 py-1">
+    <div className="flex justify-between bg-[#181C14] text-[#FCF5ED] shadow-lg items-center px-3 py-1">
       {/* <div className="text-3xl font-bold">EduScheduler</div> */}
       <Image
         src="/logo.png"
@@ -49,15 +49,15 @@ const Header = () => {
           {/* <Image src="/globe.svg" alt="Logout" width={30} height={30} /> */}
           <IconUserCircle
             size={35}
-            className="text-[#070F2B] cursor-pointer"
+            className="text-[#FCF5ED] cursor-pointer"
             onClick={() => setShowDropdown(!showDropdown)}
           ></IconUserCircle>
           {showDropdown && (
-            <div className="absolute z-10 right-8 top-14 border border-black bg-[#DBD3D3] shadow-lg rounded-md">
+            <div className="absolute z-10 right-8 top-14 border border-black bg-[#FCF5ED] shadow-lg rounded-md">
               <div className="py-1">
                 <Link
                   href="/logout"
-                  className=" px-4 py-2 text-[#070F2B]  flex justify-center items-center p-2"
+                  className=" px-4 py-2 text-[#181C14]  flex justify-center items-center p-2"
                   onClick={handleLogout}
                 >
                   <LuLogOut className="mx-2" />
