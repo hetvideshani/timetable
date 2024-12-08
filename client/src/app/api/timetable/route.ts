@@ -14,7 +14,7 @@ export async function POST(req: any, res: any) {
         // await generateAllocators(29, 5, 4, true)
 
         return NextResponse.json({ status: 200, data: response, message: "Success" });
-    } catch (error:any) {
+    } catch (error: any) {
         console.log(error);
         return NextResponse.json({ status: 500, message: "Internal Server Error" });
     }

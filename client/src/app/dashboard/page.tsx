@@ -295,15 +295,16 @@ const Page = () => {
   };
 
   const sendData = async () => {
-    const response = await fetch("http://localhost:3000/api/timetable", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
+    console.log(data)
+    // const response = await fetch("http://localhost:3000/api/timetable", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify(data),
+    // });
 
-    const res = await response.json();
+    // const res = await response.json();
   };
   return (
     <div className="text-black flex justify-center">

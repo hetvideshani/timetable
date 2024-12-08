@@ -26,7 +26,15 @@ export function fillAllocator(
 ) {
   for (let i = 0; i < allocator.length; i++) {
     if (allocator[i].name == name) {
+      // console.log(allocator[i].name);
+      // console.table(allocator[i].sessions[day][session]);
+      // console.log(typeof(addStudents));
+      // console.log(capacity);
+
       allocator[i].sessions[day][session] += addStudents / capacity;
+
+      // console.log(allocator[i].name);
+      // console.table(allocator[i].sessions[day][session]);
 
       if (allocator[i].sessions[day][session] > 1) {
         console.error("Capacity full! cannot add students");
