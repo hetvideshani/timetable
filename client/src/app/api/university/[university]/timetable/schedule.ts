@@ -1,6 +1,6 @@
 import {
   fillAllocator,
-  genAllocator,
+  // genAllocator,
   getAllocator,
   updateAllAllocators,
   updateAllocator,
@@ -10,11 +10,11 @@ import { createTimetable } from "@/lib/timetableHandler";
 import { supabase } from "@/lib/dbConnect";
 import { create } from "domain";
 
-export async function schedule(params: any) {
+export async function schedule(params: any,uni_id) {
   // console.log(params);
   console.log("helloooooooooooooo");
-
-  const initial_Subject_faculty = params.subject_faculty;
+  console.log(params);
+  const initial_Subject_faculty = params.subject;
   let subject_faculty = structuredClone(initial_Subject_faculty);
   const selected_resource = params.resource;
   const total_batches = params.classes.total_batches;
@@ -36,10 +36,11 @@ export async function schedule(params: any) {
   let faculty_allocator: any = [];
 
   for (const fac of faculty) {
-    const fac_allocator = await getAllocator(params.uni_id, "Faculty", fac);
+    const fac_allocator = await getAllocator(uni_id, "Faculty", fac);
     faculty_allocator.push(fac_allocator);
   }
-
+  console.log("facccccccccccccccccccccccccc ====== ",faculty_allocator);
+  
   faculty_allocator = faculty_allocator.map((fac: any) => fac[0]);
 
   const resource_type = selected_resource
@@ -61,7 +62,7 @@ export async function schedule(params: any) {
     for (const resName of all_resource_name) {
       try {
         const acc = await getAllocator(
-          params.uni_id,
+          uni_id,
           res_type as string,
           resName as string
         );
@@ -213,12 +214,12 @@ export async function schedule(params: any) {
   try {
     // await updateAllocator({});
     await updateAllAllocators({
-      uniId: params.uni_id,
+      uniId: uni_id,
       resourceType: "Auditorium",
       resourceAllocator: res_all[1].resource_allocator,
     });
     await updateAllAllocators({
-      uniId: params.uni_id,
+      uniId: uni_id,
       resourceType: "Lab",
       resourceAllocator: res_all[0].resource_allocator,
     });

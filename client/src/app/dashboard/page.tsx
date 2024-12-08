@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import CustomDropdown from "./dropdown";
 import { IoClose, IoFilter, IoSearch } from "react-icons/io5";
 import { FaArrowLeftLong, FaArrowRightLong } from "react-icons/fa6";
+import { Timetable } from "./timetable";
 
 const Page = () => {
   const [data, setData] = useState({
@@ -53,10 +54,895 @@ const Page = () => {
       },
     ],
   });
-  const [showModal, setShowModal] = useState(true);
+  const timetable = {
+    department_name: "DIET",
+    branch_name: "CSE",
+    class_no: 2022,
+    semester: 5,
+    timetable: [
+      [
+        [
+          {
+            fac_name: "Naimish Vadodariya",
+            subject_name: ".Net",
+            batch_no: 1,
+            resource_type: "Lab",
+            resource_name: "H-403",
+          },
+          {
+            fac_name: "Raj Gondaliya",
+            subject_name: "SE",
+            batch_no: 2,
+            resource_type: "Lab",
+            resource_name: "H-403",
+          },
+          {
+            fac_name: "Javed Nathani",
+            subject_name: "FOA",
+            batch_no: 4,
+            resource_type: "Auditorium",
+            resource_name: "Audi-6",
+          },
+          {
+            fac_name: "Javed Nathani",
+            subject_name: "FOA",
+            batch_no: 5,
+            resource_type: "Auditorium",
+            resource_name: "Audi-6",
+          },
+          {
+            fac_name: "Javed Nathani",
+            subject_name: "FOA",
+            batch_no: 6,
+            resource_type: "Auditorium",
+            resource_name: "Audi-6",
+          },
+          {
+            fac_name: "Javed Nathani",
+            subject_name: "FOA",
+            batch_no: 7,
+            resource_type: "Auditorium",
+            resource_name: "Audi-6",
+          },
+          {
+            fac_name: "Javed Nathani",
+            subject_name: "FOA",
+            batch_no: 8,
+            resource_type: "Auditorium",
+            resource_name: "Audi-6",
+          },
+          {
+            fac_name: "Javed Nathani",
+            subject_name: "FOA",
+            batch_no: 9,
+            resource_type: "Auditorium",
+            resource_name: "Audi-6",
+          },
+          {
+            fac_name: "Javed Nathani",
+            subject_name: "FOA",
+            batch_no: 10,
+            resource_type: "Auditorium",
+            resource_name: "Audi-6",
+          },
+        ],
+        [
+          {
+            fac_name: "Javed Nathani",
+            subject_name: "FOA",
+            batch_no: 1,
+            resource_type: "Auditorium",
+            resource_name: "Audi-6",
+          },
+          {
+            fac_name: "Javed Nathani",
+            subject_name: "FOA",
+            batch_no: 2,
+            resource_type: "Auditorium",
+            resource_name: "Audi-6",
+          },
+          {
+            fac_name: "Javed Nathani",
+            subject_name: "FOA",
+            batch_no: 3,
+            resource_type: "Auditorium",
+            resource_name: "Audi-6",
+          },
+          {
+            fac_name: "Arjun Bala",
+            subject_name: "Java",
+            batch_no: 5,
+            resource_type: "Lab",
+            resource_name: "H-401",
+          },
+          {
+            fac_name: "Arjun Bala",
+            subject_name: "Java",
+            batch_no: 6,
+            resource_type: "Lab",
+            resource_name: "H-401",
+          },
+          {
+            fac_name: "Arjun Bala",
+            subject_name: "Java",
+            batch_no: 7,
+            resource_type: "Lab",
+            resource_name: "H-401",
+          },
+          {
+            fac_name: "Arjun Bala",
+            subject_name: "Java",
+            batch_no: 8,
+            resource_type: "Lab",
+            resource_name: "H-401",
+          },
+          {
+            fac_name: "Maulik Patel",
+            subject_name: "CN",
+            batch_no: 9,
+            resource_type: "Auditorium",
+            resource_name: "Audi-4",
+          },
+          {
+            fac_name: "Maulik Patel",
+            subject_name: "CN",
+            batch_no: 10,
+            resource_type: "Auditorium",
+            resource_name: "Audi-4",
+          },
+        ],
+        ["null"],
+        [
+          {
+            fac_name: "Arjun Bala",
+            subject_name: "Java",
+            batch_no: 2,
+            resource_type: "Auditorium",
+            resource_name: "Audi-3",
+          },
+          {
+            fac_name: "Arjun Bala",
+            subject_name: "Java",
+            batch_no: 3,
+            resource_type: "Auditorium",
+            resource_name: "Audi-3",
+          },
+          {
+            fac_name: "Arjun Bala",
+            subject_name: "Java",
+            batch_no: 4,
+            resource_type: "Auditorium",
+            resource_name: "Audi-3",
+          },
+          {
+            fac_name: "Arjun Bala",
+            subject_name: "Java",
+            batch_no: 5,
+            resource_type: "Auditorium",
+            resource_name: "Audi-3",
+          },
+          {
+            fac_name: "Arjun Bala",
+            subject_name: "Java",
+            batch_no: 6,
+            resource_type: "Auditorium",
+            resource_name: "Audi-3",
+          },
+          {
+            fac_name: "Arjun Bala",
+            subject_name: "Java",
+            batch_no: 7,
+            resource_type: "Auditorium",
+            resource_name: "Audi-3",
+          },
+          {
+            fac_name: "Arjun Bala",
+            subject_name: "Java",
+            batch_no: 8,
+            resource_type: "Auditorium",
+            resource_name: "Audi-3",
+          },
+          {
+            fac_name: "Arjun Bala",
+            subject_name: "Java",
+            batch_no: 9,
+            resource_type: "Auditorium",
+            resource_name: "Audi-3",
+          },
+          {
+            fac_name: "Arjun Bala",
+            subject_name: "Java",
+            batch_no: 10,
+            resource_type: "Auditorium",
+            resource_name: "Audi-3",
+          },
+        ],
+      ],
+      [
+        [
+          {
+            fac_name: "Maulik Patel",
+            subject_name: "CN",
+            batch_no: 1,
+            resource_type: "Lab",
+            resource_name: "H-402",
+          },
+          {
+            fac_name: "Naimish Vadodariya",
+            subject_name: ".Net",
+            batch_no: 3,
+            resource_type: "Lab",
+            resource_name: "H-404",
+          },
+          {
+            fac_name: "Raj Gondaliya",
+            subject_name: "SE",
+            batch_no: 4,
+            resource_type: "Lab",
+            resource_name: "H-402",
+          },
+          {
+            fac_name: "Arjun Bala",
+            subject_name: "Java",
+            batch_no: 5,
+            resource_type: "Auditorium",
+            resource_name: "Audi-5",
+          },
+          {
+            fac_name: "Arjun Bala",
+            subject_name: "Java",
+            batch_no: 6,
+            resource_type: "Auditorium",
+            resource_name: "Audi-5",
+          },
+          {
+            fac_name: "Arjun Bala",
+            subject_name: "Java",
+            batch_no: 7,
+            resource_type: "Auditorium",
+            resource_name: "Audi-5",
+          },
+          {
+            fac_name: "Arjun Bala",
+            subject_name: "Java",
+            batch_no: 8,
+            resource_type: "Auditorium",
+            resource_name: "Audi-5",
+          },
+          {
+            fac_name: "Arjun Bala",
+            subject_name: "Java",
+            batch_no: 9,
+            resource_type: "Auditorium",
+            resource_name: "Audi-5",
+          },
+          {
+            fac_name: "Arjun Bala",
+            subject_name: "Java",
+            batch_no: 10,
+            resource_type: "Auditorium",
+            resource_name: "Audi-5",
+          },
+        ],
+        [
+          {
+            fac_name: "Jayesh Vagadiya",
+            subject_name: "Python",
+            batch_no: 1,
+            resource_type: "Auditorium",
+            resource_name: "Audi-4",
+          },
+          {
+            fac_name: "Jayesh Vagadiya",
+            subject_name: "Python",
+            batch_no: 2,
+            resource_type: "Auditorium",
+            resource_name: "Audi-4",
+          },
+          {
+            fac_name: "Jayesh Vagadiya",
+            subject_name: "Python",
+            batch_no: 3,
+            resource_type: "Auditorium",
+            resource_name: "Audi-4",
+          },
+          {
+            fac_name: "Jayesh Vagadiya",
+            subject_name: "Python",
+            batch_no: 4,
+            resource_type: "Auditorium",
+            resource_name: "Audi-4",
+          },
+          {
+            fac_name: "Jayesh Vagadiya",
+            subject_name: "Python",
+            batch_no: 5,
+            resource_type: "Auditorium",
+            resource_name: "Audi-4",
+          },
+          {
+            fac_name: "Jayesh Vagadiya",
+            subject_name: "Python",
+            batch_no: 6,
+            resource_type: "Auditorium",
+            resource_name: "Audi-4",
+          },
+          {
+            fac_name: "Jayesh Vagadiya",
+            subject_name: "Python",
+            batch_no: 7,
+            resource_type: "Auditorium",
+            resource_name: "Audi-4",
+          },
+          {
+            fac_name: "Jayesh Vagadiya",
+            subject_name: "Python",
+            batch_no: 8,
+            resource_type: "Auditorium",
+            resource_name: "Audi-4",
+          },
+          {
+            fac_name: "Jayesh Vagadiya",
+            subject_name: "Python",
+            batch_no: 9,
+            resource_type: "Auditorium",
+            resource_name: "Audi-4",
+          },
+          {
+            fac_name: "Raj Gondaliya",
+            subject_name: "SE",
+            batch_no: 10,
+            resource_type: "Lab",
+            resource_name: "H-402",
+          },
+        ],
+        ["null"],
+        [
+          {
+            fac_name: "Maulik Patel",
+            subject_name: "CN",
+            batch_no: 2,
+            resource_type: "Lab",
+            resource_name: "H-402",
+          },
+          {
+            fac_name: "Arjun Bala",
+            subject_name: "Java",
+            batch_no: 3,
+            resource_type: "Auditorium",
+            resource_name: "Audi-6",
+          },
+          {
+            fac_name: "Arjun Bala",
+            subject_name: "Java",
+            batch_no: 4,
+            resource_type: "Auditorium",
+            resource_name: "Audi-6",
+          },
+          {
+            fac_name: "Raj Gondaliya",
+            subject_name: "SE",
+            batch_no: 6,
+            resource_type: "Auditorium",
+            resource_name: "Audi-5",
+          },
+          {
+            fac_name: "Raj Gondaliya",
+            subject_name: "SE",
+            batch_no: 7,
+            resource_type: "Auditorium",
+            resource_name: "Audi-5",
+          },
+          {
+            fac_name: "Raj Gondaliya",
+            subject_name: "SE",
+            batch_no: 8,
+            resource_type: "Auditorium",
+            resource_name: "Audi-5",
+          },
+          {
+            fac_name: "Raj Gondaliya",
+            subject_name: "SE",
+            batch_no: 9,
+            resource_type: "Auditorium",
+            resource_name: "Audi-5",
+          },
+          {
+            fac_name: "Raj Gondaliya",
+            subject_name: "SE",
+            batch_no: 10,
+            resource_type: "Auditorium",
+            resource_name: "Audi-5",
+          },
+        ],
+      ],
+      [
+        [
+          {
+            fac_name: "Jayesh Vagadiya",
+            subject_name: "Python",
+            batch_no: 1,
+            resource_type: "Lab",
+            resource_name: "H-403",
+          },
+          {
+            fac_name: "Raj Gondaliya",
+            subject_name: "SE",
+            batch_no: 2,
+            resource_type: "Auditorium",
+            resource_name: "Audi-6",
+          },
+          {
+            fac_name: "Raj Gondaliya",
+            subject_name: "SE",
+            batch_no: 3,
+            resource_type: "Auditorium",
+            resource_name: "Audi-6",
+          },
+          {
+            fac_name: "Raj Gondaliya",
+            subject_name: "SE",
+            batch_no: 4,
+            resource_type: "Auditorium",
+            resource_name: "Audi-6",
+          },
+          {
+            fac_name: "Raj Gondaliya",
+            subject_name: "SE",
+            batch_no: 5,
+            resource_type: "Auditorium",
+            resource_name: "Audi-6",
+          },
+          {
+            fac_name: "Maulik Patel",
+            subject_name: "CN",
+            batch_no: 7,
+            resource_type: "Lab",
+            resource_name: "H-401",
+          },
+          {
+            fac_name: "Maulik Patel",
+            subject_name: "CN",
+            batch_no: 8,
+            resource_type: "Lab",
+            resource_name: "H-401",
+          },
+          {
+            fac_name: "Maulik Patel",
+            subject_name: "CN",
+            batch_no: 9,
+            resource_type: "Lab",
+            resource_name: "H-401",
+          },
+          {
+            fac_name: "Maulik Patel",
+            subject_name: "CN",
+            batch_no: 10,
+            resource_type: "Lab",
+            resource_name: "H-401",
+          },
+        ],
+        [
+          {
+            fac_name: "Arjun Bala",
+            subject_name: "Java",
+            batch_no: 1,
+            resource_type: "Auditorium",
+            resource_name: "Audi-3",
+          },
+          {
+            fac_name: "Arjun Bala",
+            subject_name: "Java",
+            batch_no: 2,
+            resource_type: "Auditorium",
+            resource_name: "Audi-3",
+          },
+          {
+            fac_name: "Jayesh Vagadiya",
+            subject_name: "Python",
+            batch_no: 4,
+            resource_type: "Auditorium",
+            resource_name: "Audi-5",
+          },
+          {
+            fac_name: "Jayesh Vagadiya",
+            subject_name: "Python",
+            batch_no: 5,
+            resource_type: "Auditorium",
+            resource_name: "Audi-5",
+          },
+          {
+            fac_name: "Jayesh Vagadiya",
+            subject_name: "Python",
+            batch_no: 6,
+            resource_type: "Auditorium",
+            resource_name: "Audi-5",
+          },
+          {
+            fac_name: "Jayesh Vagadiya",
+            subject_name: "Python",
+            batch_no: 7,
+            resource_type: "Auditorium",
+            resource_name: "Audi-5",
+          },
+          {
+            fac_name: "Jayesh Vagadiya",
+            subject_name: "Python",
+            batch_no: 8,
+            resource_type: "Auditorium",
+            resource_name: "Audi-5",
+          },
+          {
+            fac_name: "Jayesh Vagadiya",
+            subject_name: "Python",
+            batch_no: 9,
+            resource_type: "Auditorium",
+            resource_name: "Audi-5",
+          },
+          {
+            fac_name: "Jayesh Vagadiya",
+            subject_name: "Python",
+            batch_no: 10,
+            resource_type: "Auditorium",
+            resource_name: "Audi-5",
+          },
+        ],
+        ["null"],
+        [
+          {
+            fac_name: "Arjun Bala",
+            subject_name: "Java",
+            batch_no: 3,
+            resource_type: "Lab",
+            resource_name: "H-401",
+          },
+          {
+            fac_name: "Arjun Bala",
+            subject_name: "Java",
+            batch_no: 4,
+            resource_type: "Lab",
+            resource_name: "H-401",
+          },
+          {
+            fac_name: "Maulik Patel",
+            subject_name: "CN",
+            batch_no: 5,
+            resource_type: "Lab",
+            resource_name: "H-404",
+          },
+          {
+            fac_name: "Jayesh Vagadiya",
+            subject_name: "Python",
+            batch_no: 6,
+            resource_type: "Lab",
+            resource_name: "H-401",
+          },
+          {
+            fac_name: "Jayesh Vagadiya",
+            subject_name: "Python",
+            batch_no: 7,
+            resource_type: "Lab",
+            resource_name: "H-401",
+          },
+          {
+            fac_name: "Raj Gondaliya",
+            subject_name: "SE",
+            batch_no: 8,
+            resource_type: "Lab",
+            resource_name: "H-401",
+          },
+          {
+            fac_name: "Naimish Vadodariya",
+            subject_name: ".Net",
+            batch_no: 10,
+            resource_type: "Auditorium",
+            resource_name: "Audi-4",
+          },
+        ],
+      ],
+      [
+        [
+          {
+            fac_name: "Arjun Bala",
+            subject_name: "Java",
+            batch_no: 1,
+            resource_type: "Lab",
+            resource_name: "H-404",
+          },
+          {
+            fac_name: "Jayesh Vagadiya",
+            subject_name: "Python",
+            batch_no: 2,
+            resource_type: "Lab",
+            resource_name: "H-404",
+          },
+          {
+            fac_name: "Naimish Vadodariya",
+            subject_name: ".Net",
+            batch_no: 3,
+            resource_type: "Auditorium",
+            resource_name: "Audi-4",
+          },
+          {
+            fac_name: "Naimish Vadodariya",
+            subject_name: ".Net",
+            batch_no: 4,
+            resource_type: "Auditorium",
+            resource_name: "Audi-4",
+          },
+          {
+            fac_name: "Naimish Vadodariya",
+            subject_name: ".Net",
+            batch_no: 5,
+            resource_type: "Auditorium",
+            resource_name: "Audi-4",
+          },
+          {
+            fac_name: "Naimish Vadodariya",
+            subject_name: ".Net",
+            batch_no: 6,
+            resource_type: "Auditorium",
+            resource_name: "Audi-4",
+          },
+          {
+            fac_name: "Naimish Vadodariya",
+            subject_name: ".Net",
+            batch_no: 7,
+            resource_type: "Auditorium",
+            resource_name: "Audi-4",
+          },
+          {
+            fac_name: "Naimish Vadodariya",
+            subject_name: ".Net",
+            batch_no: 8,
+            resource_type: "Auditorium",
+            resource_name: "Audi-4",
+          },
+          {
+            fac_name: "Naimish Vadodariya",
+            subject_name: ".Net",
+            batch_no: 9,
+            resource_type: "Auditorium",
+            resource_name: "Audi-4",
+          },
+          {
+            fac_name: "Naimish Vadodariya",
+            subject_name: ".Net",
+            batch_no: 10,
+            resource_type: "Auditorium",
+            resource_name: "Audi-4",
+          },
+        ],
+        [
+          {
+            fac_name: "Maulik Patel",
+            subject_name: "CN",
+            batch_no: 1,
+            resource_type: "Auditorium",
+            resource_name: "Audi-5",
+          },
+          {
+            fac_name: "Maulik Patel",
+            subject_name: "CN",
+            batch_no: 2,
+            resource_type: "Auditorium",
+            resource_name: "Audi-5",
+          },
+          {
+            fac_name: "Maulik Patel",
+            subject_name: "CN",
+            batch_no: 3,
+            resource_type: "Auditorium",
+            resource_name: "Audi-5",
+          },
+          {
+            fac_name: "Maulik Patel",
+            subject_name: "CN",
+            batch_no: 4,
+            resource_type: "Auditorium",
+            resource_name: "Audi-5",
+          },
+          {
+            fac_name: "Maulik Patel",
+            subject_name: "CN",
+            batch_no: 5,
+            resource_type: "Auditorium",
+            resource_name: "Audi-5",
+          },
+          {
+            fac_name: "Maulik Patel",
+            subject_name: "CN",
+            batch_no: 6,
+            resource_type: "Auditorium",
+            resource_name: "Audi-5",
+          },
+          {
+            fac_name: "Maulik Patel",
+            subject_name: "CN",
+            batch_no: 7,
+            resource_type: "Auditorium",
+            resource_name: "Audi-5",
+          },
+          {
+            fac_name: "Maulik Patel",
+            subject_name: "CN",
+            batch_no: 8,
+            resource_type: "Auditorium",
+            resource_name: "Audi-5",
+          },
+          {
+            fac_name: "Arjun Bala",
+            subject_name: "Java",
+            batch_no: 9,
+            resource_type: "Lab",
+            resource_name: "H-402",
+          },
+        ],
+        ["null"],
+        [
+          {
+            fac_name: "Jayesh Vagadiya",
+            subject_name: "Python",
+            batch_no: 2,
+            resource_type: "Auditorium",
+            resource_name: "Audi-5",
+          },
+          {
+            fac_name: "Jayesh Vagadiya",
+            subject_name: "Python",
+            batch_no: 3,
+            resource_type: "Auditorium",
+            resource_name: "Audi-5",
+          },
+          {
+            fac_name: "Naimish Vadodariya",
+            subject_name: ".Net",
+            batch_no: 5,
+            resource_type: "Auditorium",
+            resource_name: "Audi-6",
+          },
+          {
+            fac_name: "Naimish Vadodariya",
+            subject_name: ".Net",
+            batch_no: 6,
+            resource_type: "Auditorium",
+            resource_name: "Audi-6",
+          },
+          {
+            fac_name: "Naimish Vadodariya",
+            subject_name: ".Net",
+            batch_no: 7,
+            resource_type: "Auditorium",
+            resource_name: "Audi-6",
+          },
+          {
+            fac_name: "Naimish Vadodariya",
+            subject_name: ".Net",
+            batch_no: 8,
+            resource_type: "Auditorium",
+            resource_name: "Audi-6",
+          },
+          {
+            fac_name: "Naimish Vadodariya",
+            subject_name: ".Net",
+            batch_no: 9,
+            resource_type: "Auditorium",
+            resource_name: "Audi-6",
+          },
+          {
+            fac_name: "Jayesh Vagadiya",
+            subject_name: "Python",
+            batch_no: 10,
+            resource_type: "Auditorium",
+            resource_name: "Audi-5",
+          },
+        ],
+      ],
+      [
+        [
+          {
+            fac_name: "Raj Gondaliya",
+            subject_name: "SE",
+            batch_no: 1,
+            resource_type: "Lab",
+            resource_name: "H-403",
+          },
+          {
+            fac_name: "Maulik Patel",
+            subject_name: "CN",
+            batch_no: 4,
+            resource_type: "Lab",
+            resource_name: "H-404",
+          },
+          {
+            fac_name: "Arjun Bala",
+            subject_name: "Java",
+            batch_no: 10,
+            resource_type: "Lab",
+            resource_name: "H-401",
+          },
+        ],
+        [
+          {
+            fac_name: "Jayesh Vagadiya",
+            subject_name: "Python",
+            batch_no: 1,
+            resource_type: "Auditorium",
+            resource_name: "Audi-4",
+          },
+          {
+            fac_name: "Arjun Bala",
+            subject_name: "Java",
+            batch_no: 2,
+            resource_type: "Lab",
+            resource_name: "H-402",
+          },
+          {
+            fac_name: "Raj Gondaliya",
+            subject_name: "SE",
+            batch_no: 3,
+            resource_type: "Lab",
+            resource_name: "H-402",
+          },
+          {
+            fac_name: "Naimish Vadodariya",
+            subject_name: ".Net",
+            batch_no: 4,
+            resource_type: "Auditorium",
+            resource_name: "Audi-4",
+          },
+          {
+            fac_name: "Maulik Patel",
+            subject_name: "CN",
+            batch_no: 6,
+            resource_type: "Lab",
+            resource_name: "H-403",
+          },
+        ],
+        ["null"],
+        [
+          {
+            fac_name: "Naimish Vadodariya",
+            subject_name: ".Net",
+            batch_no: 2,
+            resource_type: "Auditorium",
+            resource_name: "Audi-5",
+          },
+          {
+            fac_name: "Naimish Vadodariya",
+            subject_name: ".Net",
+            batch_no: 3,
+            resource_type: "Auditorium",
+            resource_name: "Audi-5",
+          },
+          {
+            fac_name: "Raj Gondaliya",
+            subject_name: "SE",
+            batch_no: 5,
+            resource_type: "Lab",
+            resource_name: "H-404",
+          },
+          {
+            fac_name: "Jayesh Vagadiya",
+            subject_name: "Python",
+            batch_no: 8,
+            resource_type: "Lab",
+            resource_name: "H-404",
+          },
+        ],
+      ],
+    ],
+  };
+  const [timetableModal, setTimetableModal] = useState(false);
+  const [timetableData, setTimetableData] = useState(timetable);
+  const [showModal, setShowModal] = useState(false);
   const [showModal2, setShowModal2] = useState(false);
   const [showModal3, setShowModal3] = useState(false);
-  const handleResourceChange = (resourceType: any, resourceName: any) => {
+  const handleResourceChange = (
+    resourceType: any,
+    resourceName: any,
+    capacity: any
+  ) => {
     // Check if the resource is already in the data
     const isSelected = data.resource.some(
       (r) => r.resource_name === resourceName
@@ -77,7 +963,7 @@ const Page = () => {
         resource: [
           ...prevData.resource,
           {
-            capacity: 0,
+            capacity: capacity,
             resource_type: resourceType,
             resource_name: resourceName,
           },
@@ -161,6 +1047,9 @@ const Page = () => {
   ]);
   const resourceOptions = [
     ...new Set(allResource.map((res) => res.resource_type)),
+  ];
+  const resourceTypeOptions = [
+    ...new Set(allResource.map((res) => res.resource_name)),
   ];
   const departmentOptions = department.map((dept) => dept.department_name);
   const branchOptions = [
@@ -295,24 +1184,62 @@ const Page = () => {
   };
 
   const sendData = async () => {
-    console.log(data)
-    // const response = await fetch("http://localhost:3000/api/timetable", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify(data),
-    // });
+    console.log(data);
+    console.log(subject_faculty);
 
-    // const res = await response.json();
+    const response = await fetch(
+      `http://localhost:3000/api/university/${uni_id}/timetable`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }
+    );
+
+    const res = await response.json();
+    console.log(res);
   };
   return (
-    <div className="text-black flex justify-center">
+    <div className="text-black flex flex-col items-center justify-center">
       <div className="pt-10 flex " onClick={() => setShowModal(true)}>
         <button className="relative  flex h-[50px] w-40 items-center justify-center overflow-hidden bg-[#BBE1FA] font-medium text-[#1B262C] shadow-2xl transition-all duration-300 before:absolute before:inset-0 before:border-0 before:border-[#0F4C75] before:duration-100 before:ease-linear hover:bg-[#1B262C] hover:text-[#BBE1FA] rounded-lg">
           <span className="relative z-10">Create Time Table</span>
         </button>
       </div>
+      <div className="mt-10">
+        {/* <Timetable timetable={timetable} /> */}
+        <div
+          className=" shadow-md relative justify-center items-center w-full font-bold rounded-sm cursor-pointer"
+          onClick={() => {
+            setTimetableModal(true);
+            setTimetableData(timetable);
+          }}
+        >
+          <div className="right_content w-full flex flex-col gap-0 p-5 ">
+            <p className=" text-xl text-slate-950">
+              Department - {timetable.department_name}
+            </p>
+            <p className=" text-xl text-slate-950">
+              Branch - {timetable.branch_name}
+            </p>
+            <p className=" text-xl text-slate-950">
+              Class - {timetable.class_no}
+            </p>
+            <p className=" text-xl text-slate-950">
+              Sem : {timetable.semester}
+            </p>
+          </div>
+        </div>
+      </div>
+      {timetableModal && (
+        <div className="absolute z-20 top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white w-[90vw] h-[90vh] overflow-y-auto p-5 rounded-md">
+            <Timetable timetable={timetableData} />
+          </div>
+        </div>
+      )}
 
       {showModal && (
         <div className="fixed z-10 top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-center">
@@ -502,12 +1429,10 @@ const Page = () => {
                             subject_name: sub_fac.subject_name,
                             faculty_id: sub_fac.faculty_id,
                             faculty_name: sub_fac.faculty_name,
-                            resource_required: [
-                              {
-                                resource_type: "",
-                                resource_count: 0,
-                              },
-                            ],
+                            resource_required: resourceOptions.map((res) => ({
+                              resource_type: res,
+                              resource_count: 0,
+                            })),
                             uni_id: Number(uni_id),
                           },
                         ]);
@@ -519,12 +1444,10 @@ const Page = () => {
                             subject_name: sub_fac.subject_name,
                             faculty_id: sub_fac.faculty_id,
                             faculty_name: sub_fac.faculty_name,
-                            resource_required: [
-                              {
-                                resource_type: "",
-                                resource_count: 0,
-                              },
-                            ],
+                            resource_required: resourceOptions.map((res) => ({
+                              resource_type: res,
+                              resource_count: 0,
+                            })),
                             uni_id: Number(uni_id),
                           },
                         ]);
@@ -576,30 +1499,29 @@ const Page = () => {
                         {sub_fac.faculty_name}
                       </div>
                     </div>
-                    <div className="flex gap-4 py-1 ">
-                      {resourceOptions.map((res, index) => {
-                        return (
-                          <div className="flex flex-col relative " key={index}>
-                            <label className="absolute text-xs text-gray-500 left-2 bg-white px-1 -top-2">
-                              {res}
-                            </label>
-                            <input
-                              type="text"
-                              className="border-2 border-gray-300 p-1.5 rounded-md"
-                              placeholder="Enter count"
-                              onChange={(e) => {
-                                const newSubject = [...subject_faculty];
-                                newSubject[subindex].resource_required[index] =
-                                  {
-                                    resource_type: res,
-                                    resource_count: parseInt(e.target.value),
-                                  };
-                                setSubject_Faculty(newSubject);
-                              }}
-                            />
-                          </div>
-                        );
-                      })}
+                    <div className="flex gap-4 py-1">
+                      {sub_fac.resource_required.map((res, index) => (
+                        <div className="flex flex-col relative" key={index}>
+                          <label className="absolute text-xs text-gray-500 left-2 bg-white px-1 -top-2">
+                            {res.resource_type}
+                          </label>
+                          <input
+                            type="text"
+                            className="border-2 border-gray-300 p-1.5 rounded-md"
+                            placeholder="Enter count"
+                            value={res.resource_count}
+                            onChange={(e) => {
+                              setSubject_Faculty((prev) => {
+                                const newSubjectFaculty = [...prev];
+                                newSubjectFaculty[subindex].resource_required[
+                                  index
+                                ].resource_count = Number(e.target.value);
+                                return newSubjectFaculty;
+                              });
+                            }}
+                          />
+                        </div>
+                      ))}
                     </div>
                   </div>
                 );
@@ -623,6 +1545,10 @@ const Page = () => {
                 onClick={() => {
                   setShowModal2(false);
                   setShowModal3(true);
+                  setData({
+                    ...data,
+                    subject: subject_faculty,
+                  });
                 }}
               >
                 Next
@@ -720,7 +1646,8 @@ const Page = () => {
                                   onChange={() => {
                                     handleResourceChange(
                                       allres.resource_type,
-                                      allres.resource_name
+                                      allres.resource_name,
+                                      allres.capacity
                                     );
                                   }}
                                 />
