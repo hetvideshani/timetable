@@ -6,11 +6,11 @@ import { registerSchema } from "@/lib/validations/adminValidations";
 
 export const POST = async (req: Request, res: Response) => {
 
-  const validateError = await validationMiddleware(req, registerSchema);
-  if (validateError.status==400) return validateError; 
+  const validate = await validationMiddleware(req, registerSchema);
+  if (validate.status==400) return validate; 
 
-  const body = await req.json();
-  const { username, email, password, university } = body;
+  const body = await validate.json();
+  const { username, email, password, university } = body.body;
   const hashedPassword = await hash(password, 10);
 
   console.log(username, email, password, university);

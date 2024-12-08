@@ -38,12 +38,23 @@ const page = () => {
   const [all_department, setAllDepartment] = useState([
     { id: 0, department_name: "", uni_id: 0 },
   ]);
+  const [filteredDepartment, setFilteredDepartment] = useState([
+    { id: 0, department_name: "", uni_id: 0 },
+  ]);
   const [selected_department, setSelectedDepartment] = useState({
     id: 0,
     department_name: "",
     uni_id: 0,
   });
   const [all_branches, setAllBranches] = useState([
+    {
+      id: 0,
+      branch_name: "",
+      dept_id: 0,
+      dept_name: "",
+    },
+  ]);
+  const [filteredBranches, setFilteredBranches] = useState([
     {
       id: 0,
       branch_name: "",
@@ -126,6 +137,7 @@ const page = () => {
     if (Array.isArray(data.data)) {
       console.log(data.data);
       setAllDepartment(data.data);
+      setFilteredDepartment(data.data);
     } else {
       console.log("No data");
     }
@@ -140,6 +152,7 @@ const page = () => {
     if (Array.isArray(data.data)) {
       console.log(data.data);
       setAllBranches(data.data);
+      setFilteredBranches(data.data);
     } else {
       console.log("No data");
     }
@@ -191,7 +204,7 @@ const page = () => {
       students_per_batch: br.students_per_batch,
       branch_id: br.branch_id,
     });
-    setBranches(all_branches.filter((data) => data.dept_id === br.dept_id));
+    setFilteredBranches(all_branches.filter((data) => data.dept_id === br.dept_id));
   };
 
   const handle_delete = async (br: any) => {
@@ -258,15 +271,15 @@ const page = () => {
             prev.map((cl: any) =>
               cl.id === one_class.id
                 ? {
-                    ...cl,
-                    class_no: one_class.class_no,
-                    total_batches: one_class.total_batches,
-                    students_per_batch: one_class.students_per_batch,
-                    branch_id: one_class.branch_id,
-                    branch_name: selected_branch.branch_name,
-                    dept_id: selected_department.id,
-                    dept_name: selected_department.department_name,
-                  }
+                  ...cl,
+                  class_no: one_class.class_no,
+                  total_batches: one_class.total_batches,
+                  students_per_batch: one_class.students_per_batch,
+                  branch_id: one_class.branch_id,
+                  branch_name: selected_branch.branch_name,
+                  dept_id: selected_department.id,
+                  dept_name: selected_department.department_name,
+                }
                 : cl
             )
           );
@@ -429,45 +442,64 @@ const page = () => {
                   <input
                     type="text"
                     value={selected_department.department_name}
-                    className={`bg-gray-50 border text-gray-900  rounded-md border-gray-300  block w-full mt-1 p-2.5`}
+                    className={`bg-gray-50 border text-gray-900 rounded-md border-gray-300 block w-full mt-1 p-2.5`}
                     onChange={(e) => {
-                      setSelectedDepartment({
-                        ...selected_department,
-                        department_name: e.target.value,
-                      });
+                      const inputValue = e.target.value;
+                      const filtered = all_department.filter((data) =>
+                        data.department_name.toLowerCase().includes(inputValue.toLowerCase())
+                      );
+
+                      setFilteredDepartment(filtered);
                       setSelectedBranch({
                         id: 0,
                         branch_name: "",
                         dept_id: 0,
                         dept_name: "",
                       });
+
+                      if (filtered.length === 0) {
+                        setSelectedDepartment({ ...selected_department, department_name: "" });
+                      } else {
+                        setSelectedDepartment({
+                          ...selected_department,
+                          department_name: inputValue,
+                        });
+                      }
                     }}
                     placeholder="Department"
                     onFocus={() => setShowDropdown1(true)}
                   />
                   {showDropdown1 && (
                     <div className="relative top-full left-0 bg-white border-gray-300 rounded-md shadow-md mt-1 w-full">
-                      {all_department.map((type, index) => (
-                        <div
-                          key={index}
-                          className="p-2 hover:bg-gray-100 cursor-pointer text-gray-500"
-                          onClick={() => {
-                            setSelectedDepartment({
-                              id: type.id,
-                              department_name: type.department_name,
-                              uni_id: type.uni_id,
-                            });
-                            setShowDropdown1(false);
-                            setBranches(
-                              all_branches.filter(
-                                (data) => data.dept_id === type.id
-                              )
-                            );
-                          }}
-                        >
-                          {type.department_name}
-                        </div>
-                      ))}
+                      {filteredDepartment.length > 0 ? (
+                        filteredDepartment.map((type, index) => (
+                          <div
+                            key={index}
+                            className="p-2 hover:bg-gray-100 cursor-pointer text-gray-500"
+                            onClick={() => {
+                              setSelectedDepartment({
+                                id: type.id,
+                                department_name: type.department_name,
+                                uni_id: type.uni_id,
+                              });
+                              setSelectedBranch({
+                                id: 0,
+                                branch_name: "",
+                                dept_id: 0,
+                                dept_name: "",
+                              });
+                              setShowDropdown1(false);
+                              setFilteredBranches(
+                                all_branches.filter((data) => data.dept_id === type.id)
+                              );
+                            }}
+                          >
+                            {type.department_name}
+                          </div>
+                        ))
+                      ) : (
+                        <div className="p-2 text-gray-500">No data found</div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -476,72 +508,89 @@ const page = () => {
                   <input
                     type="text"
                     value={selected_branch.branch_name}
-                    className={`bg-gray-50  text-gray-900  rounded-md border border-gray-300 block w-full p-2.5 mt-1`}
-                    onChange={(e) =>
-                      setSelectedBranch({
-                        ...selected_branch,
-                        branch_name: e.target.value,
-                      })
-                    }
+                    className={`bg-gray-50 text-gray-900 rounded-md border border-gray-300 block w-full p-2.5 mt-1`}
+                    onChange={(e) => {
+                      const inputValue = e.target.value;
+                      const filtered = all_branches.filter((data) =>
+                        data.branch_name.toLowerCase().includes(inputValue.toLowerCase())
+                      );
+
+                      setFilteredBranches(filtered);
+
+                      if (filtered.length === 0) {
+                        setSelectedBranch({ ...selected_branch, branch_name: "" });
+                      } else {
+                        setSelectedBranch({
+                          ...selected_branch,
+                          branch_name: inputValue,
+                        });
+                      }
+                    }}
                     placeholder="Branch"
                     onFocus={() => setShowDropdown2(true)}
                   />
                   {showDropdown2 && (
                     <div className="relative top-full left-0 bg-white border-gray-300 rounded-md shadow-md mt-1 w-full">
-                      {branches.map((type, index) => (
-                        <div
-                          key={index}
-                          className="p-2 hover:bg-gray-100 cursor-pointer text-gray-500"
-                          onClick={() => {
-                            setSelectedBranch({
-                              id: type.id,
-                              branch_name: type.branch_name,
-                              dept_id: type.dept_id,
-                              dept_name: type.dept_name,
-                            });
-                            setShowDropdown2(false);
-                            setOneClass({ ...one_class, branch_id: type.id });
-                          }}
-                        >
-                          {type.branch_name}
-                        </div>
-                      ))}
+                      {filteredBranches.length > 0 ? (
+                        filteredBranches.map((type, index) => (
+                          <div
+                            key={index}
+                            className="p-2 hover:bg-gray-100 cursor-pointer text-gray-500"
+                            onClick={() => {
+                              setSelectedBranch({
+                                id: type.id,
+                                branch_name: type.branch_name,
+                                dept_id: type.dept_id,
+                                dept_name: type.dept_name,
+                              });
+                              setShowDropdown2(false);
+                              setOneClass({ ...one_class, branch_id: type.id });
+                            }}
+                          >
+                            {type.branch_name}
+                          </div>
+                        ))
+                      ) : (
+                        <div className="p-2 text-gray-500">No data found</div>
+                      )}
                     </div>
                   )}
                 </div>
-                {/* <div className="relative">
+
+                <>
+                  {/* <div className="relative">
                   <select
-                    required
-                    value={selected_department.id || ""} // Controlled: use 'value'
-                    onChange={(e) => {
-                      const selectedDept = all_department.find(
-                        (dept) => dept.id === parseInt(e.target.value)
+                  required
+                  value={selected_department.id || ""} // Controlled: use 'value'
+                  onChange={(e) => {
+                    const selectedDept = all_department.find(
+                      (dept) => dept.id === parseInt(e.target.value)
                       );
                       setSelectedDepartment(
                         selectedDept || {
                           id: 0,
                           department_name: "",
                           uni_id: 0,
-                        }
+                          }
                       );
                       setSelectedBranch({
                         id: 0,
                         branch_name: "",
                         dept_id: 0,
                         dept_name: "",
-                      });
-                      setBranches(
-                        selectedDept
+                        });
+                        setBranches(
+                          selectedDept
                           ? all_branches.filter(
                               (branch) => branch.dept_id === selectedDept.id
                             )
                           : []
                       );
-                    }}
+                      }}
                     className="border rounded-md px-2 py-1 w-full"
                   >
                     <option value="" disabled>
-                      Select Department
+                    Select Department
                     </option>
                     {all_department.map((dept) => (
                       <option key={dept.id} value={dept.id}>
@@ -549,42 +598,43 @@ const page = () => {
                       </option>
                     ))}
                   </select>
-
+                  
                   <div className="relative mt-4">
                     <select
-                      required
-                      value={selected_branch.id || ""} // Controlled: use 'value'
-                      onChange={(e) => {
+                    required
+                    value={selected_branch.id || ""} // Controlled: use 'value'
+                    onChange={(e) => {
                         const selectedBranch = branches.find(
                           (branch) => branch.id === parseInt(e.target.value)
-                        );
+                          );
                         setSelectedBranch(
                           selectedBranch || {
                             id: 0,
                             branch_name: "",
                             dept_id: 0,
                             dept_name: "",
-                          }
-                        );
-                        setOneClass({
-                          ...one_class,
-                          branch_id: selectedBranch?.id || 0,
-                        });
-                      }}
-                      className="border rounded-md px-2 py-1 w-full"
-                      disabled={branches.length === 0}
-                    >
-                      <option value="" disabled>
-                        Select Branch
-                      </option>
-                      {branches.map((branch) => (
+                            }
+                            );
+                            setOneClass({
+                              ...one_class,
+                              branch_id: selectedBranch?.id || 0,
+                              });
+                              }}
+                              className="border rounded-md px-2 py-1 w-full"
+                              disabled={branches.length === 0}
+                              >
+                              <option value="" disabled>
+                              Select Branch
+                              </option>
+                              {branches.map((branch) => (
                         <option key={branch.id} value={branch.id}>
                           {branch.branch_name}
                         </option>
                       ))}
                     </select>
-                  </div>
+                    </div>
                 </div> */}
+                </>
 
                 <input
                   required
@@ -618,8 +668,18 @@ const page = () => {
 
                 <div className="mt-4">
                   <button
+                    disabled={
+                      !one_class.class_no ||
+                      !one_class.total_batches ||
+                      !one_class.students_per_batch ||
+                      !selected_department.id ||
+                      !selected_branch.id
+                    }
                     type="submit"
-                    className="bg-blue-600 text-white px-4 py-2 rounded-md"
+                    className={`${one_class.class_no && one_class.total_batches && one_class.students_per_batch && selected_department.id && selected_branch.id
+                      ? "bg-blue-500"
+                      : "bg-gray-300 cursor-not-allowed"
+                      } disabled:cursor-not-allowed text-white px-4 py-2 rounded-md`}
                   >
                     Submit
                   </button>

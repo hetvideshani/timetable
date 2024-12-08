@@ -10,11 +10,13 @@ dotenv.config();
 
 export const POST = async (req: Request, res: Response) => {
 
-  // const validateError = await validationMiddleware(req, loginSchema);
-  // if (validateError) return validateError; 
+  const validate: any = await validationMiddleware(req, loginSchema);
+  if (validate.status == 400) return validate;
 
-  const body = await req.json();
-  const { email, password } = body;
+  const body = await validate.json();
+  const { email, password } = body.body;
+  console.log("Email", email);
+  console.log("Password", password)
 
   try {
     const { data: emailData, error: emailError } = await supabase

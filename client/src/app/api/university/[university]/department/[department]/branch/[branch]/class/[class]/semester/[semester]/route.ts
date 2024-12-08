@@ -5,11 +5,11 @@ import { NextResponse } from 'next/server';
 
 export const PUT = async (req:any, res:any) => {
 
-    const validateError = await validationMiddleware(req, semesterSchema)
-    if (validateError) return validateError;
+    const validate = await validationMiddleware(req, semesterSchema)
+    if (validate.status == 400) return validate;
 
-    const semester = await req.json()
-    const { sem_no,subject_faculty } = semester
+    const semester = await validate.json()
+    const { sem_no,subject_faculty } = semester.body
     const id = req.url.split('semester/')[1]
 
     try {

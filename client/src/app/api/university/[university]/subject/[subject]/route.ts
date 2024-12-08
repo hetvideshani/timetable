@@ -5,12 +5,12 @@ import { NextResponse } from 'next/server';
 
 export const PUT = async(req:Request, res:Response)=>{
     
-    const validateError = await validationMiddleware(req, subjectSchema);
-    if (validateError) return validateError;
+    const validate = await validationMiddleware(req, subjectSchema);
+    if (validate.status == 400) return validate;
 
-    const subject = await req.json();
+    const subject = await validate.json();
     const id = req.url!.split("subject/")[1]
-    const { subject_name } = subject
+    const { subject_name } = subject.body
 
     console.log(id);
     console.log(subject_name);

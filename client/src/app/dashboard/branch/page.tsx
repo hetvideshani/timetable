@@ -45,6 +45,9 @@ const page = () => {
   const [department, setDepartment] = useState([
     { id: 0, department_name: "", uni_id: 0 },
   ]);
+  const [filteredDepartment, setFilteredDepartment] = useState([
+    { id: 0, department_name: "", uni_id: 0 },
+  ]);
   const [showDropdown, setShowDropdown] = useState(false);
   const router = useRouter();
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -106,6 +109,7 @@ const page = () => {
     if (Array.isArray(data.data)) {
       console.log(data.data);
       setDepartment(data.data);
+      setFilteredDepartment(data.data);
     } else {
       console.log("No data");
     }
@@ -168,11 +172,11 @@ const page = () => {
           prev.map((br: any) =>
             br.id === branch.id
               ? {
-                  ...br,
-                  branch_name: branch.branch_name,
-                  dept_id: branch.dept_id,
-                  dept_name: selected_department.department_name,
-                }
+                ...br,
+                branch_name: branch.branch_name,
+                dept_id: branch.dept_id,
+                dept_name: selected_department.department_name,
+              }
               : br
           )
         );
@@ -368,11 +372,10 @@ const page = () => {
                       branch_name: false,
                     });
                   }}
-                  className={`bg-gray-50 border text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 ${
-                    validationState.branch_name
-                      ? "border-red-500"
-                      : "border-gray-300"
-                  }`}
+                  className={`bg-gray-50 border text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 ${validationState.branch_name
+                    ? "border-red-500"
+                    : "border-gray-300"
+                    }`}
                 />
                 <p className="mt-1 text-sm text-red-500">
                   {validationState.branch_name && "Branch Name is required."}
@@ -383,62 +386,76 @@ const page = () => {
                     type="text"
                     value={selected_department.department_name}
                     onChange={(e) => {
+                      const inputValue = e.target.value;
+                      const filtered = department.filter((type) =>
+                        type.department_name.toLowerCase().includes(inputValue.toLowerCase())
+                      );
+
+                      setFilteredDepartment(filtered);
                       setValidationState({
                         ...validationState,
                         dept_id: false,
                       });
-                      setSelectedDepartment({
-                        ...selected_department,
-                        department_name: e.target.value,
-                      });
+
+                      if (filtered.length === 0) {
+                        // Clear input when no match is found
+                        setFilteredDepartment(department);
+                        setSelectedDepartment({ ...selected_department, department_name: "" });
+                      } else {
+                        setSelectedDepartment({
+                          ...selected_department,
+                          department_name: inputValue,
+                        });
+                      }
                     }}
                     placeholder="Department"
                     onFocus={() => setShowDropdown(true)}
-                    className={`bg-gray-50 border text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 ${
-                      validationState.dept_id
-                        ? "border-red-500"
-                        : "border-gray-300"
-                    }`}
+                    className={`bg-gray-50 border text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 ${validationState.dept_id ? "border-red-500" : "border-gray-300"
+                      }`}
                   />
                   <p className="mt-1 text-sm text-red-500">
                     {validationState.dept_id && "Department is required."}
                   </p>
                   {showDropdown && (
                     <div className="relative top-full left-0 bg-white border-gray-300 rounded-md shadow-md mt-1 w-full">
-                      {department.map((type, index) => (
-                        <div
-                          key={index}
-                          className="p-2 hover:bg-gray-100 cursor-pointer text-gray-500"
-                          onClick={() => {
-                            setSelectedDepartment({
-                              id: type.id,
-                              department_name: type.department_name,
-                              uni_id: type.uni_id,
-                            });
-                            setBranch({ ...branch, dept_id: type.id });
-                            setValidationState({
-                              ...validationState,
-                              dept_id: false,
-                            });
-                            setShowDropdown(false);
-                          }}
-                        >
-                          {type.department_name}
-                        </div>
-                      ))}
+                      {filteredDepartment.length > 0 ? (
+                        filteredDepartment.map((type, index) => (
+                          <div
+                            key={index}
+                            className="p-2 hover:bg-gray-100 cursor-pointer text-gray-500"
+                            onClick={() => {
+                              setSelectedDepartment({
+                                id: type.id,
+                                department_name: type.department_name,
+                                uni_id: type.uni_id,
+                              });
+                              setBranch({ ...branch, dept_id: type.id });
+                              setValidationState({
+                                ...validationState,
+                                dept_id: false,
+                              });
+                              setShowDropdown(false);
+                            }}
+                          >
+                            {type.department_name}
+                          </div>
+                        ))
+                      ) : (
+                        <div className="p-2 text-gray-500">No data found</div>
+                      )}
                     </div>
                   )}
                 </div>
 
+
                 <div className="mt-4">
                   <button
                     type="submit"
-                    disabled={!canSubmit}
-                    className={`${
-                      canSubmit
-                        ? "bg-blue-500"
-                        : "bg-gray-300 cursor-not-allowed"
-                    } disabled:cursor-not-allowed text-white px-4 py-2 rounded-md`}
+                    disabled={!branch.branch_name || !branch.dept_id}
+                    className={`${branch.branch_name && branch.dept_id
+                      ? "bg-blue-500"
+                      : "bg-gray-300 cursor-not-allowed"
+                      } disabled:cursor-not-allowed text-white px-4 py-2 rounded-md`}
                   >
                     Submit
                   </button>

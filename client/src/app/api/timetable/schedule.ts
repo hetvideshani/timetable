@@ -36,6 +36,7 @@ export async function schedule(params: any) {
     const fac_allocator = await getAllocator(params.uni_id, "Faculty", fac);
     faculty_allocator.push(fac_allocator);
   }
+  
   faculty_allocator = faculty_allocator.map((fac: any) => fac[0]);
 
   const resource_type = selected_resource

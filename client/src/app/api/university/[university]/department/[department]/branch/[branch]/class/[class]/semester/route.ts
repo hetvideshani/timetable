@@ -5,12 +5,12 @@ import { NextResponse } from 'next/server';
 
 export const POST = async (req: any, res: any) => {
 
-    const validateError = await validationMiddleware(req, semesterSchema)
-    if (validateError) return validateError;
+    const validate = await validationMiddleware(req, semesterSchema)
+    if (validate.status == 400) return validate;
 
-    const semester = await req.json()
+    const semester = await validate.json()
     const id = req.url.split('class/')[1].split('/')[0]
-    const { sem_no, subject_faculty } = semester
+    const { sem_no, subject_faculty } = semester.body
     console.log(sem_no);
     console.log(subject_faculty);
 
