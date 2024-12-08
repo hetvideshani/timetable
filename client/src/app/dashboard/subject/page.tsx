@@ -18,7 +18,7 @@ const page = () => {
     },
   ]);
 
-  const [alertData, setAlertData] = useState({ status: 0, function_name: '', isModalOpen: false });
+  const [alertData, setAlertData] = useState({ status: 0, function_name: '', isModalOpen: false, onConfirm: (confirm: boolean) => {}});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [inputData, setInputData] = useState("");
   const router = useRouter();
@@ -54,25 +54,48 @@ const page = () => {
     }
   };
 
-  const handle_delete = async (sub_id: any) => {
-    const response = await fetch(
-      `http://localhost:3000/api/university/${uni_id}/subject/${sub_id}`,
-      {
-        method: "DELETE",
-      }
-    );
-
-    const data = await response.json();
-
-    if (data.status === 201) {
-      setSubject(subject.filter((sub: any) => sub.id !== sub_id));
-      router.refresh();
-    }
-
-    setAlertData({status: data.status, function_name: data.function_name, isModalOpen: true});
-
-    // window.location.href = '/dashboard/subject'
+  const handle_delete = (sub_id: number) => {
+    setAlertData({
+      status: 1,
+      function_name: "delete",
+      isModalOpen: true,
+      onConfirm: async (confirm) => {
+        if (confirm) {
+          try {
+            const response = await fetch(
+              `http://localhost:3000/api/university/${uni_id}/subject/${sub_id}`,
+              { method: "DELETE" }
+            );
+  
+            if (response.status === 201) {
+              setSubject((prev) => prev.filter((sub) => sub.id !== sub_id));
+              setAlertData({
+                status: 201,
+                function_name: "delete_success",
+                isModalOpen: true,
+                onConfirm: (confirm: boolean) => {}, 
+              });
+            } else {
+              throw new Error("Unexpected response status");
+            }
+          } catch (error) {
+            setAlertData({
+              status: 500,
+              function_name: "delete_error",
+              isModalOpen: true,
+              onConfirm: (confirm: boolean) => {}, 
+            });
+            console.error("Error deleting subject:", error);
+          }
+          router.refresh();
+        } else {
+          setAlertData((prev) => ({ ...prev, isModalOpen: false }));
+          router.refresh();
+        }
+      },
+    });
   };
+  
 
   const handle_insert = () => {
     setIsModalOpen(true);
@@ -103,7 +126,7 @@ const page = () => {
       const result = await response.json();
       console.log("Data successfully posted:", result);
 
-      setAlertData({status: result.status, function_name: result.function_name, isModalOpen: true});
+      setAlertData({status: result.status, function_name: result.function_name, isModalOpen: true, onConfirm: (confirm: boolean) => {}});
 
       if (result.function_name === "update_subject") {
         setSubject((prev: any) =>
@@ -125,7 +148,7 @@ const page = () => {
       router.refresh();
     } catch (error) {
       console.error("Error posting data:", error);
-      setAlertData({status: 500, function_name: 'error', isModalOpen: true});
+      setAlertData({status: 500, function_name: 'error', isModalOpen: true, onConfirm: (confirm: boolean) => {}});
     }
 
     
@@ -217,7 +240,11 @@ const page = () => {
       )}
       {
         alertData.isModalOpen && (
-              <Alerts status={alertData.status} isModalOpen={alertData.isModalOpen} function_name={alertData.function_name}></Alerts>
+              <Alerts 
+                status={alertData.status} 
+                isModalOpen={alertData.isModalOpen} 
+                function_name={alertData.function_name} 
+                onConfirm={alertData.onConfirm}></Alerts>
         )
       }
       <div className="grid grid-cols-4 w-full gap-5">

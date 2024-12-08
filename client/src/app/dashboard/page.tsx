@@ -22,6 +22,8 @@ const Page = () => {
       branch_id: 0,
       branch_name: "",
       dept_name: "",
+      total_batches: 0,
+      students_per_batch: 0,
     },
     semester: {
       id: 0,
@@ -104,6 +106,8 @@ const Page = () => {
       id: 0,
       class_no: 0,
       branch_id: 0,
+      total_batches: 0,
+      students_per_batch: 0,
       branch_name: "",
       dept_name: "",
     },
@@ -414,6 +418,16 @@ const Page = () => {
                               ? 0
                               : classs.filter((cl) => cl.class_no === value)[0]
                                   .branch_id,
+                          total_batches:
+                            value === ""
+                              ? 0
+                              : classs.filter((cl) => cl.class_no === value)[0]
+                                  .total_batches,
+                          students_per_batch:
+                            value === ""
+                              ? 0
+                              : classs.filter((cl) => cl.class_no === value)[0]
+                                  .students_per_batch,
                           branch_name:
                             value === ""
                               ? ""

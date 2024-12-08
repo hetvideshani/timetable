@@ -136,7 +136,15 @@ const Page = () => {
         className="main_content group shadow-md relative justify-center items-center w-full font-bold rounded-sm"
         key={index}
       >
-        <div className="edit_delete opacity-0 group-hover:opacity-100 group-hover:backdrop-blur-md group-hover:bg-gray-900 group-hover:bg-opacity-10 transition-all duration-1000  flex flex-col border-black items-center justify-center h-full w-full absolute">
+        <div
+          className="flex justify-center items-center p-4 w-full h-28"
+          onClick={() => setActiveCard(index)}
+        >
+          <div className="flex items-center  gap-2">
+            <div className="text-lg ">{data.department_name}</div>
+          </div>
+        </div>
+        <div className="edit_delete opacity-0 group-hover:opacity-100 group-hover:backdrop-blur-md group-hover:bg-gray-900 group-hover:bg-opacity-10 transition-all duration-1000  flex flex-col border-black items-center justify-center h-full w-full absolute top-0">
           <div className="grid grid-cols-2 gap-2 items-center justify-center">
             <button
               onClick={(e) => {
