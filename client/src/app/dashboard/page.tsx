@@ -933,6 +933,9 @@ const Page = () => {
       ],
     ],
   };
+
+  const timetableCards = [timetable, timetable];
+  
   const [timetableModal, setTimetableModal] = useState(false);
   const [timetableData, setTimetableData] = useState(timetable);
   const [showModal, setShowModal] = useState(false);
@@ -1208,21 +1211,30 @@ const Page = () => {
           <span className="relative z-10">Create Time Table</span>
         </button>
       </div>
-      <div className="mt-10 ">
+      <div className="mt-10 grid grid-cols-4 gap-5">
         {/* <Timetable timetable={timetable} /> */}
-        <div
-          className=" shadow-xl relative justify-center rounded-xl items-center w-full font-bold cursor-pointer"
-          onClick={() => {
-            setTimetableModal(true);
-            setTimetableData(timetable);
-          }}
-        >
-          <div className="w-full flex flex-col gap-1 p-10 justify-center items-center text-2xl">
-            <div>{timetable.department_name} - {timetable.branch_name}</div>
-            <div>{timetable.class_no} / {timetable.class_no + 4}</div>
-            <div>Semester - {timetable.semester}</div>
-          </div>
-        </div>
+        {timetableCards.map((timetable, index) => {
+          return (
+            <div
+              className=" shadow-xl relative justify-center rounded-xl items-center w-full font-bold cursor-pointer"
+              key={index}
+              onClick={() => {
+                setTimetableModal(true);
+                setTimetableData(timetable);
+              }}
+            >
+              <div className="w-full flex flex-col gap-1 p-10 justify-center items-center text-2xl">
+                <div>
+                  {timetable.department_name} - {timetable.branch_name}
+                </div>
+                <div>
+                  {timetable.class_no} / {timetable.class_no + 4}
+                </div>
+                <div>Semester - {timetable.semester}</div>
+              </div>
+            </div>
+          );
+        })}
       </div>
       {timetableModal && (
         <div className="absolute text-[#181C14] z-20 top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-center">
