@@ -10,7 +10,7 @@ import { createTimetable } from "@/lib/timetableHandler";
 import { supabase } from "@/lib/dbConnect";
 import { create } from "domain";
 
-export async function schedule(params: any,uni_id) {
+export async function schedule(params: any, uni_id: any) {
   // console.log(params);
   console.log("helloooooooooooooo");
   console.log(params);
@@ -39,14 +39,14 @@ export async function schedule(params: any,uni_id) {
     const fac_allocator = await getAllocator(uni_id, "Faculty", fac);
     faculty_allocator.push(fac_allocator);
   }
-  console.log("facccccccccccccccccccccccccc ====== ",faculty_allocator);
-  
+  console.log("facccccccccccccccccccccccccc ====== ", faculty_allocator);
+
   faculty_allocator = faculty_allocator.map((fac: any) => fac[0]);
 
   const resource_type = selected_resource
     ? [...new Set(selected_resource.map((res: any) => res.resource_type))]
     : [];
-  
+
   let res_all: any = [];
 
   for (const res_type of resource_type) {
@@ -102,10 +102,18 @@ export async function schedule(params: any,uni_id) {
         if (resource_index == resource_type.length) {
           resource_index = 0;
         }
-        let flag = 0
+        let flag = 0;
 
         if (timeTable[i][j].length != 0) {
-          let fill_sub_fac = same_fac_check(subject_faculty, i, j, timeTable, res_all, students_per_batch, selected_resource);
+          let fill_sub_fac = same_fac_check(
+            subject_faculty,
+            i,
+            j,
+            timeTable,
+            res_all,
+            students_per_batch,
+            selected_resource
+          );
           // console.log(fill_sub_fac);
 
           if (fill_sub_fac != null) {
@@ -147,12 +155,7 @@ export async function schedule(params: any,uni_id) {
               (res: any) => res.res_type == resource_type[resource_index]
             );
 
-            let second_resource_index = select_resource(
-              res_all,
-              r_i,
-              i,
-              j
-            );
+            let second_resource_index = select_resource(res_all, r_i, i, j);
 
             if (second_resource_index != -1) {
               fillTimetable(
@@ -162,25 +165,25 @@ export async function schedule(params: any,uni_id) {
                 subject_faculty[faculty_index].faculty_name,
                 subject_faculty[faculty_index].subject_name,
                 b + 1,
-                res_all[r_i].resource_allocator[second_resource_index]
-                  .name,
+                res_all[r_i].resource_allocator[second_resource_index].name,
                 resource_type[resource_index] as string
               );
               faculty_allocator[faculty_index].sessions[i][j] = 1;
-              let res_name = res_all[r_i].resource_allocator[second_resource_index].name;
-              let res_capacity = selected_resource.find((res: any) => res.resource_name == res_name).capacity;
+              let res_name =
+                res_all[r_i].resource_allocator[second_resource_index].name;
+              let res_capacity = selected_resource.find(
+                (res: any) => res.resource_name == res_name
+              ).capacity;
 
               try {
                 fillAllocator(
                   res_all[r_i].resource_allocator,
-                  res_all[r_i].resource_allocator[second_resource_index]
-                    .name,
+                  res_all[r_i].resource_allocator[second_resource_index].name,
                   i,
                   j,
                   res_capacity,
                   students_per_batch
                 );
-
               } catch (err) {
                 console.error("timepasss == ", err);
               }
@@ -192,21 +195,21 @@ export async function schedule(params: any,uni_id) {
               //     .resource_count
               // );
 
-              let fac_res_index = subject_faculty[faculty_index].resource_required.findIndex(
-                (res: any) =>
-                  res.resource_type == resource_type[resource_index]
+              let fac_res_index = subject_faculty[
+                faculty_index
+              ].resource_required.findIndex(
+                (res: any) => res.resource_type == resource_type[resource_index]
               );
               // console.table(subject_faculty[faculty_index].faculty_name)
               // console.table(subject_faculty[faculty_index].resource_required[fac_res_index]);
-              subject_faculty[faculty_index].resource_required[fac_res_index].resource_count--;
+              subject_faculty[faculty_index].resource_required[fac_res_index]
+                .resource_count--;
               resource_index++;
             }
 
             // console.log(second_resource_index);
-
           }
         }
-
       }
     }
     // console.log(timeTable);
@@ -222,6 +225,12 @@ export async function schedule(params: any,uni_id) {
       uniId: uni_id,
       resourceType: "Lab",
       resourceAllocator: res_all[0].resource_allocator,
+    });
+
+    await updateAllAllocators({
+      uniId: uni_id,
+      resourceType: "Faculty",
+      resourceAllocator: faculty_allocator,
     });
   } catch (error) {
     console.error("Error updating allocator:", error);
@@ -239,11 +248,14 @@ const select_faculty = (
 ) => {
   // console.log("HELLO");
 
-  let faculty = []
+  let faculty = [];
   for (let i = 0; i < subject_faculty.length; i++) {
     for (let j = 0; j < subject_faculty[i].resource_required.length; j++) {
-      if (subject_faculty[i].resource_required[j].resource_type == res_type && subject_faculty[i].resource_required[j].resource_count > 0) {
-        faculty.push(subject_faculty[i])
+      if (
+        subject_faculty[i].resource_required[j].resource_type == res_type &&
+        subject_faculty[i].resource_required[j].resource_count > 0
+      ) {
+        faculty.push(subject_faculty[i]);
         // console.log(subject_faculty[i].resource_required[j].resource_count)
       }
     }
@@ -294,10 +306,14 @@ const select_resource = (
   // let res = res_all[resource_index].resource_allocator.filter(
   //   (res: any) => res.sessions[day][session] < 1
   // );
-  let res: any = []
+  let res: any = [];
   for (let i = 0; i < res_all[resource_index].resource_allocator.length; i++) {
-    if (res_all[resource_index].resource_allocator[i].sessions[day][session] < 1 && res_all[resource_index].resource_allocator[i].sessions[day][session] >= 0) {
-      res.push(res_all[resource_index].resource_allocator[i])
+    if (
+      res_all[resource_index].resource_allocator[i].sessions[day][session] <
+        1 &&
+      res_all[resource_index].resource_allocator[i].sessions[day][session] >= 0
+    ) {
+      res.push(res_all[resource_index].resource_allocator[i]);
     }
   }
   // console.log(res);
@@ -372,28 +388,35 @@ function same_fac_check(
   students_per_batch: number,
   selected_resource: any
 ) {
-
   for (let i = 0; i < timeTable[day][session].length; i++) {
     const batch_object = timeTable[day][session][i];
     // console.log("batch_object :", batch_object);
 
-    let faculty_index: any = subject_faculty.findIndex((fac: any) => fac.faculty_name == batch_object.fac_name)
+    let faculty_index: any = subject_faculty.findIndex(
+      (fac: any) => fac.faculty_name == batch_object.fac_name
+    );
     // console.log("faculty_index :", f_index);
 
     if (faculty_index == -1) {
-      continue
+      continue;
     }
 
-    let faculty_resource_index = subject_faculty[faculty_index].resource_required.findIndex((res: any) => res.resource_type == batch_object.resource_type)
+    let faculty_resource_index = subject_faculty[
+      faculty_index
+    ].resource_required.findIndex(
+      (res: any) => res.resource_type == batch_object.resource_type
+    );
     // console.log("resource_index :", r_index);
 
     if (faculty_resource_index == -1) {
-      continue
+      continue;
     }
 
     // console.log("Hello", subject_faculty[f_index].resource_required);
-    if (subject_faculty[faculty_index].resource_required[faculty_resource_index].resource_count > 0) {
-
+    if (
+      subject_faculty[faculty_index].resource_required[faculty_resource_index]
+        .resource_count > 0
+    ) {
       let resource_type_index = res_all.findIndex(
         (res: any) => res.res_type == batch_object.resource_type
       );
@@ -407,23 +430,30 @@ function same_fac_check(
 
       let res_name = batch_object.resource_name;
 
-      console.log('res_index : ', resource_type_index);
+      console.log("res_index : ", resource_type_index);
       console.log("res_name :", res_name);
 
-      let second_r_index = res_all[resource_type_index].resource_allocator.findIndex(
-        (res: any) => res.name == res_name
-      );
+      let second_r_index = res_all[
+        resource_type_index
+      ].resource_allocator.findIndex((res: any) => res.name == res_name);
 
       console.log("second_r_index", second_r_index);
       if (second_r_index == -1) {
         continue;
       }
 
-      let res_capacity = selected_resource.find((res: any) => res.resource_name == res_name).capacity;
+      let res_capacity = selected_resource.find(
+        (res: any) => res.resource_name == res_name
+      ).capacity;
       console.log("res_capacity :", res_capacity);
       console.log(students_per_batch);
 
-      if (res_all[resource_type_index].resource_allocator[second_r_index].sessions[day][session] + (students_per_batch / res_capacity) > 1) {
+      if (
+        res_all[resource_type_index].resource_allocator[second_r_index]
+          .sessions[day][session] +
+          students_per_batch / res_capacity >
+        1
+      ) {
         continue;
       }
 
@@ -441,10 +471,15 @@ function same_fac_check(
         continue;
       }
 
-      subject_faculty[faculty_index].resource_required[faculty_resource_index].resource_count--;
-      return { fac_name: subject_faculty[faculty_index].faculty_name, res_name: res_name, sub_name: subject_faculty[faculty_index].subject_name, resource_type: batch_object.resource_type };
+      subject_faculty[faculty_index].resource_required[faculty_resource_index]
+        .resource_count--;
+      return {
+        fac_name: subject_faculty[faculty_index].faculty_name,
+        res_name: res_name,
+        sub_name: subject_faculty[faculty_index].subject_name,
+        resource_type: batch_object.resource_type,
+      };
     }
-
   }
 
   return null;

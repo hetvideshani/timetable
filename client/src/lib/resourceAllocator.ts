@@ -1,3 +1,4 @@
+import { supabase } from "./dbConnect";
 import redis, { connectRedis, disconnectRedis } from "./redis";
 
 export function genAllocator(
@@ -391,6 +392,28 @@ export async function deleteAllAllocators(uniId: number, resourceType: string) {
   } finally {
     await disconnectRedis();
   }
+}
+
+export async function resetAllAllocators(
+  uni_id: number,
+  numOfDays: number,
+  numOfSessions: number
+) {
+  const {data , error} = await supabase
+  .from('resource')
+  .select('resource_type')
+  .eq('uni_id', uni_id)
+  if (error) {
+    console.error("Error fetching resources:", error);
+    return;
+  }
+  data.push({resource_type: "Faculty"});
+  let allData = [...new Set(data.map((item: any) => item.resource_type))];
+  console.log(allData);
+  for (let i = 0; i < allData.length; i++) {
+    await deleteAllAllocators(uni_id, allData[i]);
+  }
+  await generateAllocators(uni_id, numOfDays, numOfSessions, true);
 }
 
 async function addResourceTypeToRedis(
