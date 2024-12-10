@@ -34,7 +34,6 @@ const page = () => {
     students_per_batch: null,
     branch_id: null,
   });
-
   const [all_department, setAllDepartment] = useState([
     { id: 0, department_name: "", uni_id: 0 },
   ]);
@@ -458,6 +457,7 @@ const page = () => {
                       });
 
                       if (filtered.length === 0) {
+                        setFilteredDepartment(all_department);
                         setSelectedDepartment({ ...selected_department, department_name: "" });
                       } else {
                         setSelectedDepartment({
@@ -492,6 +492,9 @@ const page = () => {
                               setFilteredBranches(
                                 all_branches.filter((data) => data.dept_id === type.id)
                               );
+                              setBranches(
+                                all_branches.filter((data) => data.dept_id === type.id)
+                              );
                             }}
                           >
                             {type.department_name}
@@ -511,14 +514,17 @@ const page = () => {
                     className={`bg-gray-50 text-gray-900 rounded-md border border-gray-300 block w-full p-2.5 mt-1`}
                     onChange={(e) => {
                       const inputValue = e.target.value;
-                      const filtered = all_branches.filter((data) =>
+                      const filtered = branches.filter((data) =>
                         data.branch_name.toLowerCase().includes(inputValue.toLowerCase())
                       );
 
                       setFilteredBranches(filtered);
 
                       if (filtered.length === 0) {
+                        console.log(branches);
+
                         setSelectedBranch({ ...selected_branch, branch_name: "" });
+                        setFilteredBranches(branches)
                       } else {
                         setSelectedBranch({
                           ...selected_branch,
@@ -666,7 +672,7 @@ const page = () => {
                   className="mt-1 p-2 border border-gray-300 rounded-md w-full"
                 />
 
-                <div className="mt-4">
+                {/* <div className="mt-4">
                   <button
                     disabled={
                       !one_class.class_no ||
@@ -683,6 +689,33 @@ const page = () => {
                   >
                     Submit
                   </button>
+                </div> */}
+
+                <div className="group flex relative mt-4">
+                  <button
+                    className="bg-blue-600 text-white px-4 py-2 rounded-md disabled:opacity-45 disabled:cursor-not-allowed"
+                    disabled={!one_class.class_no ||
+                      !one_class.total_batches ||
+                      !one_class.students_per_batch ||
+                      !selected_department.id ||
+                      !selected_branch.id}
+                  >
+                    <span>Submit</span>
+                  </button>
+                  {/** Tooltip displayed only when the button is disabled and hovered */}
+                  {(!one_class.class_no ||
+                    !one_class.total_batches ||
+                    !one_class.students_per_batch ||
+                    !selected_department.id ||
+                    !selected_branch.id) && (
+                      <span
+                        className="group-hover:opacity-100 transition-opacity bg-slate-500 px-1 
+      text-sm text-gray-100 rounded-md absolute left-1/2 
+      -translate-x-1/2 opacity-0"
+                      >
+                        Please enter required data to proceed.
+                      </span>
+                    )}
                 </div>
               </form>
             </div>

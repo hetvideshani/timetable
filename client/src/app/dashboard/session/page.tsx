@@ -40,6 +40,9 @@ const page = () => {
   const [department, setDepartment] = useState([
     { id: 0, department_name: "", uni_id: 0 },
   ]);
+  const [filteredDepartment, setFilteredDepartment] = useState([
+    { id: 0, department_name: "", uni_id: 0 },
+  ]);
   const [showDropdown, setShowDropdown] = useState(false);
   const router = useRouter();
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -100,6 +103,7 @@ const page = () => {
     if (Array.isArray(data.data)) {
       console.log(data.data);
       setDepartment(data.data);
+      setFilteredDepartment(data.data);
     } else {
       console.log("No data");
     }
@@ -160,7 +164,7 @@ const page = () => {
       }
 
       if (result.function_name === "create_session") {
-        setAllSessions((prev: any) => [...prev, result.data[0]]);
+        setAllSessions((prev: any) => [...prev,{id:result[0].id,dept_id:result[0].dept_id,do_nothing:result[0].do_nothing,duration:result[0].duration,session_sequence:result[0].session_sequence,dept_name:dept_name}]);
       }
 
       setIsModalOpen(false);
@@ -324,14 +328,25 @@ const page = () => {
                   <input
                     type="text"
                     value={dept_name}
-                    onChange={(e) => setDept_name(e.target.value)}
+                    onChange={(e) => {
+                      setDept_name(e.target.value)
+                      const filtered = department.filter((type) => type.department_name.toLowerCase().includes(e.target.value.toLowerCase()));
+
+                      if(filtered.length === 0){
+                        setFilteredDepartment(department)
+                        setDept_name('')
+                      }else{
+                        setFilteredDepartment(filtered)
+                      }
+                    }
+                  }
                     placeholder="Department"
                     className={`bg-gray-50 border text-gray-900 rounded-md border-r-gray-300 block w-full p-2.5`}
                     onFocus={() => setShowDropdown(true)}
                   />
                   {showDropdown && (
                     <div className="relative top-full left-0   bg-white border-gray-300 rounded-md shadow-md mt-1 w-full">
-                      {department.map((type, index) => (
+                      {filteredDepartment.map((type, index) => (
                         <div
                           key={index}
                           className="p-2 hover:bg-gray-100 cursor-pointer text-gray-500"
@@ -348,14 +363,23 @@ const page = () => {
                   )}
                 </div>
 
-                <div className="mt-4">
+                <div className="group flex relative mt-4">
                   <button
-                    type="submit"
                     className="bg-blue-600 text-white px-4 py-2 rounded-md disabled:opacity-45 disabled:cursor-not-allowed"
-                    disabled={!session.session_sequence || !session.duration}
+                    disabled={!session.dept_id || !session.duration || !session.session_sequence || !dept_name}
                   >
-                    Submit
+                    <span>Submit</span>
                   </button>
+                  {/** Tooltip displayed only when the button is disabled and hovered */}
+                  {(!session.dept_id || !session.duration || !session.session_sequence || !dept_name) && (
+                    <span
+                      className="group-hover:opacity-100 transition-opacity bg-slate-500 px-1 
+      text-sm text-gray-100 rounded-md absolute left-1/2 
+      -translate-x-1/2 opacity-0"
+                    >
+                      Please enter required data to proceed.
+                    </span>
+                  )}
                 </div>
               </form>
             </div>

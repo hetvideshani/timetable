@@ -123,12 +123,12 @@ const page = () => {
           prev.map((res: any) =>
             res.id === resource_id
               ? {
-                  ...res,
-                  resource_name: inputData.resource_name,
-                  resource_type: inputData.resource_type,
-                  capacity: inputData.capacity,
-                  duration: inputData.duration,
-                }
+                ...res,
+                resource_name: inputData.resource_name,
+                resource_type: inputData.resource_type,
+                capacity: inputData.capacity,
+                duration: inputData.duration,
+              }
               : res
           )
         );
@@ -280,13 +280,23 @@ const page = () => {
                   className="mt-1 p-2 border border-gray-300 rounded-md w-full"
                 />
 
-                <div className="mt-4">
+                <div className="group flex relative mt-4">
                   <button
-                    type="submit"
-                    className="bg-blue-600 text-white px-4 py-2 rounded-md"
+                    className="bg-blue-600 text-white px-4 py-2 rounded-md disabled:opacity-45 disabled:cursor-not-allowed"
+                    disabled={!inputData.resource_name || !inputData.resource_type || !inputData.capacity || !inputData.duration}
                   >
-                    Submit
+                    <span>Submit</span>
                   </button>
+                  {/** Tooltip displayed only when the button is disabled and hovered */}
+                  {(!inputData.resource_name || !inputData.resource_type || !inputData.capacity || !inputData.duration) && (
+                    <span
+                      className="group-hover:opacity-100 transition-opacity bg-slate-500 px-1 
+      text-sm text-gray-100 rounded-md absolute left-1/2 
+      -translate-x-1/2 opacity-0"
+                    >
+                      Please enter required data to proceed.
+                    </span>
+                  )}
                 </div>
               </form>
             </div>
