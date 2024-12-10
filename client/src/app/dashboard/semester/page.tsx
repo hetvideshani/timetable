@@ -57,6 +57,14 @@ const SemesterPage = () => {
       dept_name: "",
     },
   ]);
+  const [filteredBranches, setFilteredBranches] = useState([
+    {
+      id: 0,
+      branch_name: "",
+      dept_id: 0,
+      dept_name: "",
+    },
+  ]);
 
   const [selectedClass, setSelectedClass] = useState({
     id: 0,
@@ -76,6 +84,17 @@ const SemesterPage = () => {
       dept_name: "",
     },
   ]);
+  const [filteredClasses, setFilteredClasses] = useState([
+    {
+      id: 0,
+      class_no: "",
+      branch_id: 0,
+      branch_name: "",
+      dept_id: 0,
+      dept_name: "",
+    },
+  ]);
+
   const [selectedDepartment, setSelectedDepartment] = useState({
     id: 0,
     department_name: "",
@@ -88,7 +107,13 @@ const SemesterPage = () => {
       uni_id: 0,
     },
   ]);
-
+  const [filteredDepartments, setFilteredDepartments] = useState([
+    {
+      id: 0,
+      department_name: "",
+      uni_id: 0,
+    },
+  ]);
   const [subjects, setSubjects] = useState([
     {
       id: 0,
@@ -96,8 +121,21 @@ const SemesterPage = () => {
       uni_id: 0,
     },
   ]);
-
+  const [filteredSubjects, setFilteredSubjects] = useState([
+    {
+      id: 0,
+      subject_name: "",
+      uni_id: 0,
+    },
+  ]);
   const [faculties, setFaculties] = useState([
+    {
+      id: 0,
+      faculty_name: "",
+      uni_id: 0,
+    },
+  ]);
+  const [filteredFaculties, setFilteredFaculties] = useState([
     {
       id: 0,
       faculty_name: "",
@@ -192,6 +230,7 @@ const SemesterPage = () => {
     if (Array.isArray(data.data)) {
       console.log(data.data);
       setBranches(data.data);
+      setFilteredBranches(data.data);
     } else {
       console.log("No branches found");
     }
@@ -205,6 +244,7 @@ const SemesterPage = () => {
     if (Array.isArray(data.data)) {
       console.log(data.data);
       setClasses(data.data);
+      setFilteredClasses(data.data);
     } else {
       console.log("No classes found");
     }
@@ -218,10 +258,12 @@ const SemesterPage = () => {
     if (Array.isArray(data.data)) {
       console.log(data.data);
       setDepartments(data.data);
+      setFilteredDepartments(data.data);
     } else {
       console.log("No departments found");
     }
   };
+
   const fetchSemesters = async (id: any) => {
     const response = await fetch(
       `http://localhost:3000/api/university/${id}/semester`
@@ -243,6 +285,7 @@ const SemesterPage = () => {
     if (Array.isArray(data.data)) {
       console.log(data.data);
       setSubjects(data.data);
+      setFilteredSubjects(data.data);
     } else {
       console.log("No subjects found");
     }
@@ -256,6 +299,7 @@ const SemesterPage = () => {
     if (Array.isArray(data.data)) {
       console.log(data.data);
       setFaculties(data.data);
+      setFilteredFaculties(data.data);
     } else {
       console.log("No faculties found");
     }
@@ -305,12 +349,12 @@ const SemesterPage = () => {
           prev.map((sem) =>
             sem.id === semester.id
               ? {
-                  ...sem,
-                  sem_no: semester.sem_no,
-                  class_id: selectedClass.id,
-                  branch_id: selectedBranch.id,
-                  subject_faculty: semester.subject_faculty,
-                }
+                ...sem,
+                sem_no: semester.sem_no,
+                class_id: selectedClass.id,
+                branch_id: selectedBranch.id,
+                subject_faculty: semester.subject_faculty,
+              }
               : sem
           )
         );
@@ -338,6 +382,11 @@ const SemesterPage = () => {
         class_id: null,
         subject_faculty: [],
       });
+      setFilteredDepartments(departments);
+      setFilteredBranches(branches);
+      setFilteredClasses(classes);
+      setFilteredSubjects(subjects);
+      setFilteredFaculties(faculties);
       router.refresh();
     } catch (error) {
       console.error("Error posting data:", error);
@@ -448,11 +497,43 @@ const SemesterPage = () => {
                   <input
                     type="text"
                     value={selectedDepartment.department_name}
-                    onChange={(e) =>
-                      setSelectedDepartment({
-                        ...selectedDepartment,
-                        department_name: e.target.value,
-                      })
+                    onChange={(e) => {
+                      const inputValue = e.target.value;
+                      const filtered = filteredDepartments.filter((dep) =>
+                        dep.department_name.toLowerCase().includes(inputValue)
+                      );
+
+                      if (filtered.length === 0) {
+                        setSelectedDepartment({
+                          ...selectedDepartment,
+                          department_name: '',
+                        });
+                        setFilteredDepartments(departments);
+                      }
+                      else {
+                        setSelectedDepartment({
+                          ...selectedDepartment,
+                          department_name: e.target.value,
+                        })
+                        setFilteredDepartments(filtered);
+                      }
+
+                      setSelectedBranch({
+                        id: 0,
+                        branch_name: "",
+                        dept_id: 0,
+                        dept_name: "",
+                      });
+
+                      setSelectedClass({
+                        id: 0,
+                        class_no: "",
+                        branch_id: 0,
+                        branch_name: "",
+                        dept_id: 0,
+                        dept_name: "",
+                      });
+                    }
                     }
                     placeholder="Department"
                     onFocus={() => setShowDepartmentDropdown(true)}
@@ -460,7 +541,7 @@ const SemesterPage = () => {
                   />
                   {showDepartmentDropdown && (
                     <div className="relative top-full left-0 bg-white border-gray-300 rounded-md shadow-md mt-1 w-full">
-                      {departments.map((dep, index) => (
+                      {filteredDepartments.map((dep, index) => (
                         <div
                           key={index}
                           className="p-2 hover:bg-gray-100 cursor-pointer text-gray-500"
@@ -472,9 +553,22 @@ const SemesterPage = () => {
                               uni_id: dep.uni_id,
                             });
                             setShowDepartmentDropdown(false);
-                            setBranches((prev) =>
-                              prev.filter((branch) => branch.dept_id === dep.id)
-                            );
+                            setFilteredBranches(branches.filter((br) => br.dept_id === dep.id));
+                            setSelectedBranch({
+                              id: 0,
+                              branch_name: "",
+                              dept_id: 0,
+                              dept_name: "",
+                            });
+
+                            setSelectedClass({
+                              id: 0,
+                              class_no: "",
+                              branch_id: 0,
+                              branch_name: "",
+                              dept_id: 0,
+                              dept_name: "",
+                            });
                           }}
                         >
                           {dep.department_name}
@@ -487,11 +581,37 @@ const SemesterPage = () => {
                   <input
                     type="text"
                     value={selectedBranch.branch_name}
-                    onChange={(e) =>
-                      setSelectedBranch({
-                        ...selectedBranch,
-                        branch_name: e.target.value,
-                      })
+                    onChange={(e) => {
+                      const inputValue = e.target.value;
+                      const filter = filteredBranches.filter((br) =>
+                        br.branch_name.toLowerCase().includes(inputValue)
+                      );
+
+                      if (filter.length === 0) {
+                        setSelectedBranch({
+                          ...selectedBranch,
+                          branch_name: '',
+                        });
+                        setFilteredBranches(branches.filter((br) => br.dept_id === selectedDepartment.id));
+                      }
+                      else {
+                        setSelectedBranch({
+                          ...selectedBranch,
+                          branch_name: e.target.value,
+                        })
+                        setFilteredBranches(filter);
+                      }
+
+                      setSelectedClass({
+                        id: 0,
+                        class_no: "",
+                        branch_id: 0,
+                        branch_name: "",
+                        dept_id: 0,
+                        dept_name: "",
+                      });
+                      setFilteredClasses(classes)
+                    }
                     }
                     placeholder="Branch"
                     // disabled={selectedDepartment.id === 0}
@@ -500,7 +620,7 @@ const SemesterPage = () => {
                   />
                   {showBranchDropdown && (
                     <div className="relative top-full left-0 bg-white border-gray-300 rounded-md shadow-md mt-1 w-full">
-                      {branches.map((branch, index) => (
+                      {filteredBranches.map((branch, index) => (
                         <div
                           key={index}
                           className="p-2 hover:bg-gray-100 cursor-pointer text-gray-500"
@@ -513,9 +633,15 @@ const SemesterPage = () => {
                               dept_name: branch.dept_name,
                             });
                             setShowBranchDropdown(false);
-                            setClasses((prev) =>
-                              prev.filter((cl) => cl.branch_id === branch.id)
-                            );
+                            setSelectedClass({
+                              id: 0,
+                              class_no: "",
+                              branch_id: 0,
+                              branch_name: "",
+                              dept_id: 0,
+                              dept_name: "",
+                            });
+                            setFilteredClasses(classes.filter((cl) => cl.branch_id === branch.id));
                           }}
                         >
                           {branch.branch_name}
@@ -528,11 +654,31 @@ const SemesterPage = () => {
                   <input
                     type="text"
                     value={selectedClass.class_no}
-                    onChange={(e) =>
-                      setSelectedClass({
-                        ...selectedClass,
-                        class_no: e.target.value,
-                      })
+                    onChange={(e) => {
+                      console.log("HEllo");
+
+                      console.log(filteredClasses);
+
+                      const inputValue = e.target.value;
+                      const filter = filteredClasses.filter((cl) =>
+                        cl.class_no.toLowerCase().includes(inputValue)
+                      );
+
+                      if (filter.length === 0) {
+                        setSelectedClass({
+                          ...selectedClass,
+                          class_no: '',
+                        });
+                        setFilteredClasses(classes.filter((cl) => cl.branch_id === selectedBranch.id));
+                      }
+                      else {
+                        setSelectedClass({
+                          ...selectedClass,
+                          class_no: e.target.value,
+                        })
+                        setFilteredClasses(filter);
+                      }
+                    }
                     }
                     // disabled={selectedBranch.id === 0}
                     placeholder="Class"
@@ -541,7 +687,7 @@ const SemesterPage = () => {
                   />
                   {showClassDropdown && (
                     <div className="relative top-full left-0 bg-white border-gray-300 rounded-md shadow-md mt-1 w-full">
-                      {classes.map((cl, index) => (
+                      {filteredClasses.map((cl, index) => (
                         <div
                           key={index}
                           className="p-2 hover:bg-gray-100 cursor-pointer text-gray-500"
@@ -598,11 +744,27 @@ const SemesterPage = () => {
                     <input
                       type="text"
                       value={selectedSuject_Faculty.subject_name}
-                      onChange={(e) =>
-                        setSelectedSubject_Faculty({
-                          ...selectedSuject_Faculty,
-                          subject_name: e.target.value,
-                        })
+                      onChange={(e) => {
+                        const inputValue = e.target.value;
+                        const filter = subjects.filter((sub) =>
+                          sub.subject_name.toLowerCase().includes(inputValue)
+                        );
+
+                        if (filter.length === 0) {
+                          setSelectedSubject_Faculty({
+                            ...selectedSuject_Faculty,
+                            subject_name: '',
+                          });
+                          setFilteredSubjects(subjects);
+                        }
+                        else {
+                          setSelectedSubject_Faculty({
+                            ...selectedSuject_Faculty,
+                            subject_name: e.target.value,
+                          })
+                          setFilteredSubjects(filter);
+                        }
+                      }
                       }
                       placeholder="Subject"
                       onFocus={() => setShowSubjectDropdown(true)}
@@ -610,7 +772,7 @@ const SemesterPage = () => {
                     />
                     {showSubjectDropdown && (
                       <div className=" top-full left-0 bg-white border-gray-300 rounded-md shadow-md mt-1 w-full">
-                        {subjects.map((sub, index) => (
+                        {filteredSubjects.map((sub, index) => (
                           <div
                             key={index}
                             className="p-2 hover:bg-gray-100 cursor-pointer text-gray-500"
@@ -622,6 +784,7 @@ const SemesterPage = () => {
                               });
 
                               setShowSubjectDropdown(false);
+                              setFilteredSubjects(subjects);
                             }}
                           >
                             {sub.subject_name}
@@ -634,11 +797,27 @@ const SemesterPage = () => {
                     <input
                       type="text"
                       value={selectedSuject_Faculty.faculty_name}
-                      onChange={(e) =>
-                        setSelectedSubject_Faculty({
-                          ...selectedSuject_Faculty,
-                          faculty_name: e.target.value,
-                        })
+                      onChange={(e) => {
+                        const inputValue = e.target.value;
+                        const filter = faculties.filter((fac) =>
+                          fac.faculty_name.toLowerCase().includes(inputValue)
+                        );
+
+                        if (filter.length === 0) {
+                          setSelectedSubject_Faculty({
+                            ...selectedSuject_Faculty,
+                            faculty_name: '',
+                          });
+                          setFilteredFaculties(faculties);
+                        }
+                        else {
+                          setSelectedSubject_Faculty({
+                            ...selectedSuject_Faculty,
+                            faculty_name: e.target.value,
+                          })
+                          setFilteredFaculties(filter);
+                        }
+                      }
                       }
                       placeholder="Faculty"
                       onFocus={() => setShowFacultyDropdown(true)}
@@ -646,7 +825,7 @@ const SemesterPage = () => {
                     />
                     {showFacultyDropdown && (
                       <div className=" top-full left-0 bg-white border-gray-300 rounded-md shadow-md mt-1 w-full">
-                        {faculties.map((fac, index) => (
+                        {filteredFaculties.map((fac, index) => (
                           <div
                             key={index}
                             className="p-2 hover:bg-gray-100 cursor-pointer text-gray-500"
@@ -656,7 +835,7 @@ const SemesterPage = () => {
                                 faculty_id: fac.id,
                                 faculty_name: fac.faculty_name,
                               });
-
+                              setFilteredFaculties(faculties)
                               setShowFacultyDropdown(false);
                             }}
                           >
@@ -691,13 +870,23 @@ const SemesterPage = () => {
                     Add Subject
                   </button>
                 </div>
-                <div className="mt-4">
+                <div className="group flex relative mt-4">
                   <button
-                    type="submit"
-                    className="bg-blue-600 text-white px-4 py-2 rounded-md"
+                    className="bg-blue-600 text-white px-4 py-2 rounded-md disabled:opacity-45 disabled:cursor-not-allowed"
+                    disabled={!semester.sem_no || !selectedDepartment.id || !selectedBranch.id || !selectedClass.id || semester.subject_faculty.length === 0}
                   >
-                    Submit
+                    <span>Submit</span>
                   </button>
+                  {/** Tooltip displayed only when the button is disabled and hovered */}
+                  {(!semester.sem_no || !selectedDepartment.id || !selectedBranch.id || !selectedClass.id || semester.subject_faculty.length === 0) && (
+                    <span
+                      className="group-hover:opacity-100 transition-opacity bg-slate-500 px-1 
+      text-sm text-gray-100 rounded-md absolute left-1/2 
+      -translate-x-1/2 opacity-0"
+                    >
+                      Please enter required data to proceed.
+                    </span>
+                  )}
                 </div>
               </form>
             </div>

@@ -51,6 +51,14 @@ const SemesterPage = () => {
     },
   ]);
 
+  const [filteredSubjects, setFilteredSubjects] = useState([
+    {
+      id: 0,
+      subject_name: "",
+      uni_id: 0,
+    }
+  ]);
+
   const [faculties, setFaculties] = useState([
     {
       id: 0,
@@ -58,6 +66,15 @@ const SemesterPage = () => {
       uni_id: 0,
     },
   ]);
+
+  const [filteredFaculties, setFilteredFaculties] = useState([
+    {
+      id: 0,
+      faculty_name: "",
+      uni_id: 0,
+    }
+  ]);
+
   const [selectedSuject_Faculty, setSelectedSubject_Faculty] = useState({
     subject_id: 0,
     subject_name: "",
@@ -155,6 +172,7 @@ const SemesterPage = () => {
     if (Array.isArray(data.data)) {
       console.log(data.data);
       setSubjects(data.data);
+      setFilteredSubjects(data.data);
     } else {
       console.log("No subjects found");
     }
@@ -168,6 +186,7 @@ const SemesterPage = () => {
     if (Array.isArray(data.data)) {
       console.log(data.data);
       setFaculties(data.data);
+      setFilteredFaculties(data.data);
     } else {
       console.log("No faculties found");
     }
@@ -387,11 +406,26 @@ const SemesterPage = () => {
                     <input
                       type="text"
                       value={selectedSuject_Faculty.subject_name}
-                      onChange={(e) =>
-                        setSelectedSubject_Faculty({
-                          ...selectedSuject_Faculty,
-                          subject_name: e.target.value,
-                        })
+                      onChange={(e) => {
+                        const inputValue = e.target.value;
+
+                        const filtered = subjects.filter(sub => sub.subject_name.toLowerCase().includes(inputValue))
+
+                        if (filtered.length == 0) {
+                          setSelectedSubject_Faculty({
+                            ...selectedSuject_Faculty,
+                            subject_name: "",
+                          })
+                          setFilteredSubjects(subjects)
+                        }
+                        else {
+                          setFilteredSubjects(filtered)
+                          setSelectedSubject_Faculty({
+                            ...selectedSuject_Faculty,
+                            subject_name: e.target.value,
+                          })
+                        }
+                      }
                       }
                       placeholder="Subject"
                       onFocus={() => setShowSubjectDropdown(true)}
@@ -399,7 +433,7 @@ const SemesterPage = () => {
                     />
                     {showSubjectDropdown && (
                       <div className=" top-full left-0 bg-white border-gray-300 rounded-md shadow-md mt-1 w-full">
-                        {subjects.map((sub, index) => (
+                        {filteredSubjects.map((sub, index) => (
                           <div
                             key={index}
                             className="p-2 hover:bg-gray-100 cursor-pointer text-gray-500"
@@ -423,11 +457,25 @@ const SemesterPage = () => {
                     <input
                       type="text"
                       value={selectedSuject_Faculty.faculty_name}
-                      onChange={(e) =>
-                        setSelectedSubject_Faculty({
-                          ...selectedSuject_Faculty,
-                          faculty_name: e.target.value,
-                        })
+                      onChange={(e) => {
+                        const inputValue = e.target.value;
+                        const filtered = faculties.filter(fac => fac.faculty_name.toLowerCase().includes(inputValue))
+
+                        if (filtered.length == 0) {
+                          setSelectedSubject_Faculty({
+                            ...selectedSuject_Faculty,
+                            faculty_name: "",
+                          })
+                          setFilteredFaculties(faculties)
+                        }
+                        else {
+                          setFilteredFaculties(filtered)
+                          setSelectedSubject_Faculty({
+                            ...selectedSuject_Faculty,
+                            faculty_name: e.target.value,
+                          })
+                        }
+                      }
                       }
                       placeholder="Faculty"
                       onFocus={() => setShowFacultyDropdown(true)}
@@ -435,7 +483,7 @@ const SemesterPage = () => {
                     />
                     {showFacultyDropdown && (
                       <div className=" top-full left-0 bg-white border-gray-300 rounded-md shadow-md mt-1 w-full">
-                        {faculties.map((fac, index) => (
+                        {filteredFaculties.map((fac, index) => (
                           <div
                             key={index}
                             className="p-2 hover:bg-gray-100 cursor-pointer text-gray-500"
@@ -489,13 +537,23 @@ const SemesterPage = () => {
                   </button>
                 </div>
 
-                <div className="mt-4">
+                <div className="group flex relative mt-4">
                   <button
-                    type="submit"
-                    className="bg-blue-600 text-white px-4 py-2 rounded-md"
+                    className="bg-blue-600 text-white px-4 py-2 rounded-md disabled:opacity-45 disabled:cursor-not-allowed"
+                    disabled={!inputData.class_id || !inputData.sem_no || !inputData.subject_faculty}
                   >
-                    Submit
+                    <span>Submit</span>
                   </button>
+                  {/** Tooltip displayed only when the button is disabled and hovered */}
+                  {(!inputData.class_id || !inputData.sem_no || !inputData.subject_faculty) && (
+                    <span
+                      className="group-hover:opacity-100 transition-opacity bg-slate-500 px-1 
+      text-sm text-gray-100 rounded-md absolute left-1/2 
+      -translate-x-1/2 opacity-0"
+                    >
+                      Please enter required data to proceed.
+                    </span>
+                  )}
                 </div>
               </form>
             </div>
