@@ -280,6 +280,7 @@ const SemesterPage = () => {
     e.preventDefault();
 
     try {
+      console.log("Hello");
       console.log(semester);
 
       const url =
@@ -555,6 +556,10 @@ const SemesterPage = () => {
                               dept_name: cl.dept_name,
                             });
                             setShowClassDropdown(false);
+                            setSemester({
+                              ...semester,
+                              class_id: cl.id,
+                            });
                           }}
                         >
                           {cl.class_no}

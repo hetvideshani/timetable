@@ -20,7 +20,7 @@ export const POST = async (req: any, res: any) => {
     try {
         const { data, error } = await supabase
             .from('semester')
-            .insert([{ sem_no: semno, class_id: id, faculty_id: subject_faculty.faculty_id, subject_id: subject_faculty.subject_id }])
+            .insert([{ sem_no: semno, class_id: id, subject_faculty: subject_faculty }])
             .select()
         if (error) {
             throw error;
