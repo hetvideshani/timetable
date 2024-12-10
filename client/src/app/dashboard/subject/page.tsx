@@ -127,6 +127,7 @@ const page = () => {
       console.log("Data successfully posted:", result);
 
       setAlertData({status: result.status, function_name: result.function_name, isModalOpen: true, onConfirm: (confirm: boolean) => {}});
+      router.refresh();
 
       if (result.function_name === "update_subject") {
         setSubject((prev: any) =>
@@ -254,7 +255,10 @@ const page = () => {
                 status={alertData.status} 
                 isModalOpen={alertData.isModalOpen} 
                 function_name={alertData.function_name} 
-                onConfirm={alertData.onConfirm}></Alerts>
+                onConfirm={(confirm) => {
+                  alertData.onConfirm(confirm);
+                  setAlertData({ status: 0, function_name: '', isModalOpen: false, onConfirm: () => {} });
+                }}></Alerts>
         )
       }
       <div className="grid grid-cols-4 w-full gap-5">

@@ -6,6 +6,7 @@ import { LuPencil } from "react-icons/lu";
 import { FaPlus } from "react-icons/fa";
 import { FiTrash2 } from "react-icons/fi";
 import { FiEdit } from "react-icons/fi";
+import Alerts from "../Alerts";
 
 const page = () => {
   const [uni_id, setUni_id] = useState("");
@@ -21,6 +22,7 @@ const page = () => {
     },
   ]);
 
+  const [alertData, setAlertData] = useState({ status: 0, function_name: '', isModalOpen: false, onConfirm: (confirm: boolean) => {}});
   const [duration, setDuration] = useState("");
   const [session, setSession] = useState<{
     id: number | null;
@@ -147,6 +149,9 @@ const page = () => {
       const result = await response.json();
       console.log("Data successfully posted:", result);
 
+      setAlertData({status: result.status, function_name: result.function_name, isModalOpen: true, onConfirm: (confirm: boolean) => {}});
+      router.refresh();
+
       if (result.function_name === "update_session") {
         setAllSessions((prev: any) =>
           prev.map((ses: any) =>
@@ -178,35 +183,77 @@ const page = () => {
       router.refresh();
     } catch (error) {
       console.error("Error posting data:", error);
+      setAlertData({status: 500, function_name: 'error', isModalOpen: true, onConfirm: (confirm: boolean) => {}});
     }
   };
 
   const handle_delete = async (br: any) => {
-    const response = await fetch(
-      `http://localhost:3000/api/university/${uni_id}/department/${br.dept_id}/session/${br.id}`,
-      {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
 
-    const data = await response.json();
-    if (data.status === 201) {
-      console.log("Data successfully deleted:", data);
-      setAllSessions(all_sessions.filter((data) => data.id !== br.id));
-      setSession({
-        id: null,
-        session_sequence: null,
-        dept_id: null,
-        do_nothing: false,
-        duration: null,
-      });
-      router.refresh();
-    } else {
-      console.error("Error deleting data:", data);
-    }
+    setAlertData({
+      status: 1,
+      function_name: "delete",
+      isModalOpen: true,
+      onConfirm: async (confirm) => {
+        if (confirm) {
+          try {
+            const response = await fetch(
+              `http://localhost:3000/api/university/${uni_id}/department/${br.dept_id}/session/${br.id}`,
+              { method: "DELETE" }
+            );
+  
+            if (response.status === 201) {
+              setAllSessions((prev) => prev.filter((sess) => sess.id !== br));
+              setAlertData({
+                status: 201,
+                function_name: "delete_success",
+                isModalOpen: true,
+                onConfirm: (confirm: boolean) => {}, 
+              });
+            } else {
+              throw new Error("Unexpected response status");
+            }
+          } catch (error) {
+            setAlertData({
+              status: 500,
+              function_name: "delete_error",
+              isModalOpen: true,
+              onConfirm: (confirm: boolean) => {}, 
+            });
+            console.error("Error deleting subject:", error);
+          }
+          router.refresh();
+        } else {
+          setAlertData((prev) => ({ ...prev, isModalOpen: false }));
+          router.refresh();
+        }
+      },
+    });
+
+    // const response = await fetch(
+    //   `http://localhost:3000/api/university/${uni_id}/department/${br.dept_id}/session/${br.id}`,
+    //   {
+    //     method: "DELETE",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //   }
+    // );
+
+    // const data = await response.json();
+    // if (data.status === 201) {
+    //   console.log("Data successfully deleted:", data);
+    //   setAllSessions(all_sessions.filter((data) => data.id !== br.id));
+    //   setSession({
+    //     id: null,
+    //     session_sequence: null,
+    //     dept_id: null,
+    //     do_nothing: false,
+    //     duration: null,
+    //   });
+    //   router.refresh();
+    // } else {
+    //   console.error("Error deleting data:", data);
+    // }
   };
 
   const get_session_data = all_sessions.map((data, index) => {
@@ -385,6 +432,18 @@ const page = () => {
             </div>
           </div>
         )}
+        {
+        alertData.isModalOpen && (
+              <Alerts 
+                status={alertData.status} 
+                isModalOpen={alertData.isModalOpen} 
+                function_name={alertData.function_name} 
+                onConfirm={(confirm) => {
+                  alertData.onConfirm(confirm);
+                  setAlertData({ status: 0, function_name: '', isModalOpen: false, onConfirm: () => {} });
+                }}></Alerts>
+        )
+      }
         <div className="grid grid-cols-4 w-full gap-5">
           {all_sessions.length > 1 ? get_session_data : null}
         </div>
