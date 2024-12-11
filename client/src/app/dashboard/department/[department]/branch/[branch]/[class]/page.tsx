@@ -56,7 +56,7 @@ const SemesterPage = () => {
       id: 0,
       subject_name: "",
       uni_id: 0,
-    }
+    },
   ]);
 
   const [faculties, setFaculties] = useState([
@@ -72,7 +72,7 @@ const SemesterPage = () => {
       id: 0,
       faculty_name: "",
       uni_id: 0,
-    }
+    },
   ]);
 
   const [selectedSuject_Faculty, setSelectedSubject_Faculty] = useState({
@@ -409,24 +409,24 @@ const SemesterPage = () => {
                       onChange={(e) => {
                         const inputValue = e.target.value;
 
-                        const filtered = subjects.filter(sub => sub.subject_name.toLowerCase().includes(inputValue))
+                        const filtered = subjects.filter((sub) =>
+                          sub.subject_name.toLowerCase().includes(inputValue)
+                        );
 
                         if (filtered.length == 0) {
                           setSelectedSubject_Faculty({
                             ...selectedSuject_Faculty,
                             subject_name: "",
-                          })
-                          setFilteredSubjects(subjects)
-                        }
-                        else {
-                          setFilteredSubjects(filtered)
+                          });
+                          setFilteredSubjects(subjects);
+                        } else {
+                          setFilteredSubjects(filtered);
                           setSelectedSubject_Faculty({
                             ...selectedSuject_Faculty,
                             subject_name: e.target.value,
-                          })
+                          });
                         }
-                      }
-                      }
+                      }}
                       placeholder="Subject"
                       onFocus={() => setShowSubjectDropdown(true)}
                       className="mt-1 p-2 border border-gray-300 rounded-md w-full"
@@ -459,24 +459,24 @@ const SemesterPage = () => {
                       value={selectedSuject_Faculty.faculty_name}
                       onChange={(e) => {
                         const inputValue = e.target.value;
-                        const filtered = faculties.filter(fac => fac.faculty_name.toLowerCase().includes(inputValue))
+                        const filtered = faculties.filter((fac) =>
+                          fac.faculty_name.toLowerCase().includes(inputValue)
+                        );
 
                         if (filtered.length == 0) {
                           setSelectedSubject_Faculty({
                             ...selectedSuject_Faculty,
                             faculty_name: "",
-                          })
-                          setFilteredFaculties(faculties)
-                        }
-                        else {
-                          setFilteredFaculties(filtered)
+                          });
+                          setFilteredFaculties(faculties);
+                        } else {
+                          setFilteredFaculties(filtered);
                           setSelectedSubject_Faculty({
                             ...selectedSuject_Faculty,
                             faculty_name: e.target.value,
-                          })
+                          });
                         }
-                      }
-                      }
+                      }}
                       placeholder="Faculty"
                       onFocus={() => setShowFacultyDropdown(true)}
                       className="mt-1 p-2 border border-gray-300 rounded-md w-full"
@@ -540,12 +540,18 @@ const SemesterPage = () => {
                 <div className="group flex relative mt-4">
                   <button
                     className="bg-blue-600 text-white px-4 py-2 rounded-md disabled:opacity-45 disabled:cursor-not-allowed"
-                    disabled={!inputData.class_id || !inputData.sem_no || !inputData.subject_faculty}
+                    disabled={
+                      !inputData.class_id ||
+                      !inputData.sem_no ||
+                      semester.subject_faculty.length === 0
+                    }
                   >
                     <span>Submit</span>
                   </button>
                   {/** Tooltip displayed only when the button is disabled and hovered */}
-                  {(!inputData.class_id || !inputData.sem_no || !inputData.subject_faculty) && (
+                  {(!inputData.class_id ||
+                    !inputData.sem_no ||
+                    semester.subject_faculty.length === 0) && (
                     <span
                       className="group-hover:opacity-100 transition-opacity bg-slate-500 px-1 
       text-sm text-gray-100 rounded-md absolute left-1/2 

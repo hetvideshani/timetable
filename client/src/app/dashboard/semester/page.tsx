@@ -214,10 +214,10 @@ const SemesterPage = () => {
       })
       .catch((error) => console.error("Error fetching data:", error));
 
+    await fetchSemesters(customData);
     await getBranches(customData);
     await getClasses(customData);
     await getDepartments(customData);
-    await fetchSemesters(customData);
     await fetchSubjects(customData);
     await fetchFaculties(customData);
   };
@@ -349,12 +349,12 @@ const SemesterPage = () => {
           prev.map((sem) =>
             sem.id === semester.id
               ? {
-                ...sem,
-                sem_no: semester.sem_no,
-                class_id: selectedClass.id,
-                branch_id: selectedBranch.id,
-                subject_faculty: semester.subject_faculty,
-              }
+                  ...sem,
+                  sem_no: semester.sem_no,
+                  class_id: selectedClass.id,
+                  branch_id: selectedBranch.id,
+                  subject_faculty: semester.subject_faculty,
+                }
               : sem
           )
         );
@@ -499,22 +499,23 @@ const SemesterPage = () => {
                     value={selectedDepartment.department_name}
                     onChange={(e) => {
                       const inputValue = e.target.value;
-                      const filtered = filteredDepartments.filter((dep) =>
-                        dep.department_name.toLowerCase().includes(inputValue)
+                      const filtered = departments.filter((dep) =>
+                        dep.department_name
+                          .toLowerCase()
+                          .includes(inputValue.toLowerCase())
                       );
 
                       if (filtered.length === 0) {
                         setSelectedDepartment({
                           ...selectedDepartment,
-                          department_name: '',
+                          department_name: "",
                         });
                         setFilteredDepartments(departments);
-                      }
-                      else {
+                      } else {
                         setSelectedDepartment({
                           ...selectedDepartment,
                           department_name: e.target.value,
-                        })
+                        });
                         setFilteredDepartments(filtered);
                       }
 
@@ -533,8 +534,7 @@ const SemesterPage = () => {
                         dept_id: 0,
                         dept_name: "",
                       });
-                    }
-                    }
+                    }}
                     placeholder="Department"
                     onFocus={() => setShowDepartmentDropdown(true)}
                     className="mt-1 p-2 border border-gray-300 rounded-md w-full"
@@ -553,7 +553,9 @@ const SemesterPage = () => {
                               uni_id: dep.uni_id,
                             });
                             setShowDepartmentDropdown(false);
-                            setFilteredBranches(branches.filter((br) => br.dept_id === dep.id));
+                            setFilteredBranches(
+                              branches.filter((br) => br.dept_id === dep.id)
+                            );
                             setSelectedBranch({
                               id: 0,
                               branch_name: "",
@@ -583,22 +585,29 @@ const SemesterPage = () => {
                     value={selectedBranch.branch_name}
                     onChange={(e) => {
                       const inputValue = e.target.value;
-                      const filter = filteredBranches.filter((br) =>
-                        br.branch_name.toLowerCase().includes(inputValue)
+                      const filter = branches.filter(
+                        (br) =>
+                          br.branch_name
+                            .toLowerCase()
+                            .includes(inputValue.toLowerCase()) &&
+                          br.dept_id === selectedDepartment.id
                       );
 
-                      if (filter.length === 0) {
+                      if (filter.length === 0 || inputValue === "") {
                         setSelectedBranch({
                           ...selectedBranch,
-                          branch_name: '',
+                          branch_name: "",
                         });
-                        setFilteredBranches(branches.filter((br) => br.dept_id === selectedDepartment.id));
-                      }
-                      else {
+                        setFilteredBranches(
+                          branches.filter(
+                            (br) => br.dept_id === selectedDepartment.id
+                          )
+                        );
+                      } else {
                         setSelectedBranch({
                           ...selectedBranch,
                           branch_name: e.target.value,
-                        })
+                        });
                         setFilteredBranches(filter);
                       }
 
@@ -610,12 +619,23 @@ const SemesterPage = () => {
                         dept_id: 0,
                         dept_name: "",
                       });
-                      setFilteredClasses(classes)
-                    }
-                    }
+                      setFilteredClasses(classes);
+                    }}
                     placeholder="Branch"
                     // disabled={selectedDepartment.id === 0}
-                    onFocus={() => setShowBranchDropdown(true)}
+                    onFocus={() => {
+                      if (selectedDepartment.id === 0) {
+                        console.log(selectedDepartment);
+
+                        setSelectedDepartment({
+                          department_name: "",
+                          id: 0,
+                          uni_id: 0,
+                        });
+                        return;
+                      }
+                      setShowBranchDropdown(true);
+                    }}
                     className="mt-1 p-2 border border-gray-300 rounded-md w-full"
                   />
                   {showBranchDropdown && (
@@ -641,7 +661,9 @@ const SemesterPage = () => {
                               dept_id: 0,
                               dept_name: "",
                             });
-                            setFilteredClasses(classes.filter((cl) => cl.branch_id === branch.id));
+                            setFilteredClasses(
+                              classes.filter((cl) => cl.branch_id === branch.id)
+                            );
                           }}
                         >
                           {branch.branch_name}
@@ -660,29 +682,47 @@ const SemesterPage = () => {
                       console.log(filteredClasses);
 
                       const inputValue = e.target.value;
-                      const filter = filteredClasses.filter((cl) =>
-                        cl.class_no.toLowerCase().includes(inputValue)
+                      console.log("hello", inputValue);
+                      const filter = classes.filter(
+                        (cl) =>
+                          cl.class_no
+                            .toString()
+                            .toLowerCase()
+                            .includes(inputValue.toLowerCase()) &&
+                          cl.branch_id === selectedBranch.id
                       );
-
-                      if (filter.length === 0) {
+                      if (filter.length === 0 || inputValue === "") {
                         setSelectedClass({
                           ...selectedClass,
-                          class_no: '',
+                          class_no: "",
                         });
-                        setFilteredClasses(classes.filter((cl) => cl.branch_id === selectedBranch.id));
-                      }
-                      else {
+                        setFilteredClasses(
+                          classes.filter(
+                            (cl) => cl.branch_id === selectedBranch.id
+                          )
+                        );
+                      } else {
                         setSelectedClass({
                           ...selectedClass,
                           class_no: e.target.value,
-                        })
+                        });
                         setFilteredClasses(filter);
                       }
-                    }
-                    }
+                    }}
                     // disabled={selectedBranch.id === 0}
                     placeholder="Class"
-                    onFocus={() => setShowClassDropdown(true)}
+                    onFocus={() => {
+                      if (selectedBranch.id === 0) {
+                        setSelectedBranch({
+                          branch_name: "",
+                          id: 0,
+                          dept_id: 0,
+                          dept_name: "",
+                        });
+                        return;
+                      }
+                      setShowClassDropdown(true);
+                    }}
                     className="mt-1 p-2 border border-gray-300 rounded-md w-full"
                   />
                   {showClassDropdown && (
@@ -747,25 +787,25 @@ const SemesterPage = () => {
                       onChange={(e) => {
                         const inputValue = e.target.value;
                         const filter = subjects.filter((sub) =>
-                          sub.subject_name.toLowerCase().includes(inputValue)
+                          sub.subject_name
+                            .toLowerCase()
+                            .includes(inputValue.toLowerCase())
                         );
 
                         if (filter.length === 0) {
                           setSelectedSubject_Faculty({
                             ...selectedSuject_Faculty,
-                            subject_name: '',
+                            subject_name: "",
                           });
                           setFilteredSubjects(subjects);
-                        }
-                        else {
+                        } else {
                           setSelectedSubject_Faculty({
                             ...selectedSuject_Faculty,
                             subject_name: e.target.value,
-                          })
+                          });
                           setFilteredSubjects(filter);
                         }
-                      }
-                      }
+                      }}
                       placeholder="Subject"
                       onFocus={() => setShowSubjectDropdown(true)}
                       className="mt-1 p-2 border border-gray-300 rounded-md w-full"
@@ -800,25 +840,25 @@ const SemesterPage = () => {
                       onChange={(e) => {
                         const inputValue = e.target.value;
                         const filter = faculties.filter((fac) =>
-                          fac.faculty_name.toLowerCase().includes(inputValue)
+                          fac.faculty_name
+                            .toLowerCase()
+                            .includes(inputValue.toLowerCase())
                         );
 
                         if (filter.length === 0) {
                           setSelectedSubject_Faculty({
                             ...selectedSuject_Faculty,
-                            faculty_name: '',
+                            faculty_name: "",
                           });
                           setFilteredFaculties(faculties);
-                        }
-                        else {
+                        } else {
                           setSelectedSubject_Faculty({
                             ...selectedSuject_Faculty,
                             faculty_name: e.target.value,
-                          })
+                          });
                           setFilteredFaculties(filter);
                         }
-                      }
-                      }
+                      }}
                       placeholder="Faculty"
                       onFocus={() => setShowFacultyDropdown(true)}
                       className="mt-1 p-2 border border-gray-300 rounded-md w-full"
@@ -835,7 +875,7 @@ const SemesterPage = () => {
                                 faculty_id: fac.id,
                                 faculty_name: fac.faculty_name,
                               });
-                              setFilteredFaculties(faculties)
+                              setFilteredFaculties(faculties);
                               setShowFacultyDropdown(false);
                             }}
                           >
@@ -850,13 +890,18 @@ const SemesterPage = () => {
                   <button
                     type="button"
                     onClick={() => {
-                      setSemester({
-                        ...semester,
-                        subject_faculty: [
-                          ...semester.subject_faculty,
-                          selectedSuject_Faculty,
-                        ],
-                      });
+                      if (
+                        selectedSuject_Faculty.subject_id !== 0 &&
+                        selectedSuject_Faculty.faculty_id !== 0
+                      ) {
+                        setSemester({
+                          ...semester,
+                          subject_faculty: [
+                            ...semester.subject_faculty,
+                            selectedSuject_Faculty,
+                          ],
+                        });
+                      }
 
                       setSelectedSubject_Faculty({
                         subject_id: 0,
@@ -873,12 +918,22 @@ const SemesterPage = () => {
                 <div className="group flex relative mt-4">
                   <button
                     className="bg-blue-600 text-white px-4 py-2 rounded-md disabled:opacity-45 disabled:cursor-not-allowed"
-                    disabled={!semester.sem_no || !selectedDepartment.id || !selectedBranch.id || !selectedClass.id || semester.subject_faculty.length === 0}
+                    disabled={
+                      !semester.sem_no ||
+                      !selectedDepartment.id ||
+                      !selectedBranch.id ||
+                      !selectedClass.id ||
+                      semester.subject_faculty.length === 0
+                    }
                   >
                     <span>Submit</span>
                   </button>
                   {/** Tooltip displayed only when the button is disabled and hovered */}
-                  {(!semester.sem_no || !selectedDepartment.id || !selectedBranch.id || !selectedClass.id || semester.subject_faculty.length === 0) && (
+                  {(!semester.sem_no ||
+                    !selectedDepartment.id ||
+                    !selectedBranch.id ||
+                    !selectedClass.id ||
+                    semester.subject_faculty.length === 0) && (
                     <span
                       className="group-hover:opacity-100 transition-opacity bg-slate-500 px-1 
       text-sm text-gray-100 rounded-md absolute left-1/2 

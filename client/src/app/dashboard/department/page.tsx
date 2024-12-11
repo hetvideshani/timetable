@@ -242,7 +242,7 @@ const Page = () => {
             </button>
             <button
               onClick={(e) => {
-                // e.stopPropagation();
+                e.stopPropagation();
                 handle_delete(data.id);
               }}
               className="flex gap-1 hover:text-red-600 p-2"
