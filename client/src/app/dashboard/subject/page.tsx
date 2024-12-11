@@ -18,7 +18,12 @@ const page = () => {
     },
   ]);
 
-  const [alertData, setAlertData] = useState({ status: 0, function_name: '', isModalOpen: false, onConfirm: (confirm: boolean) => {}});
+  const [alertData, setAlertData] = useState({
+    status: 0,
+    function_name: "",
+    isModalOpen: false,
+    onConfirm: (confirm: boolean) => {},
+  });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [inputData, setInputData] = useState("");
   const router = useRouter();
@@ -66,14 +71,14 @@ const page = () => {
               `http://localhost:3000/api/university/${uni_id}/subject/${sub_id}`,
               { method: "DELETE" }
             );
-  
+
             if (response.status === 201) {
               setSubject((prev) => prev.filter((sub) => sub.id !== sub_id));
               setAlertData({
                 status: 201,
                 function_name: "delete_success",
                 isModalOpen: true,
-                onConfirm: (confirm: boolean) => {}, 
+                onConfirm: (confirm: boolean) => {},
               });
             } else {
               throw new Error("Unexpected response status");
@@ -83,7 +88,7 @@ const page = () => {
               status: 500,
               function_name: "delete_error",
               isModalOpen: true,
-              onConfirm: (confirm: boolean) => {}, 
+              onConfirm: (confirm: boolean) => {},
             });
             console.error("Error deleting subject:", error);
           }
@@ -95,7 +100,6 @@ const page = () => {
       },
     });
   };
-  
 
   const handle_insert = () => {
     setIsModalOpen(true);
@@ -126,7 +130,12 @@ const page = () => {
       const result = await response.json();
       console.log("Data successfully posted:", result);
 
-      setAlertData({status: result.status, function_name: result.function_name, isModalOpen: true, onConfirm: (confirm: boolean) => {}});
+      setAlertData({
+        status: result.status,
+        function_name: result.function_name,
+        isModalOpen: true,
+        onConfirm: (confirm: boolean) => {},
+      });
       router.refresh();
 
       if (result.function_name === "update_subject") {
@@ -149,10 +158,13 @@ const page = () => {
       router.refresh();
     } catch (error) {
       console.error("Error posting data:", error);
-      setAlertData({status: 500, function_name: 'error', isModalOpen: true, onConfirm: (confirm: boolean) => {}});
+      setAlertData({
+        status: 500,
+        function_name: "error",
+        isModalOpen: true,
+        onConfirm: (confirm: boolean) => {},
+      });
     }
-
-    
   };
 
   const get_sub_data = subject.map((data, index) => {
@@ -249,18 +261,22 @@ const page = () => {
           </div>
         </div>
       )}
-      {
-        alertData.isModalOpen && (
-              <Alerts 
-                status={alertData.status} 
-                isModalOpen={alertData.isModalOpen} 
-                function_name={alertData.function_name} 
-                onConfirm={(confirm) => {
-                  alertData.onConfirm(confirm);
-                  setAlertData({ status: 0, function_name: '', isModalOpen: false, onConfirm: () => {} });
-                }}></Alerts>
-        )
-      }
+      {alertData.isModalOpen && (
+        <Alerts
+          status={alertData.status}
+          isModalOpen={alertData.isModalOpen}
+          function_name={alertData.function_name}
+          onConfirm={(confirm) => {
+            alertData.onConfirm(confirm);
+            setAlertData({
+              status: 0,
+              function_name: "",
+              isModalOpen: false,
+              onConfirm: () => {},
+            });
+          }}
+        ></Alerts>
+      )}
       <div className="grid grid-cols-4 w-full gap-5">
         {subject.length > 1 ? get_sub_data : null}
       </div>

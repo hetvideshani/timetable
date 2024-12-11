@@ -1,11 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { FaDiagramSuccessor } from 'react-icons/fa6';
-import { IoClose } from 'react-icons/io5';
-import { IconError404 } from '@tabler/icons-react';
-import { useRouter } from 'next/navigation';
+import React, { useEffect, useState } from "react";
+import { FaDiagramSuccessor } from "react-icons/fa6";
+import { IoClose } from "react-icons/io5";
+import { IconError404 } from "@tabler/icons-react";
+import { useRouter } from "next/navigation";
 // import Router from 'next/router';
 
-const Alerts = ({ status, function_name, isModalOpen, onConfirm }: { status: number; function_name: string; isModalOpen: boolean, onConfirm: (confirm: boolean) => void }) => {
+const Alerts = ({
+  status,
+  function_name,
+  isModalOpen,
+  onConfirm,
+}: {
+  status: number;
+  function_name: string;
+  isModalOpen: boolean;
+  onConfirm: (confirm: boolean) => void;
+}) => {
   const [model, setModel] = useState(isModalOpen);
 
   const router = useRouter();
@@ -20,7 +30,7 @@ const Alerts = ({ status, function_name, isModalOpen, onConfirm }: { status: num
   };
 
   const handleConfirm = () => {
-    setModel(false);
+    // setModel(false);
     onConfirm(true);
     router.refresh();
   };
@@ -28,7 +38,10 @@ const Alerts = ({ status, function_name, isModalOpen, onConfirm }: { status: num
   const renderContent = () => {
     function_name = function_name.split("_")[0];
 
-    if (status === 201 && ['create', 'update', 'delete'].includes(function_name)) {
+    if (
+      status === 201 &&
+      ["create", "update", "delete"].includes(function_name)
+    ) {
       return (
         <>
           <FaDiagramSuccessor className="text-green-500 w-12 h-12" />
@@ -70,9 +83,12 @@ const Alerts = ({ status, function_name, isModalOpen, onConfirm }: { status: num
       );
     }
   };
-
   return (
-    <div className={`fixed inset-0 flex items-start justify-center z-50 ${model ? 'backdrop-blur-sm bg-black/50' : 'hidden'}`}>
+    <div
+      className={`fixed inset-0 flex items-start justify-center z-50 ${
+        model ? "backdrop-blur-sm bg-black/50" : "hidden"
+      }`}
+    >
       <div className="mt-10 w-11/12 max-w-md p-6 rounded-lg bg-white shadow-lg flex flex-col gap-4 animate-fade-down">
         <div className="flex justify-end">
           <IoClose
@@ -85,5 +101,4 @@ const Alerts = ({ status, function_name, isModalOpen, onConfirm }: { status: num
     </div>
   );
 };
-
 export default Alerts;
