@@ -1,6 +1,6 @@
-"use client"
+"use client";
 import { motion } from "framer-motion";
-import { HeroHighlight, Highlight } from "./components/ui/hero-highlight";
+import { HeroHighlight } from "./components/ui/hero-highlight";
 import { TypewriterEffectSmooth } from "./components/ui/typewriter-effect";
 import Link from "next/link";
 
@@ -21,7 +21,7 @@ export default function Home() {
     {
       text: "solutions",
       className: "text-white",
-    }
+    },
   ];
   return (
     <HeroHighlight>
@@ -42,16 +42,20 @@ export default function Home() {
       >
         <div className="flex flex-col items-center justify-center h-[40rem]  ">
           <TypewriterEffectSmooth words={words} />
-          <div className="text-xs">"Streamline your academic scheduling with our intelligent timetable generator. Effortlessly create customized, conflict-free schedules for students, faculty, and departments, designed to simplify your university's workflow."</div>
+          <div className="text-xs">
+            &quot;Streamline your academic scheduling with our intelligent
+            timetable generator. Effortlessly create customized, conflict-free
+            schedules for students, faculty, and departments, designed to
+            simplify your university&apos;s workflow.&quot;
+          </div>
           <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 space-x-0 md:space-x-4">
             <Link href="/forms/signin">
-            <button className="w-40 h-10 hover:bg-slate-300 rounded-xl bg-white text-black border border-black  text-base">
-              Signup
-            </button>
+              <button className="w-40 h-10 hover:bg-slate-300 rounded-xl bg-white text-black border border-black  text-base">
+                Signup
+              </button>
             </Link>
           </div>
         </div>
-        
       </motion.h1>
     </HeroHighlight>
   );

@@ -30,7 +30,7 @@ const Alerts = ({
   };
 
   const handleConfirm = () => {
-    // setModel(false);
+    setModel(false);
     onConfirm(true);
     router.refresh();
   };
@@ -46,7 +46,7 @@ const Alerts = ({
         <>
           <FaDiagramSuccessor className="text-green-500 w-12 h-12" />
           <div className="text-center font-medium text-gray-800">
-            Data {function_name}d Successfully!
+            {function_name}d successfully!
           </div>
         </>
       );

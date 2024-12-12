@@ -72,6 +72,7 @@ const Page = () => {
       isModalOpen: true,
       onConfirm: async (confirm: boolean) => {
         if (confirm) {
+          setLoading(true);
           try {
             const response = await fetch(
               `http://localhost:3000/api/university/${uni_id}/department/${dept_id}`,
@@ -81,6 +82,8 @@ const Page = () => {
             );
             const result = await response.json();
             if (result.status === 201) {
+              setLoading(false);
+
               setAlertData({
                 status: 201,
                 function_name: "delete",
@@ -109,6 +112,14 @@ const Page = () => {
               isModalOpen: true,
               onConfirm: (confirm: boolean) => {},
             });
+            setTimeout(() => {
+              setAlertData({
+                status: 0,
+                function_name: "",
+                isModalOpen: false,
+                onConfirm: () => {},
+              });
+            }, 3000);
           }
         }
       },
@@ -311,7 +322,9 @@ const Page = () => {
             <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
               <div className="flex relative">
                 <div className="flex-1 ">
-                  <h1 className="text-lg font-bold mb-4">Add New Department</h1>
+                  <h1 className="text-lg font-bold mb-4">
+                    {department_id == 0 ? "Add " : "Edit "} New Department
+                  </h1>
                 </div>
                 <div className="absolute right-0">
                   <button

@@ -22,10 +22,10 @@ export const PUT = async (req: any, res: any) => {
         if (error) {
             throw error;
         }
-        return NextResponse.json({ status: 201, data: data, function_name: 'update_department' });
+        return NextResponse.json({ status: 201, data: data, function_name: 'update_session' });
     } catch (error: any) {
         console.error(error);
-        return NextResponse.json({ status: 500, error_message: error.message, function_name: 'update_department' });
+        return NextResponse.json({ status: 500, error_message: error.message, function_name: 'update_session' });
     }
 }
 
@@ -40,10 +40,10 @@ export const DELETE = async (req: any, res: any) => {
         if (error) {
             throw error;
         }
-        return NextResponse.json({ status: 201, data: data, function_name: 'delete_department' });
+        return NextResponse.json({ status: 201, data: data, function_name: 'delete_session' });
     } catch (error: any) {
         console.error(error);
-        return NextResponse.json({ status: 500, error_message: error.message, function_name: 'delete_department' });
+        return NextResponse.json({ status: 500, error_message: error.message, function_name: 'delete_session' });
     }
 }
 

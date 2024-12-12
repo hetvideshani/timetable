@@ -172,11 +172,11 @@ const page = () => {
           prev.map((br: any) =>
             br.id === branch.id
               ? {
-                ...br,
-                branch_name: branch.branch_name,
-                dept_id: branch.dept_id,
-                dept_name: selected_department.department_name,
-              }
+                  ...br,
+                  branch_name: branch.branch_name,
+                  dept_id: branch.dept_id,
+                  dept_name: selected_department.department_name,
+                }
               : br
           )
         );
@@ -273,8 +273,6 @@ const page = () => {
       </div>
     );
   });
-
-  const canSubmit = true;
   return (
     <>
       <div className="flex flex-col gap-6 justify-center items-center p-5 w-full">
@@ -372,10 +370,11 @@ const page = () => {
                       branch_name: false,
                     });
                   }}
-                  className={`bg-gray-50 border text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 ${validationState.branch_name
-                    ? "border-red-500"
-                    : "border-gray-300"
-                    }`}
+                  className={`bg-gray-50 border text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 ${
+                    validationState.branch_name
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  }`}
                 />
                 <p className="mt-1 text-sm text-red-500">
                   {validationState.branch_name && "Branch Name is required."}
@@ -388,7 +387,9 @@ const page = () => {
                     onChange={(e) => {
                       const inputValue = e.target.value;
                       const filtered = department.filter((type) =>
-                        type.department_name.toLowerCase().includes(inputValue.toLowerCase())
+                        type.department_name
+                          .toLowerCase()
+                          .includes(inputValue.toLowerCase())
                       );
 
                       setFilteredDepartment(filtered);
@@ -400,7 +401,10 @@ const page = () => {
                       if (filtered.length === 0) {
                         // Clear input when no match is found
                         setFilteredDepartment(department);
-                        setSelectedDepartment({ ...selected_department, department_name: "" });
+                        setSelectedDepartment({
+                          ...selected_department,
+                          department_name: "",
+                        });
                       } else {
                         setSelectedDepartment({
                           ...selected_department,
@@ -410,8 +414,11 @@ const page = () => {
                     }}
                     placeholder="Department"
                     onFocus={() => setShowDropdown(true)}
-                    className={`bg-gray-50 border text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 ${validationState.dept_id ? "border-red-500" : "border-gray-300"
-                      }`}
+                    className={`bg-gray-50 border text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 ${
+                      validationState.dept_id
+                        ? "border-red-500"
+                        : "border-gray-300"
+                    }`}
                   />
                   <p className="mt-1 text-sm text-red-500">
                     {validationState.dept_id && "Department is required."}
@@ -447,15 +454,15 @@ const page = () => {
                   )}
                 </div>
 
-
                 <div className="mt-4">
                   <button
                     type="submit"
                     disabled={!branch.branch_name || !branch.dept_id}
-                    className={`${branch.branch_name && branch.dept_id
-                      ? "bg-blue-500"
-                      : "bg-gray-300 cursor-not-allowed"
-                      } disabled:cursor-not-allowed text-white px-4 py-2 rounded-md`}
+                    className={`${
+                      branch.branch_name && branch.dept_id
+                        ? "bg-blue-500"
+                        : "bg-gray-300 cursor-not-allowed"
+                    } disabled:cursor-not-allowed text-white px-4 py-2 rounded-md`}
                   >
                     Submit
                   </button>

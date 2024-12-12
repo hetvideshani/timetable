@@ -2,14 +2,21 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { IoClose } from "react-icons/io5";
-import { LuPencil } from "react-icons/lu";
 import { FaPlus } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
-
+import Alerts from "@/app/dashboard/Alerts";
+import Loading from "@/app/dashboard/loading";
 const page = () => {
   const [uni_id, setUni_id] = useState("");
   const params = useParams();
+  const [loading, setLoading] = useState(true);
+  const [alertData, setAlertData] = useState({
+    status: 0,
+    function_name: "",
+    isModalOpen: false,
+    onConfirm: (confirm: boolean) => {},
+  });
   const [sessions, setSessions] = useState([
     {
       id: 0,
@@ -49,23 +56,63 @@ const page = () => {
   };
 
   const handle_delete = async (session_id: any) => {
-    const response = await fetch(
-      `http://localhost:3000/api/university/${uni_id}/department/${department_id}/session/${session_id}`,
-      {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    const data = await response.json();
-    if (data.status === 201) {
-      console.log("Data successfully deleted:", data);
-      setSessions(sessions.filter((data) => data.id !== session_id));
-      router.refresh();
-    } else {
-      console.error("Error deleting data:", data);
-    }
+    setAlertData({
+      status: 1,
+      function_name: "delete",
+      isModalOpen: true,
+      onConfirm: async (confirm: boolean) => {
+        if (confirm) {
+          setLoading(true);
+          const response = await fetch(
+            `http://localhost:3000/api/university/${uni_id}/department/${department_id}/session/${session_id}`,
+            {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          const data = await response.json();
+          if (data.status === 201) {
+            setLoading(false);
+            setAlertData({
+              status: 201,
+              function_name: "delete",
+              isModalOpen: true,
+              onConfirm: (confirm: boolean) => {},
+            });
+
+            console.log("Data successfully deleted:", data);
+            setSessions(sessions.filter((data) => data.id !== session_id));
+            setTimeout(() => {
+              setAlertData({
+                status: 0,
+                function_name: "",
+                isModalOpen: false,
+                onConfirm: () => {},
+              });
+            }, 3000);
+            router.refresh();
+          } else {
+            console.error("Error deleting data:", data);
+            setAlertData({
+              status: 500,
+              function_name: "delete",
+              isModalOpen: true,
+              onConfirm: (confirm: boolean) => {},
+            });
+            setTimeout(() => {
+              setAlertData({
+                status: 0,
+                function_name: "",
+                isModalOpen: false,
+                onConfirm: () => {},
+              });
+            }, 3000);
+          }
+        }
+      },
+    });
   };
 
   const handle_insert = () => {
@@ -94,6 +141,7 @@ const page = () => {
           : `http://localhost:3000/api/university/${uni_id}/department/${department_id}/session/${session_id}`;
 
       const method = session_id === 0 ? "POST" : "PUT";
+      console.log("input :", inputData);
 
       const response = await fetch(url, {
         method: method,
@@ -110,21 +158,50 @@ const page = () => {
       console.log("Data successfully posted:", result);
 
       if (result.function_name === "update_session") {
+        setAlertData({
+          status: 201,
+          function_name: "update",
+          isModalOpen: true,
+          onConfirm: (confirm: boolean) => {},
+        });
+        setTimeout(() => {
+          setAlertData({
+            status: 0,
+            function_name: "",
+            isModalOpen: false,
+            onConfirm: () => {},
+          });
+        }, 3000);
         setSessions((preSes) =>
           preSes.map((ses) =>
             ses.id === session_id
               ? {
-                ...ses,
-                session_sequence: inputData.session_sequence,
-                do_nothing: inputData.do_nothing,
-                duration: inputData.duration,
-              }
+                  ...ses,
+                  session_sequence: inputData.session_sequence,
+                  do_nothing: inputData.do_nothing,
+                  duration: inputData.duration,
+                }
               : ses
           )
         );
       }
 
       if (result.function_name === "create_session") {
+        setAlertData({
+          status: 201,
+          function_name: "create",
+          isModalOpen: true,
+          onConfirm: (confirm: boolean) => {},
+        });
+        setTimeout(() => {
+          setAlertData({
+            status: 0,
+            function_name: "",
+            isModalOpen: false,
+            onConfirm: () => {},
+          });
+        }, 3000);
+
         setSessions((preSes) => [...preSes, result.data[0]]);
       }
 
@@ -148,6 +225,7 @@ const page = () => {
     const data = await response.json();
     if (Array.isArray(data.data)) {
       setSessions(data.data);
+      setLoading(false);
     } else {
       setSessions([]);
     }
@@ -176,6 +254,7 @@ const page = () => {
           </button>
           <button
             onClick={(e) => {
+              e.stopPropagation();
               handle_delete(data.id);
             }}
             className="flex gap-1 hover:text-red-600 p-2"
@@ -211,7 +290,9 @@ const page = () => {
             <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
               <div className="flex relative">
                 <div className="flex-1 ">
-                  <h1 className="text-lg font-bold mb-4">Add New Session</h1>
+                  <h1 className="text-lg font-bold mb-4">
+                    {session_id == 0 ? "Add " : "Edit "} New Session
+                  </h1>
                 </div>
                 <div className="absolute right-0">
                   <button
@@ -271,7 +352,9 @@ const page = () => {
                 <div className="group flex relative mt-4">
                   <button
                     className="bg-blue-600 text-white px-4 py-2 rounded-md disabled:opacity-45 disabled:cursor-not-allowed"
-                    disabled={!inputData.duration || !inputData.session_sequence}
+                    disabled={
+                      !inputData.duration || !inputData.session_sequence
+                    }
                   >
                     <span>Submit</span>
                   </button>
@@ -291,9 +374,37 @@ const page = () => {
           </div>
         )}
       </div>
-      <div className="grid grid-cols-4 w-full gap-5">
-        {sessions.length > 0 ? get_session_data : null}
-      </div>
+      {alertData.isModalOpen && (
+        <Alerts
+          status={alertData.status}
+          isModalOpen={alertData.isModalOpen}
+          function_name={alertData.function_name}
+          onConfirm={(confirm) => {
+            alertData.onConfirm(confirm);
+            setAlertData({
+              status: 0,
+              function_name: "",
+              isModalOpen: false,
+              onConfirm: () => {},
+            });
+          }}
+        ></Alerts>
+      )}
+      {loading ? (
+        <div className="flex justify-center items-center">
+          <Loading />
+        </div>
+      ) : (
+        <div className="grid grid-cols-4 w-full gap-5">
+          {get_session_data.length > 0 ? (
+            get_session_data
+          ) : (
+            <div className="text-lg font-bold text-slate-950">
+              No Department Found
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

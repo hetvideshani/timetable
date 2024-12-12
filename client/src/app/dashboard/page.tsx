@@ -5,6 +5,7 @@ import CustomDropdown from "./dropdown";
 import { IoClose, IoFilter, IoSearch } from "react-icons/io5";
 import { FaArrowLeftLong, FaArrowRightLong } from "react-icons/fa6";
 import { Timetable } from "./timetable";
+import Alerts from "./Alerts";
 
 const Page = () => {
   const [data, setData] = useState({
@@ -934,10 +935,10 @@ const Page = () => {
     ],
   };
 
-  const timetableCards = [timetable, timetable];
-  
+  const [timetableCards, setTimetableCards] = useState<any[]>([]);
+
   const [timetableModal, setTimetableModal] = useState(false);
-  const [timetableData, setTimetableData] = useState(timetable);
+  const [timetableData, setTimetableData] = useState();
   const [showModal, setShowModal] = useState(false);
   const [showModal2, setShowModal2] = useState(false);
   const [showModal3, setShowModal3] = useState(false);
@@ -1048,6 +1049,12 @@ const Page = () => {
       resource_type: "",
     },
   ]);
+  const [alertData, setAlertData] = useState({
+    status: 0,
+    function_name: "",
+    isModalOpen: false,
+    onConfirm: (confirm: boolean) => {},
+  });
   const resourceOptions = [
     ...new Set(allResource.map((res) => res.resource_type)),
   ];
@@ -1202,12 +1209,51 @@ const Page = () => {
     );
 
     const res = await response.json();
-    console.log(res);
+    if (res.status == 200) {
+      setAlertData({
+        status: 200,
+        function_name: "create",
+        isModalOpen: true,
+        onConfirm: (confirm: boolean) => {},
+      });
+      setTimeout(() => {
+        setAlertData({
+          status: 0,
+          function_name: "",
+          isModalOpen: false,
+          onConfirm: (confirm: boolean) => {},
+        });
+      }, 3000);
+      setTimetableCards([...timetableCards, res.data]);
+      setTimetableData(res.data);
+      setTimetableModal(true);
+    } else {
+      setAlertData({
+        status: 400,
+        function_name: "create",
+        isModalOpen: true,
+        onConfirm: (confirm: boolean) => {},
+      });
+      setTimeout(() => {
+        setAlertData({
+          status: 0,
+          function_name: "",
+          isModalOpen: false,
+          onConfirm: (confirm: boolean) => {},
+        });
+      }, 3000);
+    }
   };
   return (
     <div className="text-black flex flex-col items-center justify-center">
+      <Alerts
+        function_name={alertData.function_name}
+        isModalOpen={alertData.isModalOpen}
+        onConfirm={alertData.onConfirm}
+        status={alertData.status}
+      />
       <div className="pt-10 flex " onClick={() => setShowModal(true)}>
-        <button className="relative  flex h-[50px] w-40 items-center justify-center overflow-hidden bg-[#1F1717] font-medium text-[#FCF5ED] shadow-2xl transition-all duration-300 before:absolute before:inset-0 before:border-0 before:border-[#2d2020] before:duration-100 before:ease-linear hover:bg-[#FCF5ED] hover:text-[#1F1717] rounded-lg">
+        <button className="relative  flex h-[50px] w-40 items-center justify-center overflow-hidden bg-[#1F1717] font-medium text-[#FCF5ED] shadow-2xl transition-all duration-300 before:absolute before:inset-0 before:border-0 before:border-[#2d2020] before:duration-100 before:ease-linear hover:bg-[#FCF5ED] hover:text-[#1F1717]   rounded-lg">
           <span className="relative z-10">Create Time Table</span>
         </button>
       </div>
@@ -1216,7 +1262,7 @@ const Page = () => {
         {timetableCards.map((timetable, index) => {
           return (
             <div
-              className=" shadow-xl relative justify-center rounded-xl items-center w-full font-bold cursor-pointer"
+              className=" shadow-xl relative justify-center rounded-xl items-center w-full font-bold cursor-pointer hover:scale-105 duration-300"
               key={index}
               onClick={() => {
                 setTimetableModal(true);
@@ -1239,9 +1285,17 @@ const Page = () => {
       {timetableModal && (
         <div className="absolute text-[#181C14] z-20 top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex justify-center items-center">
           <div className="bg-[#FCF5ED] w-[100vw] h-[100vh] overflow-y-auto p-3">
-            <div className="flex w-full justify-end " onClick={() => {
-              setTimetableModal(false);
-            }}><IoClose size={20} className="hover:text-red-600 hover:cursor-pointer"></IoClose></div>
+            <div
+              className="flex w-full justify-end "
+              onClick={() => {
+                setTimetableModal(false);
+              }}
+            >
+              <IoClose
+                size={20}
+                className="hover:text-red-600 hover:cursor-pointer"
+              ></IoClose>
+            </div>
             <Timetable timetable={timetableData} />
           </div>
         </div>
@@ -1276,18 +1330,66 @@ const Page = () => {
                     value={data.department.department_name}
                     disabled={false}
                     onChange={(value: any) =>
-                      setData({
-                        ...data,
-                        department: {
-                          id:
-                            value === ""
-                              ? 0
-                              : department.filter(
-                                  (dept) => dept.department_name === value
-                                )[0].id,
-                          department_name: value,
-                        },
-                      })
+                      value === ""
+                        ? setData({
+                            department: {
+                              id: 0,
+                              department_name: "",
+                            },
+                            branch: {
+                              id: 0,
+                              branch_name: "",
+                              dept_id: 0,
+                            },
+                            classes: {
+                              id: 0,
+                              class_no: 0,
+                              branch_id: 0,
+                              branch_name: "",
+                              dept_name: "",
+                              total_batches: 0,
+                              students_per_batch: 0,
+                            },
+                            semester: {
+                              id: 0,
+                              sem_no: "",
+                              class_id: 0,
+                            },
+                            resource: [
+                              {
+                                capacity: 0,
+                                resource_type: "",
+                                resource_name: "",
+                              },
+                            ],
+                            subject: [
+                              {
+                                id: 0,
+                                subject_name: "",
+                                faculty_id: 0,
+                                faculty_name: "",
+                                resource_required: [
+                                  {
+                                    resource_type: "",
+                                    resource_count: 0,
+                                  },
+                                ],
+                                uni_id: 0,
+                              },
+                            ],
+                          })
+                        : setData({
+                            ...data,
+                            department: {
+                              id:
+                                value === ""
+                                  ? 0
+                                  : department.filter(
+                                      (dept) => dept.department_name === value
+                                    )[0].id,
+                              department_name: value,
+                            },
+                          })
                     }
                   />
                 </div>
@@ -1301,27 +1403,72 @@ const Page = () => {
                     }
                     value={data.branch.branch_name}
                     onChange={(value: any) =>
-                      setData({
-                        ...data,
-                        branch: {
-                          id:
-                            value === ""
-                              ? 0
-                              : branch.filter(
-                                  (bran) =>
-                                    bran.branch_name === value &&
-                                    bran.dept_name ===
-                                      data.department.department_name
-                                )[0].id,
-                          branch_name: value,
-                          dept_id:
-                            value === ""
-                              ? 0
-                              : branch.filter(
-                                  (bran) => bran.branch_name === value
-                                )[0].dept_id,
-                        },
-                      })
+                      value === ""
+                        ? setData({
+                            ...data,
+                            branch: {
+                              id: 0,
+                              branch_name: "",
+                              dept_id: 0,
+                            },
+                            classes: {
+                              id: 0,
+                              class_no: 0,
+                              branch_id: 0,
+                              branch_name: "",
+                              dept_name: "",
+                              total_batches: 0,
+                              students_per_batch: 0,
+                            },
+                            semester: {
+                              id: 0,
+                              sem_no: "",
+                              class_id: 0,
+                            },
+                            resource: [
+                              {
+                                capacity: 0,
+                                resource_type: "",
+                                resource_name: "",
+                              },
+                            ],
+                            subject: [
+                              {
+                                id: 0,
+                                subject_name: "",
+                                faculty_id: 0,
+                                faculty_name: "",
+                                resource_required: [
+                                  {
+                                    resource_type: "",
+                                    resource_count: 0,
+                                  },
+                                ],
+                                uni_id: 0,
+                              },
+                            ],
+                          })
+                        : setData({
+                            ...data,
+                            branch: {
+                              id:
+                                value === ""
+                                  ? 0
+                                  : branch.filter(
+                                      (bran) =>
+                                        bran.branch_name === value &&
+                                        bran.dept_name ===
+                                          data.department.department_name
+                                    )[0].id,
+                              branch_name: value,
+                              dept_id:
+                                value === ""
+                                  ? 0
+                                  : branch.filter(
+                                      (bran) => bran.branch_name === value
+                                    )[0].dept_id,
+                            },
+                          })
                     }
                   />
                 </div>
@@ -1338,42 +1485,88 @@ const Page = () => {
                       data.branch.branch_name === "Select branch"
                     }
                     onChange={(value: any) =>
-                      setData({
-                        ...data,
-                        classes: {
-                          id:
-                            value === ""
-                              ? 0
-                              : classs.filter((cl) => cl.class_no == value)[0]
-                                  .id,
-                          class_no: value,
-                          branch_id:
-                            value === ""
-                              ? 0
-                              : classs.filter((cl) => cl.class_no === value)[0]
-                                  .branch_id,
-                          total_batches:
-                            value === ""
-                              ? 0
-                              : classs.filter((cl) => cl.class_no === value)[0]
-                                  .total_batches,
-                          students_per_batch:
-                            value === ""
-                              ? 0
-                              : classs.filter((cl) => cl.class_no === value)[0]
-                                  .students_per_batch,
-                          branch_name:
-                            value === ""
-                              ? ""
-                              : classs.filter((cl) => cl.class_no === value)[0]
-                                  .branch_name,
-                          dept_name:
-                            value === ""
-                              ? ""
-                              : classs.filter((cl) => cl.class_no === value)[0]
-                                  .dept_name,
-                        },
-                      })
+                      value === ""
+                        ? setData({
+                            ...data,
+                            classes: {
+                              id: 0,
+                              class_no: 0,
+                              branch_id: 0,
+                              branch_name: "",
+                              dept_name: "",
+                              total_batches: 0,
+                              students_per_batch: 0,
+                            },
+                            semester: {
+                              id: 0,
+                              sem_no: "",
+                              class_id: 0,
+                            },
+                            resource: [
+                              {
+                                capacity: 0,
+                                resource_type: "",
+                                resource_name: "",
+                              },
+                            ],
+                            subject: [
+                              {
+                                id: 0,
+                                subject_name: "",
+                                faculty_id: 0,
+                                faculty_name: "",
+                                resource_required: [
+                                  {
+                                    resource_type: "",
+                                    resource_count: 0,
+                                  },
+                                ],
+                                uni_id: 0,
+                              },
+                            ],
+                          })
+                        : setData({
+                            ...data,
+                            classes: {
+                              id:
+                                value === ""
+                                  ? 0
+                                  : classs.filter(
+                                      (cl) => cl.class_no == value
+                                    )[0].id,
+                              class_no: value,
+                              branch_id:
+                                value === ""
+                                  ? 0
+                                  : classs.filter(
+                                      (cl) => cl.class_no === value
+                                    )[0].branch_id,
+                              total_batches:
+                                value === ""
+                                  ? 0
+                                  : classs.filter(
+                                      (cl) => cl.class_no === value
+                                    )[0].total_batches,
+                              students_per_batch:
+                                value === ""
+                                  ? 0
+                                  : classs.filter(
+                                      (cl) => cl.class_no === value
+                                    )[0].students_per_batch,
+                              branch_name:
+                                value === ""
+                                  ? ""
+                                  : classs.filter(
+                                      (cl) => cl.class_no === value
+                                    )[0].branch_name,
+                              dept_name:
+                                value === ""
+                                  ? ""
+                                  : classs.filter(
+                                      (cl) => cl.class_no === value
+                                    )[0].dept_name,
+                            },
+                          })
                     }
                   />
                 </div>
