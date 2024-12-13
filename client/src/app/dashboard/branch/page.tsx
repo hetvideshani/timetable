@@ -2,10 +2,10 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { IoClose } from "react-icons/io5";
-import { LuPencil } from "react-icons/lu";
 import { FaPlus } from "react-icons/fa";
-import { HoverEffect } from "@/app/components/ui/card-hover-effect";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
+import Alerts from "../Alerts";
+import Loading from "../loading";
 
 const page = () => {
   const [validationState, setValidationState] = useState<{
@@ -21,6 +21,13 @@ const page = () => {
       dept_name: "",
     },
   ]);
+  const [alertData, setAlertData] = useState({
+    status: 0,
+    function_name: "",
+    isModalOpen: false,
+    onConfirm: (confirm: boolean) => {},
+  });
+  const [loading, setLoading] = useState(true);
 
   const [branch, setBranch] = useState<{
     id: number | null;
@@ -94,6 +101,7 @@ const page = () => {
     const data = await response.json();
     if (Array.isArray(data.data)) {
       console.log(data.data);
+      setLoading(false);
       setAllBranches(data.data);
     } else {
       console.log("No data");
@@ -173,6 +181,21 @@ const page = () => {
       console.log("Data successfully posted:", result);
 
       if (result.function_name === "update_branch") {
+        setAlertData({
+          status: 201,
+          function_name: "update",
+          isModalOpen: true,
+          onConfirm: (confirm: boolean) => {},
+        });
+        setTimeout(() => {
+          setAlertData({
+            status: 0,
+            function_name: "",
+            isModalOpen: false,
+            onConfirm: () => {},
+          });
+        }, 3000);
+
         setAllBranches((prev: any) =>
           prev.map((br: any) =>
             br.id === branch.id
@@ -188,6 +211,20 @@ const page = () => {
       }
 
       if (result.function_name === "create_branch") {
+        setAlertData({
+          status: 201,
+          function_name: "create",
+          isModalOpen: true,
+          onConfirm: (confirm: boolean) => {},
+        });
+        setTimeout(() => {
+          setAlertData({
+            status: 0,
+            function_name: "",
+            isModalOpen: false,
+            onConfirm: () => {},
+          });
+        }, 3000);
         setAllBranches((prev: any) => [
           ...prev,
           {
@@ -210,25 +247,62 @@ const page = () => {
   };
 
   const handle_delete = async (br: any) => {
-    const response = await fetch(
-      `http://localhost:3000/api/university/${uni_id}/department/${br.dept_id}/branch/${br.id}`,
-      {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    setAlertData({
+      status: 1,
+      function_name: "delete",
+      isModalOpen: true,
+      onConfirm: async (confirm: boolean) => {
+        if (confirm) {
+          setLoading(true);
+          const response = await fetch(
+            `http://localhost:3000/api/university/${uni_id}/department/${br.dept_id}/branch/${br.id}`,
+            {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
 
-    const data = await response.json();
-    if (data.status === 201) {
-      console.log("Data successfully deleted:", data);
-      setAllBranches(all_branches.filter((data) => data.id !== br.id));
-      setBranch({ id: null, branch_name: "", dept_id: null });
-      router.refresh();
-    } else {
-      console.error("Error deleting data:", data);
-    }
+          const data = await response.json();
+          if (data.status === 201) {
+            setLoading(false);
+            setAlertData({
+              status: 201,
+              function_name: "delete",
+              isModalOpen: true,
+              onConfirm: () => {},
+            });
+            setTimeout(() => {
+              setAlertData({
+                status: 0,
+                function_name: "",
+                isModalOpen: false,
+                onConfirm: () => {},
+              });
+            }, 3000);
+
+            console.log("Data successfully deleted:", data);
+            setAllBranches(all_branches.filter((data) => data.id !== br.id));
+            setBranch({ id: null, branch_name: "", dept_id: null });
+            router.refresh();
+          } else {
+            setAlertData({
+              status: 400,
+              function_name: "delete",
+              isModalOpen: true,
+              onConfirm: () => {},
+            });
+          }
+        }
+        setAlertData({
+          status: 0,
+          function_name: "",
+          isModalOpen: false,
+          onConfirm: () => {},
+        });
+      },
+    });
   };
 
   const get_branch_data = all_branches.map((data, index) => {
@@ -418,9 +492,36 @@ const page = () => {
             </div>
           </div>
         )}
-        <div className="w-full grid grid-cols-3 gap-5">
-          {all_branches.length > 1 ? get_branch_data : null}
-        </div>
+        {alertData.isModalOpen && (
+          <Alerts
+            status={alertData.status}
+            isModalOpen={alertData.isModalOpen}
+            function_name={alertData.function_name}
+            onConfirm={(confirm) => {
+              alertData.onConfirm(confirm);
+              setAlertData({
+                status: 0,
+                function_name: "",
+                isModalOpen: false,
+                onConfirm: () => {},
+              });
+            }}
+          ></Alerts>
+        )}
+
+        {loading ? (
+          <Loading />
+        ) : (
+          <div className="grid grid-cols-4 w-full gap-5">
+            {get_branch_data.length > 0 ? (
+              get_branch_data
+            ) : (
+              <div className="text-lg font-bold text-slate-950">
+                No Branch Found
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </>
   );

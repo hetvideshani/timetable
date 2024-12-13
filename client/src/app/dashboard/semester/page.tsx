@@ -2,9 +2,10 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { IoClose } from "react-icons/io5";
-import { LuPencil } from "react-icons/lu";
 import { FaPlus } from "react-icons/fa";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
+import Alerts from "../Alerts";
+import Loading from "../loading";
 
 const SemesterPage = () => {
   const [uni_id, setUni_id] = useState("");
@@ -155,6 +156,14 @@ const SemesterPage = () => {
   const [showDepartmentDropdown, setShowDepartmentDropdown] = useState(false);
   const [showBranchDropdown, setShowBranchDropdown] = useState(false);
   const [showClassDropdown, setShowClassDropdown] = useState(false);
+  const [alertData, setAlertData] = useState({
+    status: 0,
+    function_name: "",
+    isModalOpen: false,
+    onConfirm: (confirm: boolean) => {},
+  });
+  const [loading, setLoading] = useState(true);
+
   const router = useRouter();
   const departmentdropdownRef = useRef<HTMLDivElement>(null);
   const branchdropdownRef = useRef<HTMLDivElement>(null);
@@ -272,6 +281,7 @@ const SemesterPage = () => {
     );
     const data = await response.json();
     if (Array.isArray(data.data)) {
+      setLoading(false);
       console.log(data.data);
       setAllSemesters(data.data);
     } else {
@@ -347,9 +357,6 @@ const SemesterPage = () => {
     e.preventDefault();
 
     try {
-      console.log("Hello");
-      console.log(semester);
-
       const url =
         semester.id === null || semester.id === 0
           ? `http://localhost:3000/api/university/${uni_id}/department/${selectedDepartment.id}/branch/${selectedBranch.id}/class/${selectedClass.id}/semester`
@@ -365,9 +372,23 @@ const SemesterPage = () => {
         body: JSON.stringify(semester),
       });
       const result = await response.json();
-      console.log("Data successfully posted:", result);
 
       if (result.function_name === "update_semester") {
+        setAlertData({
+          status: 201,
+          function_name: "update",
+          isModalOpen: true,
+          onConfirm: (confirm: boolean) => {},
+        });
+        setTimeout(() => {
+          setAlertData({
+            status: 0,
+            function_name: "",
+            isModalOpen: false,
+            onConfirm: () => {},
+          });
+        }, 3000);
+
         setAllSemesters((prev) =>
           prev.map((sem) =>
             sem.id === semester.id
@@ -387,6 +408,20 @@ const SemesterPage = () => {
       }
 
       if (result.function_name === "create_semester") {
+        setAlertData({
+          status: 201,
+          function_name: "create",
+          isModalOpen: true,
+          onConfirm: (confirm: boolean) => {},
+        });
+        setTimeout(() => {
+          setAlertData({
+            status: 0,
+            function_name: "",
+            isModalOpen: false,
+            onConfirm: () => {},
+          });
+        }, 3000);
         setAllSemesters((prev) => [
           ...prev,
           {
@@ -422,30 +457,61 @@ const SemesterPage = () => {
   };
 
   const handle_delete = async (sem: any) => {
-    const response = await fetch(
-      `http://localhost:3000/api/university/${uni_id}/department/${selectedDepartment.id}/branch/${selectedBranch.id}/class/${selectedClass.id}/semester/${sem.id}`,
-      {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    setAlertData({
+      status: 1,
+      function_name: "delete",
+      isModalOpen: true,
+      onConfirm: async (confirm: boolean) => {
+        if (confirm) {
+          setLoading(true);
+          const response = await fetch(
+            `http://localhost:3000/api/university/${uni_id}/department/${selectedDepartment.id}/branch/${selectedBranch.id}/class/${selectedClass.id}/semester/${sem.id}`,
+            {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
 
-    const data = await response.json();
-    if (data.status === 201) {
-      console.log("Data successfully deleted:", data);
-      setAllSemesters(allSemesters.filter((data) => data.id !== sem.id));
-      setSemester({
-        id: null,
-        sem_no: "",
-        class_id: null,
-        subject_faculty: [],
-      });
-      router.refresh();
-    } else {
-      console.error("Error deleting data:", data);
-    }
+          const data = await response.json();
+          if (data.status === 201) {
+            // console.log("Data successfully deleted:", data);
+            setLoading(false);
+            setAlertData({
+              status: 201,
+              function_name: "delete",
+              isModalOpen: true,
+              onConfirm: () => {},
+            });
+            setTimeout(() => {
+              setAlertData({
+                status: 0,
+                function_name: "",
+                isModalOpen: false,
+                onConfirm: () => {},
+              });
+            }, 3000);
+            setAllSemesters(allSemesters.filter((data) => data.id !== sem.id));
+            setSemester({
+              id: null,
+              sem_no: "",
+              class_id: null,
+              subject_faculty: [],
+            });
+            router.refresh();
+          } else {
+            console.error("Error deleting data:", data);
+          }
+        }
+        setAlertData({
+          status: 0,
+          function_name: "",
+          isModalOpen: false,
+          onConfirm: () => {},
+        });
+      },
+    });
   };
 
   const renderSemesters = allSemesters.map((data, index) => (
@@ -534,7 +600,7 @@ const SemesterPage = () => {
                           .includes(inputValue.toLowerCase())
                       );
 
-                      if (filtered.length === 0 || inputValue === '') {
+                      if (filtered.length === 0 || inputValue === "") {
                         setSelectedDepartment({
                           ...selectedDepartment,
                           department_name: "",
@@ -976,7 +1042,37 @@ const SemesterPage = () => {
             </div>
           </div>
         )}
-        <div className="grid grid-cols-3 gap-3 w-full">{renderSemesters}</div>
+
+        {alertData.isModalOpen && (
+          <Alerts
+            status={alertData.status}
+            isModalOpen={alertData.isModalOpen}
+            function_name={alertData.function_name}
+            onConfirm={(confirm) => {
+              alertData.onConfirm(confirm);
+              setAlertData({
+                status: 0,
+                function_name: "",
+                isModalOpen: false,
+                onConfirm: () => {},
+              });
+            }}
+          ></Alerts>
+        )}
+
+        {loading ? (
+          <Loading />
+        ) : (
+          <div className="grid grid-cols-4 w-full gap-5">
+            {renderSemesters.length > 0 ? (
+              renderSemesters
+            ) : (
+              <div className="text-lg font-bold text-slate-950">
+                No Branch Found
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </>
   );

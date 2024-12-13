@@ -16,7 +16,8 @@ export const PUT = async (req:any, res: any) => {
         const { data, error } = await supabase
            .from('resource')
            .update({ resource_name, resource_type, capacity, duration })
-           .eq('id', id);
+            .eq('id', id)
+            .select()
             
         if (error) {
             throw error

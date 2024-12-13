@@ -4,7 +4,8 @@ import { IoClose } from "react-icons/io5";
 import { FaPlus } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
-
+import Alerts from "../Alerts";
+import Loading from "../loading";
 const page = () => {
   const [uni_id, setUni_id] = useState("");
   const [faculty_id, setFaculty_id] = useState(0);
@@ -15,6 +16,13 @@ const page = () => {
       uni_id: 0,
     },
   ]);
+  const [alertData, setAlertData] = useState({
+    status: 0,
+    function_name: "",
+    isModalOpen: false,
+    onConfirm: (confirm: boolean) => {},
+  });
+  const [loading, setLoading] = useState(true);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [inputData, setInputData] = useState("");
@@ -45,6 +53,7 @@ const page = () => {
 
     const data = await response.json();
     if (Array.isArray(data.data)) {
+      setLoading(false);
       setFaculty(data.data);
     } else {
       setFaculty([]);
@@ -52,24 +61,49 @@ const page = () => {
   };
 
   const handle_delete = async (fac_id: any) => {
-    const response = await fetch(
-      `http://localhost:3000/api/university/${uni_id}/faculty/${fac_id}`,
-      {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    setAlertData({
+      status: 1,
+      function_name: "delete_faculty",
+      isModalOpen: true,
+      onConfirm: async (confirm: boolean) => {
+        if (confirm) {
+          setLoading(true);
+          const response = await fetch(
+            `http://localhost:3000/api/university/${uni_id}/faculty/${fac_id}`,
+            {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
 
-    const data = await response.json();
-    if (data.status === 201) {
-      console.log("Data successfully deleted:", data);
-      setFaculty(faculty.filter((fac) => fac.id !== fac_id));
-      router.refresh();
-    } else {
-      console.error("Error deleting data:", data);
-    }
+          const data = await response.json();
+          if (data.status === 201) {
+            setLoading(false);
+            setAlertData({
+              status: 201,
+              function_name: "delete",
+              isModalOpen: true,
+              onConfirm: () => {},
+            });
+            setTimeout(() => {
+              setAlertData({
+                status: 0,
+                function_name: "",
+                isModalOpen: false,
+                onConfirm: () => {},
+              });
+            }, 3000);
+            console.log("Data successfully deleted:", data);
+            setFaculty(faculty.filter((fac) => fac.id !== fac_id));
+            router.refresh();
+          } else {
+            console.error("Error deleting data:", data);
+          }
+        }
+      },
+    });
   };
 
   const handle_insert = () => {
@@ -102,6 +136,20 @@ const page = () => {
       console.log("Data successfully posted:", result);
 
       if (result.function_name === "update_faculty") {
+        setAlertData({
+          status: 201,
+          function_name: "update",
+          isModalOpen: true,
+          onConfirm: (confirm: boolean) => {},
+        });
+        setTimeout(() => {
+          setAlertData({
+            status: 0,
+            function_name: "",
+            isModalOpen: false,
+            onConfirm: () => {},
+          });
+        }, 3000);
         setFaculty((prev: any) =>
           prev.map((fac: any) =>
             fac.id === faculty_id ? { ...fac, faculty_name: inputData } : fac
@@ -110,6 +158,20 @@ const page = () => {
       }
 
       if (result.function_name === "create_faculty") {
+        setAlertData({
+          status: 201,
+          function_name: "create",
+          isModalOpen: true,
+          onConfirm: (confirm: boolean) => {},
+        });
+        setTimeout(() => {
+          setAlertData({
+            status: 0,
+            function_name: "",
+            isModalOpen: false,
+            onConfirm: () => {},
+          });
+        }, 3000);
         setFaculty((prev) => [...prev, result.data[0]]);
       }
 
@@ -218,9 +280,36 @@ const page = () => {
           </div>
         )}
       </div>
-      <div className="grid grid-cols-4 w-full gap-5">
-        {faculty.length > 1 ? get_fac_data : null}
-      </div>
+      {alertData.isModalOpen && (
+        <Alerts
+          status={alertData.status}
+          isModalOpen={alertData.isModalOpen}
+          function_name={alertData.function_name}
+          onConfirm={(confirm) => {
+            alertData.onConfirm(confirm);
+            setAlertData({
+              status: 0,
+              function_name: "",
+              isModalOpen: false,
+              onConfirm: () => {},
+            });
+          }}
+        ></Alerts>
+      )}
+
+      {loading ? (
+        <Loading />
+      ) : (
+        <div className="grid grid-cols-4 w-full gap-5">
+          {get_fac_data.length > 0 ? (
+            get_fac_data
+          ) : (
+            <div className="text-lg font-bold text-slate-950">
+              No Faculty Found
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

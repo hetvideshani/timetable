@@ -40,7 +40,8 @@ export const GET = async (req: any, res: any) => {
                 final_branches.push(br)
             })
         })
-
+        console.log(final_branches);
+        
         return NextResponse.json({ status: 201, data: final_branches, function_name: 'get_department' });
 
     } catch (error: any) {

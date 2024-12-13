@@ -2,13 +2,20 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { IoClose } from "react-icons/io5";
-import { LuPencil } from "react-icons/lu";
 import { FaPlus } from "react-icons/fa";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
-
+import Alerts from "../Alerts";
+import Loading from "../loading";
 const page = () => {
   const [uni_id, setUni_id] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [alertData, setAlertData] = useState({
+    status: 0,
+    function_name: "",
+    isModalOpen: false,
+    onConfirm: (confirm: boolean) => {},
+  });
+  const [loading, setLoading] = useState(true);
   const [all_classes, setAllClasses] = useState([
     {
       id: 0,
@@ -122,9 +129,9 @@ const page = () => {
       })
       .catch((error) => console.error("Error fetching data:", error));
 
+    await getClasses(customData);
     await getDepartment(customData);
     await getBranch(customData);
-    await getClasses(customData);
   };
 
   const getDepartment = async (id: any) => {
@@ -164,7 +171,7 @@ const page = () => {
 
     const data = await response.json();
     if (Array.isArray(data.data)) {
-      console.log(data.data);
+      setLoading(false);
       setAllClasses(data.data);
     } else {
       console.log("No data");
@@ -203,33 +210,67 @@ const page = () => {
       students_per_batch: br.students_per_batch,
       branch_id: br.branch_id,
     });
-    setFilteredBranches(all_branches.filter((data) => data.dept_id === br.dept_id));
+    setFilteredBranches(
+      all_branches.filter((data) => data.dept_id === br.dept_id)
+    );
   };
 
   const handle_delete = async (br: any) => {
-    const response = await fetch(
-      `http://localhost:3000/api/university/${uni_id}/department/${br.dept_id}/branch/${br.id}/class/${br.id}`,
-      {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    const data = await response.json();
+    setAlertData({
+      status: 1,
+      function_name: "delete",
+      isModalOpen: true,
+      onConfirm: async (confirm: boolean) => {
+        if (confirm) {
+          setLoading(true);
+          const response = await fetch(
+            `http://localhost:3000/api/university/${uni_id}/department/${br.dept_id}/branch/${br.id}/class/${br.id}`,
+            {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          const data = await response.json();
 
-    if (data.status === 201) {
-      console.log("Data successfully deleted:", data);
-      setAllClasses(all_classes.filter((data) => data.id !== br.id));
-      setOneClass({
-        id: 0,
-        class_no: null,
-        total_batches: null,
-        students_per_batch: null,
-        branch_id: 0,
-      });
-      router.refresh();
-    }
+          if (data.status === 201) {
+            setLoading(false);
+            setAlertData({
+              status: 201,
+              function_name: "delete",
+              isModalOpen: true,
+              onConfirm: () => {},
+            });
+            setTimeout(() => {
+              setAlertData({
+                status: 0,
+                function_name: "",
+                isModalOpen: false,
+                onConfirm: () => {},
+              });
+            }, 3000);
+            console.log("Data successfully deleted:", data);
+            setAllClasses(all_classes.filter((data) => data.id !== br.id));
+            setOneClass({
+              id: 0,
+              class_no: null,
+              total_batches: null,
+              students_per_batch: null,
+              branch_id: 0,
+            });
+            router.refresh();
+          } else {
+            setAlertData({
+              status: 400,
+              function_name: "delete",
+              isModalOpen: true,
+              onConfirm: () => {},
+            });
+          }
+        }
+      },
+    });
   };
 
   const handleSubmit = async (e: any) => {
@@ -262,29 +303,55 @@ const page = () => {
       const result = await response.json();
 
       if (result.status === 201) {
-        console.log("class successfully posted:", result);
-        console.log(result.data);
-
         if (result.function_name === "update_class") {
+          setAlertData({
+            status: 201,
+            function_name: "update",
+            isModalOpen: true,
+            onConfirm: (confirm: boolean) => {},
+          });
+          setTimeout(() => {
+            setAlertData({
+              status: 0,
+              function_name: "",
+              isModalOpen: false,
+              onConfirm: () => {},
+            });
+          }, 3000);
+
           setAllClasses((prev: any) =>
             prev.map((cl: any) =>
               cl.id === one_class.id
                 ? {
-                  ...cl,
-                  class_no: one_class.class_no,
-                  total_batches: one_class.total_batches,
-                  students_per_batch: one_class.students_per_batch,
-                  branch_id: one_class.branch_id,
-                  branch_name: selected_branch.branch_name,
-                  dept_id: selected_department.id,
-                  dept_name: selected_department.department_name,
-                }
+                    ...cl,
+                    class_no: one_class.class_no,
+                    total_batches: one_class.total_batches,
+                    students_per_batch: one_class.students_per_batch,
+                    branch_id: one_class.branch_id,
+                    branch_name: selected_branch.branch_name,
+                    dept_id: selected_department.id,
+                    dept_name: selected_department.department_name,
+                  }
                 : cl
             )
           );
         }
 
         if (result.function_name === "create_class") {
+          setAlertData({
+            status: 201,
+            function_name: "create",
+            isModalOpen: true,
+            onConfirm: (confirm: boolean) => {},
+          });
+          setTimeout(() => {
+            setAlertData({
+              status: 0,
+              function_name: "",
+              isModalOpen: false,
+              onConfirm: () => {},
+            });
+          }, 3000);
           setAllClasses((prev: any) => [
             ...prev,
             {
@@ -300,7 +367,12 @@ const page = () => {
           ]);
         }
       } else {
-        console.error("Error posting data:", result);
+        setAlertData({
+          status: 400,
+          function_name: "create",
+          isModalOpen: true,
+          onConfirm: (confirm: boolean) => {},
+        });
       }
 
       setIsModalOpen(false);
@@ -394,7 +466,6 @@ const page = () => {
     <>
       <div className="flex flex-col gap-6 justify-center items-center p-5 w-full">
         <div className="flex justify-between w-full">
-          <div></div>
           <div className="text-3xl font-bold text-slate-950">Class</div>
           <button
             onClick={handle_insert}
@@ -445,7 +516,9 @@ const page = () => {
                     onChange={(e) => {
                       const inputValue = e.target.value;
                       const filtered = all_department.filter((data) =>
-                        data.department_name.toLowerCase().includes(inputValue.toLowerCase())
+                        data.department_name
+                          .toLowerCase()
+                          .includes(inputValue.toLowerCase())
                       );
 
                       setFilteredDepartment(filtered);
@@ -458,7 +531,10 @@ const page = () => {
 
                       if (filtered.length === 0) {
                         setFilteredDepartment(all_department);
-                        setSelectedDepartment({ ...selected_department, department_name: "" });
+                        setSelectedDepartment({
+                          ...selected_department,
+                          department_name: "",
+                        });
                       } else {
                         setSelectedDepartment({
                           ...selected_department,
@@ -490,10 +566,14 @@ const page = () => {
                               });
                               setShowDropdown1(false);
                               setFilteredBranches(
-                                all_branches.filter((data) => data.dept_id === type.id)
+                                all_branches.filter(
+                                  (data) => data.dept_id === type.id
+                                )
                               );
                               setBranches(
-                                all_branches.filter((data) => data.dept_id === type.id)
+                                all_branches.filter(
+                                  (data) => data.dept_id === type.id
+                                )
                               );
                             }}
                           >
@@ -515,7 +595,9 @@ const page = () => {
                     onChange={(e) => {
                       const inputValue = e.target.value;
                       const filtered = branches.filter((data) =>
-                        data.branch_name.toLowerCase().includes(inputValue.toLowerCase())
+                        data.branch_name
+                          .toLowerCase()
+                          .includes(inputValue.toLowerCase())
                       );
 
                       setFilteredBranches(filtered);
@@ -523,8 +605,11 @@ const page = () => {
                       if (filtered.length === 0) {
                         console.log(branches);
 
-                        setSelectedBranch({ ...selected_branch, branch_name: "" });
-                        setFilteredBranches(branches)
+                        setSelectedBranch({
+                          ...selected_branch,
+                          branch_name: "",
+                        });
+                        setFilteredBranches(branches);
                       } else {
                         setSelectedBranch({
                           ...selected_branch,
@@ -694,11 +779,13 @@ const page = () => {
                 <div className="group flex relative mt-4">
                   <button
                     className="bg-blue-600 text-white px-4 py-2 rounded-md disabled:opacity-45 disabled:cursor-not-allowed"
-                    disabled={!one_class.class_no ||
+                    disabled={
+                      !one_class.class_no ||
                       !one_class.total_batches ||
                       !one_class.students_per_batch ||
                       !selected_department.id ||
-                      !selected_branch.id}
+                      !selected_branch.id
+                    }
                   >
                     <span>Submit</span>
                   </button>
@@ -708,25 +795,50 @@ const page = () => {
                     !one_class.students_per_batch ||
                     !selected_department.id ||
                     !selected_branch.id) && (
-                      <span
-                        className="group-hover:opacity-100 transition-opacity bg-slate-500 px-1 
+                    <span
+                      className="group-hover:opacity-100 transition-opacity bg-slate-500 px-1 
       text-sm text-gray-100 rounded-md absolute left-1/2 
       -translate-x-1/2 opacity-0"
-                      >
-                        Please enter required data to proceed.
-                      </span>
-                    )}
+                    >
+                      Please enter required data to proceed.
+                    </span>
+                  )}
                 </div>
               </form>
             </div>
           </div>
         )}
 
-        <div className="grid grid-cols-3 w-full gap-5">
-          {all_classes[0].id > 0 && all_classes !== null
-            ? get_class_data
-            : null}
-        </div>
+        {alertData.isModalOpen && (
+          <Alerts
+            status={alertData.status}
+            isModalOpen={alertData.isModalOpen}
+            function_name={alertData.function_name}
+            onConfirm={(confirm) => {
+              alertData.onConfirm(confirm);
+              setAlertData({
+                status: 0,
+                function_name: "",
+                isModalOpen: false,
+                onConfirm: () => {},
+              });
+            }}
+          ></Alerts>
+        )}
+
+        {loading ? (
+          <Loading />
+        ) : (
+          <div className="grid grid-cols-4 w-full gap-5">
+            {get_class_data.length > 0 ? (
+              get_class_data
+            ) : (
+              <div className="text-lg font-bold text-slate-950">
+                No Branch Found
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </>
   );

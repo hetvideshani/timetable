@@ -38,7 +38,7 @@ export const DELETE = async (req: any, res: any) => {
 
     const id = req.url.split('branch/')[1]
     try {
-
+        
         const { data: classData, error: classError } = await supabase
             .from('class')
             .select('id')

@@ -1,11 +1,11 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { IoClose } from "react-icons/io5";
-import { LuPencil } from "react-icons/lu";
 import { FaPlus } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
 import Alerts from "../Alerts";
+import Loading from "../loading";
 
 const page = () => {
   const [uni_id, setUni_id] = useState("");
@@ -22,8 +22,9 @@ const page = () => {
     status: 0,
     function_name: "",
     isModalOpen: false,
-    onConfirm: (confirm: boolean) => { },
+    onConfirm: (confirm: boolean) => {},
   });
+  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [inputData, setInputData] = useState("");
   const router = useRouter();
@@ -53,6 +54,7 @@ const page = () => {
 
     const data = await response.json();
     if (Array.isArray(data.data)) {
+      setLoading(false);
       setSubject(data.data);
     } else {
       setSubject([]);
@@ -66,21 +68,21 @@ const page = () => {
       isModalOpen: true,
       onConfirm: async (confirm) => {
         if (confirm) {
+          setLoading(true);
           try {
             const res = await fetch(
               `http://localhost:3000/api/university/${uni_id}/subject/${sub_id}`,
               { method: "DELETE" }
             );
-
-            const response = await res.json();
-
-            if (response.status === 201) {
+            const data = await res.json();
+            if (data.status === 201) {
+              setLoading(false);
               setSubject((prev) => prev.filter((sub) => sub.id !== sub_id));
               setAlertData({
                 status: 201,
                 function_name: "delete_success",
                 isModalOpen: true,
-                onConfirm: (confirm: boolean) => { },
+                onConfirm: (confirm: boolean) => {},
               });
             } else {
               throw new Error("Unexpected response status");
@@ -90,7 +92,7 @@ const page = () => {
               status: 500,
               function_name: "delete_error",
               isModalOpen: true,
-              onConfirm: (confirm: boolean) => { },
+              onConfirm: (confirm: boolean) => {},
             });
             console.error("Error deleting subject:", error);
           }
@@ -136,9 +138,9 @@ const page = () => {
         status: result.status,
         function_name: result.function_name,
         isModalOpen: true,
-        onConfirm: (confirm: boolean) => { },
+        onConfirm: (confirm: boolean) => {},
       });
-      router.refresh();
+      // router.refresh();
 
       if (result.function_name === "update_subject") {
         setSubject((prev: any) =>
@@ -164,7 +166,7 @@ const page = () => {
         status: 500,
         function_name: "error",
         isModalOpen: true,
-        onConfirm: (confirm: boolean) => { },
+        onConfirm: (confirm: boolean) => {},
       });
     }
   };
@@ -274,14 +276,25 @@ const page = () => {
               status: 0,
               function_name: "",
               isModalOpen: false,
-              onConfirm: () => { },
+              onConfirm: () => {},
             });
           }}
         ></Alerts>
       )}
-      <div className="grid grid-cols-4 w-full gap-5">
-        {subject.length > 1 ? get_sub_data : null}
-      </div>
+
+      {loading ? (
+        <Loading />
+      ) : (
+        <div className="grid grid-cols-4 w-full gap-5">
+          {get_sub_data.length > 0 ? (
+            get_sub_data
+          ) : (
+            <div className="text-lg font-bold text-slate-950">
+              No Branch Found
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
