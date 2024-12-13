@@ -5,7 +5,7 @@ export const validationMiddleware = async (req : any, schema: any) => {
   try {
     // Parse and validate the incoming request body
     const body = await req.json();
-    console.log(body);
+    console.log("validation ========= ",body);
     await schema.validate(body, { abortEarly: false });
 
     // Attach the validated data to the request for downstream use

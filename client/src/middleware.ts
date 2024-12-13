@@ -3,7 +3,6 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import handler from './app/api/auth/verify';
 import jwt  from 'jsonwebtoken';
-import { use } from 'react';
 export async function middleware(request: NextRequest) {
     const token = request.cookies.get('token')?.value;
 
@@ -19,7 +18,7 @@ export async function middleware(request: NextRequest) {
     // console.log(response.status);
 
     if (response.status !== 200) {
-        return NextResponse.redirect(new URL('/signin', request.url));
+        return NextResponse.redirect(new URL('/forms/signin', request.url));
     }
 
     const user:any = jwt.decode(token)

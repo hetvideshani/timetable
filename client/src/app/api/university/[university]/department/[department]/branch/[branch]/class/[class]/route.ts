@@ -9,6 +9,8 @@ export const PUT = async(req:any, res:any) => {
     if (validate.status == 400) return validate;
 
     const Class = await validate.json()
+    console.log("Class", Class);
+    
     const  id  = req.url.split('class/')[1]
     const { class_no, total_batches, students_per_batch, branch_id } = Class.body
 

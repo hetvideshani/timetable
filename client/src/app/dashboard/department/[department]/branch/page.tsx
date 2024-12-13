@@ -2,10 +2,11 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { IoClose } from "react-icons/io5";
-import { LuPencil } from "react-icons/lu";
 import { FaPlus } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
+import Alerts from "@/app/dashboard/Alerts";
+import Loading from "@/app/dashboard/loading";
 
 const page = () => {
   const [uni_id, setUni_id] = useState("");
@@ -17,10 +18,17 @@ const page = () => {
       dept_id: 0,
     },
   ]);
-
+  const [alertData, setAlertData] = useState({
+    status: 0,
+    function_name: "",
+    isModalOpen: false,
+    onConfirm: (confirm: boolean) => {},
+  });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [inputData, setInputData] = useState("");
   const [branch_id, setBranch_id] = useState(0);
+  const [loading, setLoading] = useState(true);
+
   const router = useRouter();
   const department_id = params.department;
 
@@ -43,23 +51,61 @@ const page = () => {
   };
 
   const handle_delete = async (branch_id: any) => {
-    const response = await fetch(
-      `http://localhost:3000/api/university/${uni_id}/department/${department_id}/branch/${branch_id}`,
-      {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    const data = await response.json();
-    if (data.status === 201) {
-      console.log("Data successfully deleted:", data);
-      setBranches(branches.filter((data) => data.id !== branch_id));
-      router.refresh();
-    } else {
-      console.error("Error deleting data:", data);
-    }
+    setAlertData({
+      status: 1,
+      function_name: "delete_branch",
+      isModalOpen: true,
+      onConfirm: async (confirm: boolean) => {
+        if (confirm) {
+          setLoading(true);
+          const response = await fetch(
+            `http://localhost:3000/api/university/${uni_id}/department/${department_id}/branch/${branch_id}`,
+            {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          const data = await response.json();
+          if (data.status === 201) {
+            setLoading(false);
+            setAlertData({
+              status: 201,
+              function_name: "delete",
+              isModalOpen: true,
+              onConfirm: (confirm: boolean) => {},
+            });
+            setBranches(branches.filter((data) => data.id !== branch_id));
+            setTimeout(() => {
+              setAlertData({
+                status: 0,
+                function_name: "",
+                isModalOpen: false,
+                onConfirm: () => {},
+              });
+            }, 3000);
+            router.refresh();
+          } else {
+            setAlertData({
+              status: 500,
+              function_name: "delete",
+              isModalOpen: true,
+              onConfirm: (confirm: boolean) => {},
+            });
+            setTimeout(() => {
+              setAlertData({
+                status: 0,
+                function_name: "",
+                isModalOpen: false,
+                onConfirm: () => {},
+              });
+            }, 3000);
+            console.error("Error deleting data:", data);
+          }
+        }
+      },
+    });
   };
 
   const handle_insert = () => {
@@ -86,12 +132,28 @@ const page = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ branch_name: inputData }),
+        body: JSON.stringify({
+          branch_name: inputData,
+          dept_id: Number(department_id),
+        }),
       });
       const result = await response.json();
-      console.log("Data successfully posted:", result);
 
       if (result.function_name === "update_branch") {
+        setAlertData({
+          status: 201,
+          function_name: "update",
+          isModalOpen: true,
+          onConfirm: (confirm: boolean) => {},
+        });
+        setTimeout(() => {
+          setAlertData({
+            status: 0,
+            function_name: "",
+            isModalOpen: false,
+            onConfirm: () => {},
+          });
+        }, 3000);
         setBranches((prevBranch) =>
           prevBranch.map((bran) =>
             bran.id === branch_id ? { ...bran, branch_name: inputData } : bran
@@ -100,6 +162,21 @@ const page = () => {
       }
 
       if (result.function_name === "create_branch") {
+        setAlertData({
+          status: 201,
+          function_name: "create",
+          isModalOpen: true,
+          onConfirm: (confirm: boolean) => {},
+        });
+        setTimeout(() => {
+          setAlertData({
+            status: 0,
+            function_name: "",
+            isModalOpen: false,
+            onConfirm: () => {},
+          });
+        }, 3000);
+
         setBranches((prevBranch) => [...prevBranch, result.data[0]]);
       }
 
@@ -109,6 +186,12 @@ const page = () => {
       router.refresh();
     } catch (error) {
       console.error("Error posting data:", error);
+      setAlertData({
+        status: 500,
+        function_name: "create_branch",
+        isModalOpen: true,
+        onConfirm: (confirm: boolean) => {},
+      });
     }
   };
 
@@ -119,6 +202,7 @@ const page = () => {
     const data = await response.json();
     if (Array.isArray(data.data)) {
       setBranches(data.data);
+      setLoading(false);
     } else {
       setBranches([]);
     }
@@ -127,37 +211,39 @@ const page = () => {
   const get_branch_data = branches.map((data, index) => {
     return (
       <div
-        className="main_content group shadow-md relative justify-center items-center w-full font-bold rounded-sm"
+        className="main_content group shadow-md relative justify-center items-center w-full font-bold rounded-sm cursor-pointer"
         key={index}
-        onClick={() => {
+        onClick={(e) => {
           router.push(
             `/dashboard/department/${department_id}/branch/${data.id}`
           );
         }}
       >
-        <div className="edit_delete opacity-0 group-hover:opacity-100 group-hover:backdrop-blur-md group-hover:bg-gray-900 group-hover:bg-opacity-10 transition-all duration-1000  flex  border-black justify-center items-center h-full p-2 w-full absolute">
+        <div className="edit_delete opacity-0 group-hover:opacity-100 group-hover:backdrop-blur-md group-hover:bg-gray-900 group-hover:bg-opacity-10 transition-all duration-1000 flex border-black justify-center items-center p-2 h-full w-full absolute z-10">
           <button
             onClick={(e) => {
+              e.stopPropagation(); // Prevent click propagation to parent
               handle_edit(data.branch_name);
               setBranch_id(data.id);
             }}
-            className="flex gap-1 focus:z-10  hover:text-green-600 border-r border-black p-2"
+            className="flex gap-1 focus:z-10 hover:text-green-600 border-r border-black p-2"
           >
             <FiEdit size={20} />
             <span>Edit</span>
           </button>
           <button
             onClick={(e) => {
+              e.stopPropagation(); // Prevent click propagation to parent
               handle_delete(data.id);
             }}
-            className="flex gap-1 hover:z-10  hover:text-red-600 p-2"
+            className="flex gap-1 hover:z-10 hover:text-red-600 p-2"
           >
             <FiTrash2 size={20} />
             <span>Delete</span>
           </button>
         </div>
-        <div className="right_content w-full items-center flex flex-col gap-0 p-10 ">
-          <p className=" text-2xl text-slate-950">{data.branch_name}</p>
+        <div className="right_content w-full items-center flex flex-col gap-0 p-10">
+          <p className="text-2xl text-slate-950">{data.branch_name}</p>
         </div>
       </div>
     );
@@ -179,7 +265,9 @@ const page = () => {
             <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
               <div className="flex relative">
                 <div className="flex-1 ">
-                  <h1 className="text-lg font-bold mb-4">Add New Branch</h1>
+                  <h1 className="text-lg font-bold mb-4">
+                    {branch_id == 0 ? "Add " : "Edit "}New Branch
+                  </h1>
                 </div>
                 <div className="absolute right-0">
                   <button
@@ -224,9 +312,37 @@ const page = () => {
           </div>
         )}
       </div>
-      <div className="grid grid-cols-4 w-full gap-5">
-        {branches[0].id > 0 ? get_branch_data : null}
-      </div>
+      {alertData.isModalOpen && (
+        <Alerts
+          status={alertData.status}
+          isModalOpen={alertData.isModalOpen}
+          function_name={alertData.function_name}
+          onConfirm={(confirm) => {
+            alertData.onConfirm(confirm);
+            setAlertData({
+              status: 0,
+              function_name: "",
+              isModalOpen: false,
+              onConfirm: () => {},
+            });
+          }}
+        ></Alerts>
+      )}
+      {loading ? (
+        <div className="flex justify-center items-center">
+          <Loading />
+        </div>
+      ) : (
+        <div className="grid grid-cols-4 w-full gap-5">
+          {get_branch_data.length > 0 ? (
+            get_branch_data
+          ) : (
+            <div className="text-lg font-bold text-slate-950">
+              No Branch Found
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

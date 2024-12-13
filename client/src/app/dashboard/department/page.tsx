@@ -1,11 +1,13 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { IoClose } from "react-icons/io5";
 import { LuPencil } from "react-icons/lu";
 import { FaPlus } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import "../../department.css";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
+import Loading from "../loading";
+import Alerts from "../alerts";
 
 const Page = () => {
   const [uni_id, setUni_id] = useState("");
@@ -17,14 +19,23 @@ const Page = () => {
       uni_id: 0,
     },
   ]);
+  const [alertData, setAlertData] = useState({
+    status: 0,
+    function_name: "",
+    isModalOpen: false,
+    onConfirm: (confirm: boolean) => {},
+  });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [inputData, setInputData] = useState("");
   const [activeCard, setActiveCard] = useState<number | null>(null); // Tracks the active card
   const router = useRouter();
-
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     get_uni_id();
   }, []);
+  useEffect(() => {
+    console.log("Helloooooooo");
+  }, [alertData.isModalOpen]);
 
   const get_uni_id = async () => {
     let customData;
@@ -48,29 +59,71 @@ const Page = () => {
     const data = await response.json();
     if (Array.isArray(data.data)) {
       setDepartment(data.data);
+      setLoading(false);
     } else {
       setDepartment([]);
     }
   };
 
   const handle_delete = async (dept_id: any) => {
-    const response = await fetch(
-      `http://localhost:3000/api/university/${uni_id}/department/${dept_id}`,
-      {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    const data = await response.json();
-    if (data.status === 201) {
-      console.log("Data successfully deleted:", data);
-      setDepartment(department.filter((dept) => dept.id !== dept_id));
-      router.refresh();
-    } else {
-      console.error("Error deleting data:", data);
-    }
+    setAlertData({
+      status: 1,
+      function_name: "delete",
+      isModalOpen: true,
+      onConfirm: async (confirm: boolean) => {
+        if (confirm) {
+          setLoading(true);
+          try {
+            const response = await fetch(
+              `http://localhost:3000/api/university/${uni_id}/department/${dept_id}`,
+              {
+                method: "DELETE",
+              }
+            );
+            const result = await response.json();
+            if (result.status === 201) {
+              setLoading(false);
+
+              setAlertData({
+                status: 201,
+                function_name: "delete",
+                isModalOpen: true,
+                onConfirm: (confirm: boolean) => {},
+              });
+
+              setDepartment((prevDepartments) =>
+                prevDepartments.filter((dept) => dept.id !== dept_id)
+              );
+              setTimeout(() => {
+                setAlertData({
+                  status: 0,
+                  function_name: "",
+                  isModalOpen: false,
+                  onConfirm: () => {},
+                });
+              }, 3000);
+            } else {
+              throw new Error("Unexpected response status");
+            }
+          } catch (error) {
+            setAlertData({
+              status: 500,
+              function_name: "delete",
+              isModalOpen: true,
+              onConfirm: (confirm: boolean) => {},
+            });
+            setTimeout(() => {
+              setAlertData({
+                status: 0,
+                function_name: "",
+                isModalOpen: false,
+                onConfirm: () => {},
+              });
+            }, 3000);
+          }
+        }
+      },
+    });
   };
 
   const handle_insert = () => {
@@ -102,7 +155,27 @@ const Page = () => {
       const result = await response.json();
       console.log("Data successfully posted:", result);
 
-      if (result.function_name === "update_department") {
+      // router.refresh();
+      // console.log("Department ID:", department_id);
+
+      if (result.function_name == "update_department") {
+        setAlertData({
+          status: 201,
+          function_name: "update",
+          isModalOpen: true,
+          onConfirm: (confirm: boolean) => {},
+        });
+        setTimeout(() => {
+          setAlertData({
+            status: 0,
+            function_name: "",
+            isModalOpen: false,
+            onConfirm: () => {},
+          });
+        }, 3000);
+
+        console.log("Helllo", alertData);
+
         setDepartment((prevDepartments) =>
           prevDepartments.map((dept) =>
             dept.id === department_id
@@ -112,7 +185,22 @@ const Page = () => {
         );
       }
 
-      if (result.function_name === "create_department") {
+      if (result.function_name == "create_department") {
+        setAlertData({
+          status: 201,
+          function_name: "create",
+          isModalOpen: true,
+          onConfirm: (confirm: boolean) => {},
+        });
+        setTimeout(() => {
+          setAlertData({
+            status: 0,
+            function_name: "",
+            isModalOpen: false,
+            onConfirm: () => {},
+          });
+        }, 3000);
+
         setDepartment((prevDepartments) => [
           ...prevDepartments,
           result.data[0],
@@ -125,6 +213,12 @@ const Page = () => {
       router.refresh();
     } catch (error) {
       console.error("Error posting data:", error);
+      setAlertData({
+        status: 500,
+        function_name: "create_department",
+        isModalOpen: true,
+        onConfirm: (confirm: boolean) => {},
+      });
     }
   };
 
@@ -186,8 +280,9 @@ const Page = () => {
           </div>
         </div>
         <div
-          className={`button_slide w-full h-28 flex gap-2 justify-center items-center ${isActive ? "active" : ""
-            }`}
+          className={`button_slide w-full h-28 flex gap-2 justify-center items-center ${
+            isActive ? "active" : ""
+          }`}
           onClick={() => setActiveCard(null)}
         >
           <button
@@ -227,7 +322,9 @@ const Page = () => {
             <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
               <div className="flex relative">
                 <div className="flex-1 ">
-                  <h1 className="text-lg font-bold mb-4">Add New Department</h1>
+                  <h1 className="text-lg font-bold mb-4">
+                    {department_id == 0 ? "Add " : "Edit "} New Department
+                  </h1>
                 </div>
                 <div className="absolute right-0">
                   <button
@@ -277,16 +374,42 @@ const Page = () => {
                     </span>
                   )}
                 </div>
-
-
               </form>
             </div>
           </div>
         )}
       </div>
-      <div className="grid grid-cols-4 w-full gap-5">
-        {department[0].id > 0 ? get_dept_data : null}
-      </div>
+      {alertData.isModalOpen && (
+        <Alerts
+          status={alertData.status}
+          isModalOpen={alertData.isModalOpen}
+          function_name={alertData.function_name}
+          onConfirm={(confirm) => {
+            alertData.onConfirm(confirm);
+            setAlertData({
+              status: 0,
+              function_name: "",
+              isModalOpen: false,
+              onConfirm: () => {},
+            });
+          }}
+        ></Alerts>
+      )}
+      {loading ? (
+        <div className="flex justify-center items-center">
+          <Loading />
+        </div>
+      ) : (
+        <div className="grid grid-cols-4 w-full gap-5">
+          {get_dept_data.length > 0 ? (
+            get_dept_data
+          ) : (
+            <div className="text-lg font-bold text-slate-950">
+              No Department Found
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

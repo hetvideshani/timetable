@@ -10,7 +10,9 @@ export const PUT = async (req: any, res: any) => {
     if (validate.status == 400) return validate;
 
     const branch = await validate.json()
-    const  id  = req.url.split('branch/')[1]
+    const id = req.url.split('branch/')[1]
+    console.log("Branch:", branch);
+    
     const { branch_name,dept_id } = branch.body
 
     try {

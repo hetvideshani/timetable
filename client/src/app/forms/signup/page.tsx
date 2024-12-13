@@ -94,6 +94,7 @@ export default function SignUp() {
           toast.error("An error occurred. Please try again.");
         });
     } else {
+      setLoading(false);
       toast.warn("Please correct the highlighted fields");
     }
   };
