@@ -367,7 +367,11 @@ const SemesterPage = () => {
       console.error("Error posting data:", error);
     }
 
-    setInputData();
+    setInputData({
+      sem_no: 0,
+      class_id: 0,
+      subject_faculty: [],
+    });
   };
 
   const get_semester_data = semesterData.map((data, index) => (

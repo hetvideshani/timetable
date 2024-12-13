@@ -7,6 +7,7 @@ import { FaPlus } from "react-icons/fa";
 import { FiTrash2 } from "react-icons/fi";
 import { FiEdit } from "react-icons/fi";
 import Alerts from "../Alerts";
+import { log } from "node:console";
 
 const page = () => {
   const [uni_id, setUni_id] = useState("");
@@ -22,7 +23,7 @@ const page = () => {
     },
   ]);
 
-  const [alertData, setAlertData] = useState({ status: 0, function_name: '', isModalOpen: false, onConfirm: (confirm: boolean) => {}});
+  const [alertData, setAlertData] = useState({ status: 0, function_name: '', isModalOpen: false, onConfirm: (confirm: boolean) => { } });
   const [duration, setDuration] = useState("");
   const [session, setSession] = useState<{
     id: number | null;
@@ -34,7 +35,7 @@ const page = () => {
     id: null,
     session_sequence: null,
     duration: null,
-    do_nothing: null,
+    do_nothing: false,
     dept_id: null,
   });
 
@@ -149,7 +150,7 @@ const page = () => {
       const result = await response.json();
       console.log("Data successfully posted:", result);
 
-      setAlertData({status: result.status, function_name: result.function_name, isModalOpen: true, onConfirm: (confirm: boolean) => {}});
+      setAlertData({ status: result.status, function_name: result.function_name, isModalOpen: true, onConfirm: (confirm: boolean) => { } });
       router.refresh();
 
       if (result.function_name === "update_session") {
@@ -157,19 +158,21 @@ const page = () => {
           prev.map((ses: any) =>
             ses.id === session.id
               ? {
-                  ...ses,
-                  dept_id: ses.dept_id,
-                  do_nothing: ses.do_nothing,
-                  duration: ses.duration,
-                  session_sequence: ses.session_sequence,
-                }
+                ...ses,
+                dept_id: session.dept_id,
+                do_nothing: session.do_nothing,
+                duration: session.duration,
+                session_sequence: session.session_sequence,
+                dept_name: dept_name,
+              }
               : ses
           )
         );
       }
+      console.log(result[0]);
 
       if (result.function_name === "create_session") {
-        setAllSessions((prev: any) => [...prev,{id:result[0].id,dept_id:result[0].dept_id,do_nothing:result[0].do_nothing,duration:result[0].duration,session_sequence:result[0].session_sequence,dept_name:dept_name}]);
+        setAllSessions((prev: any) => [...prev, { id: result.data[0].id, dept_id: result.data[0].dept_id, do_nothing: result.data[0].do_nothing, duration: result.data[0].duration, session_sequence: result.data[0].session_sequence, dept_name: dept_name }]);
       }
 
       setIsModalOpen(false);
@@ -183,7 +186,7 @@ const page = () => {
       router.refresh();
     } catch (error) {
       console.error("Error posting data:", error);
-      setAlertData({status: 500, function_name: 'error', isModalOpen: true, onConfirm: (confirm: boolean) => {}});
+      setAlertData({ status: 500, function_name: 'error', isModalOpen: true, onConfirm: (confirm: boolean) => { } });
     }
   };
 
@@ -196,18 +199,23 @@ const page = () => {
       onConfirm: async (confirm) => {
         if (confirm) {
           try {
-            const response = await fetch(
+            const res = await fetch(
               `http://localhost:3000/api/university/${uni_id}/department/${br.dept_id}/session/${br.id}`,
-              { method: "DELETE" }
+              {
+                method: "DELETE",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              }
             );
-  
+            const response = await res.json();
             if (response.status === 201) {
-              setAllSessions((prev) => prev.filter((sess) => sess.id !== br));
+              setAllSessions((prev) => prev.filter((sess) => sess.id !== br.id));
               setAlertData({
                 status: 201,
                 function_name: "delete_success",
                 isModalOpen: true,
-                onConfirm: (confirm: boolean) => {}, 
+                onConfirm: (confirm: boolean) => { },
               });
             } else {
               throw new Error("Unexpected response status");
@@ -217,7 +225,7 @@ const page = () => {
               status: 500,
               function_name: "delete_error",
               isModalOpen: true,
-              onConfirm: (confirm: boolean) => {}, 
+              onConfirm: (confirm: boolean) => { },
             });
             console.error("Error deleting subject:", error);
           }
@@ -228,32 +236,6 @@ const page = () => {
         }
       },
     });
-
-    // const response = await fetch(
-    //   `http://localhost:3000/api/university/${uni_id}/department/${br.dept_id}/session/${br.id}`,
-    //   {
-    //     method: "DELETE",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     },
-    //   }
-    // );
-
-    // const data = await response.json();
-    // if (data.status === 201) {
-    //   console.log("Data successfully deleted:", data);
-    //   setAllSessions(all_sessions.filter((data) => data.id !== br.id));
-    //   setSession({
-    //     id: null,
-    //     session_sequence: null,
-    //     dept_id: null,
-    //     do_nothing: false,
-    //     duration: null,
-    //   });
-    //   router.refresh();
-    // } else {
-    //   console.error("Error deleting data:", data);
-    // }
   };
 
   const get_session_data = all_sessions.map((data, index) => {
@@ -379,14 +361,14 @@ const page = () => {
                       setDept_name(e.target.value)
                       const filtered = department.filter((type) => type.department_name.toLowerCase().includes(e.target.value.toLowerCase()));
 
-                      if(filtered.length === 0){
+                      if (filtered.length === 0) {
                         setFilteredDepartment(department)
                         setDept_name('')
-                      }else{
+                      } else {
                         setFilteredDepartment(filtered)
                       }
                     }
-                  }
+                    }
                     placeholder="Department"
                     className={`bg-gray-50 border text-gray-900 rounded-md border-r-gray-300 block w-full p-2.5`}
                     onFocus={() => setShowDropdown(true)}
@@ -433,17 +415,17 @@ const page = () => {
           </div>
         )}
         {
-        alertData.isModalOpen && (
-              <Alerts 
-                status={alertData.status} 
-                isModalOpen={alertData.isModalOpen} 
-                function_name={alertData.function_name} 
-                onConfirm={(confirm) => {
-                  alertData.onConfirm(confirm);
-                  setAlertData({ status: 0, function_name: '', isModalOpen: false, onConfirm: () => {} });
-                }}></Alerts>
-        )
-      }
+          alertData.isModalOpen && (
+            <Alerts
+              status={alertData.status}
+              isModalOpen={alertData.isModalOpen}
+              function_name={alertData.function_name}
+              onConfirm={(confirm) => {
+                alertData.onConfirm(confirm);
+                setAlertData({ status: 0, function_name: '', isModalOpen: false, onConfirm: () => { } });
+              }}></Alerts>
+          )
+        }
         <div className="grid grid-cols-4 w-full gap-5">
           {all_sessions.length > 1 ? get_session_data : null}
         </div>

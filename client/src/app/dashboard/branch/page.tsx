@@ -127,6 +127,11 @@ const page = () => {
       id: br.id,
       dept_id: br.dept_id,
     });
+    setSelectedDepartment({
+      id: br.dept_id,
+      department_name: br.dept_name,
+      uni_id: Number(uni_id)
+    });
   };
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -172,11 +177,11 @@ const page = () => {
           prev.map((br: any) =>
             br.id === branch.id
               ? {
-                  ...br,
-                  branch_name: branch.branch_name,
-                  dept_id: branch.dept_id,
-                  dept_name: selected_department.department_name,
-                }
+                ...br,
+                branch_name: branch.branch_name,
+                dept_id: branch.dept_id,
+                dept_name: selected_department.department_name,
+              }
               : br
           )
         );
@@ -303,60 +308,6 @@ const page = () => {
                 </div>
               </div>
               <form onSubmit={handleSubmit}>
-                {/* <input
-                  id="data"
-                  type="text"
-                  value={branch.branch_name}
-                  placeholder="Enter Subject Name"
-                  required
-                  onChange={(e) =>
-                    setBranch({ ...branch, branch_name: e.target.value })
-                  }
-                  className="peer required:border-red-500 required:focus:border-red-500 required:focus:ring-red-500 mt-1 p-2 border border-gray-300 rounded-md w-full"
-                />
-                <p className="mt-1 text-sm text-red-500 invisible peer-invalid:visible">
-                  Branch Name is required.
-                </p>
-
-                <div ref={dropdownRef} className="relative">
-                  <input
-                    className="required:border-red-500 required:focus:border-red-500 required:focus:ring-red-500 mt-1 p-2 border border-gray-300 rounded-md w-full"
-                    type="text"
-                    value={selected_department.department_name}
-                    required
-                    onChange={(e) =>
-                      setSelectedDepartment({
-                        ...selected_department,
-                        department_name: e.target.value,
-                      })
-                    }
-                    placeholder="Department"
-                    onFocus={() => setShowDropdown(true)}
-                  />
-                  <p className="mt-1 text-sm text-red-500 invisible peer-invalid:visible">
-                    Department is required.
-                  </p>
-                  {showDropdown && (
-                    <div className="relative top-full left-0 bg-white border-gray-300 rounded-md shadow-md mt-1 w-full">
-                      {department.map((type, index) => (
-                        <div
-                          key={index}
-                          className="p-2 hover:bg-gray-100 cursor-pointer text-gray-500"
-                          onClick={() => {
-                            setSelectedDepartment({
-                              id: type.id,
-                              department_name: type.department_name,
-                              uni_id: type.uni_id,
-                            });
-                            setShowDropdown(false);
-                          }}
-                        >
-                          {type.department_name}
-                        </div>
-                      ))}
-                    </div>
-                  )} */}
-                {/* </div> */}
                 <input
                   id="data"
                   type="text"
@@ -370,11 +321,10 @@ const page = () => {
                       branch_name: false,
                     });
                   }}
-                  className={`bg-gray-50 border text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 ${
-                    validationState.branch_name
-                      ? "border-red-500"
-                      : "border-gray-300"
-                  }`}
+                  className={`bg-gray-50 border text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 ${validationState.branch_name
+                    ? "border-red-500"
+                    : "border-gray-300"
+                    }`}
                 />
                 <p className="mt-1 text-sm text-red-500">
                   {validationState.branch_name && "Branch Name is required."}
@@ -398,8 +348,7 @@ const page = () => {
                         dept_id: false,
                       });
 
-                      if (filtered.length === 0) {
-                        // Clear input when no match is found
+                      if (filtered.length === 0 || inputValue === '') {
                         setFilteredDepartment(department);
                         setSelectedDepartment({
                           ...selected_department,
@@ -414,11 +363,10 @@ const page = () => {
                     }}
                     placeholder="Department"
                     onFocus={() => setShowDropdown(true)}
-                    className={`bg-gray-50 border text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 ${
-                      validationState.dept_id
-                        ? "border-red-500"
-                        : "border-gray-300"
-                    }`}
+                    className={`bg-gray-50 border text-gray-900 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block w-full p-2.5 ${validationState.dept_id
+                      ? "border-red-500"
+                      : "border-gray-300"
+                      }`}
                   />
                   <p className="mt-1 text-sm text-red-500">
                     {validationState.dept_id && "Department is required."}
@@ -457,12 +405,11 @@ const page = () => {
                 <div className="mt-4">
                   <button
                     type="submit"
-                    disabled={!branch.branch_name || !branch.dept_id}
-                    className={`${
-                      branch.branch_name && branch.dept_id
-                        ? "bg-blue-500"
-                        : "bg-gray-300 cursor-not-allowed"
-                    } disabled:cursor-not-allowed text-white px-4 py-2 rounded-md`}
+                    disabled={!branch.branch_name || !branch.dept_id || !selected_department.department_name}
+                    className={`${(branch.branch_name && branch.dept_id && selected_department.department_name)
+                      ? "bg-blue-500"
+                      : "bg-gray-300 cursor-not-allowed"
+                      } disabled:cursor-not-allowed text-white px-4 py-2 rounded-md`}
                   >
                     Submit
                   </button>

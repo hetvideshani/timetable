@@ -13,6 +13,8 @@ const SemesterPage = () => {
     {
       id: 0,
       sem_no: "",
+      dept_id: 0,
+      dept_name: "",
       branch_id: 0,
       branch_name: "",
       class_no: 0,
@@ -310,6 +312,8 @@ const SemesterPage = () => {
   };
 
   const handle_edit = (sem: any) => {
+    console.log(sem);
+
     setIsModalOpen(true);
     setSemester({
       ...semester,
@@ -317,6 +321,25 @@ const SemesterPage = () => {
       id: sem.id,
       class_id: sem.class_id,
       subject_faculty: sem.subject_faculty,
+    });
+    setSelectedDepartment({
+      id: sem.dept_id,
+      department_name: sem.dept_name,
+      uni_id: 0,
+    });
+    setSelectedBranch({
+      id: sem.branch_id,
+      branch_name: sem.branch_name,
+      dept_id: sem.dept_id,
+      dept_name: sem.dept_name,
+    });
+    setSelectedClass({
+      id: sem.class_id,
+      class_no: sem.class_no,
+      branch_id: sem.branch_id,
+      branch_name: sem.branch_name,
+      dept_id: sem.dept_id,
+      dept_name: sem.dept_name,
     });
   };
 
@@ -349,12 +372,15 @@ const SemesterPage = () => {
           prev.map((sem) =>
             sem.id === semester.id
               ? {
-                  ...sem,
-                  sem_no: semester.sem_no,
-                  class_id: selectedClass.id,
-                  branch_id: selectedBranch.id,
-                  subject_faculty: semester.subject_faculty,
-                }
+                ...sem,
+                sem_no: semester.sem_no,
+                dept_id: selectedDepartment.id,
+                dept_name: selectedDepartment.department_name,
+                branch_id: selectedBranch.id,
+                branch_name: selectedBranch.branch_name,
+                class_id: selectedClass.id,
+                subject_faculty: semester.subject_faculty,
+              }
               : sem
           )
         );
@@ -366,6 +392,8 @@ const SemesterPage = () => {
           {
             id: result.data[0].id,
             sem_no: result.data[0].sem_no,
+            dept_id: selectedDepartment.id,
+            dept_name: selectedDepartment.department_name,
             branch_id: selectedBranch.id,
             branch_name: selectedBranch.branch_name,
             class_no: selectedClass.id,
@@ -447,6 +475,7 @@ const SemesterPage = () => {
       </div>
       <div className="right_content w-full flex flex-col gap-0 p-5 ">
         <p className=" text-2xl text-slate-950">Sem : {data.sem_no}</p>
+        <p className=" text-2xl text-slate-950">Department : {data.dept_name}</p>
         <p className=" text-xl text-slate-950">Branch - {data.branch_name}</p>
         <p className=" text-xl text-slate-950">
           {data.subject_faculty.map((name) => name.subject_name).join(", ")}
@@ -934,14 +963,14 @@ const SemesterPage = () => {
                     !selectedBranch.id ||
                     !selectedClass.id ||
                     semester.subject_faculty.length === 0) && (
-                    <span
-                      className="group-hover:opacity-100 transition-opacity bg-slate-500 px-1 
+                      <span
+                        className="group-hover:opacity-100 transition-opacity bg-slate-500 px-1 
       text-sm text-gray-100 rounded-md absolute left-1/2 
       -translate-x-1/2 opacity-0"
-                    >
-                      Please enter required data to proceed.
-                    </span>
-                  )}
+                      >
+                        Please enter required data to proceed.
+                      </span>
+                    )}
                 </div>
               </form>
             </div>

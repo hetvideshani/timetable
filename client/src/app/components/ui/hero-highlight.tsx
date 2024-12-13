@@ -55,7 +55,7 @@ export const HeroHighlight = ({
           `,
         }}
       />
-      <Image src="/bg2.avif" alt="" className="w-screen h-screen absolute opacity-5" height={screen.height} width={screen.width}></Image>
+      <Image src="/bg2.avif" alt="" className="w-screen h-screen absolute opacity-5" height={window.innerHeight} width={window.innerWidth}></Image>
 
       <div className={cn("relative z-20", className)}>{children}</div>
     </div>

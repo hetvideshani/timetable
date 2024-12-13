@@ -5,7 +5,7 @@ import { LuPencil } from "react-icons/lu";
 import { FaPlus } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
-import Alerts from "../alerts";
+import Alerts from "../Alerts";
 
 const page = () => {
   const [uni_id, setUni_id] = useState("");
@@ -22,7 +22,7 @@ const page = () => {
     status: 0,
     function_name: "",
     isModalOpen: false,
-    onConfirm: (confirm: boolean) => {},
+    onConfirm: (confirm: boolean) => { },
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [inputData, setInputData] = useState("");
@@ -67,10 +67,12 @@ const page = () => {
       onConfirm: async (confirm) => {
         if (confirm) {
           try {
-            const response = await fetch(
+            const res = await fetch(
               `http://localhost:3000/api/university/${uni_id}/subject/${sub_id}`,
               { method: "DELETE" }
             );
+
+            const response = await res.json();
 
             if (response.status === 201) {
               setSubject((prev) => prev.filter((sub) => sub.id !== sub_id));
@@ -78,7 +80,7 @@ const page = () => {
                 status: 201,
                 function_name: "delete_success",
                 isModalOpen: true,
-                onConfirm: (confirm: boolean) => {},
+                onConfirm: (confirm: boolean) => { },
               });
             } else {
               throw new Error("Unexpected response status");
@@ -88,7 +90,7 @@ const page = () => {
               status: 500,
               function_name: "delete_error",
               isModalOpen: true,
-              onConfirm: (confirm: boolean) => {},
+              onConfirm: (confirm: boolean) => { },
             });
             console.error("Error deleting subject:", error);
           }
@@ -134,7 +136,7 @@ const page = () => {
         status: result.status,
         function_name: result.function_name,
         isModalOpen: true,
-        onConfirm: (confirm: boolean) => {},
+        onConfirm: (confirm: boolean) => { },
       });
       router.refresh();
 
@@ -162,7 +164,7 @@ const page = () => {
         status: 500,
         function_name: "error",
         isModalOpen: true,
-        onConfirm: (confirm: boolean) => {},
+        onConfirm: (confirm: boolean) => { },
       });
     }
   };
@@ -272,7 +274,7 @@ const page = () => {
               status: 0,
               function_name: "",
               isModalOpen: false,
-              onConfirm: () => {},
+              onConfirm: () => { },
             });
           }}
         ></Alerts>

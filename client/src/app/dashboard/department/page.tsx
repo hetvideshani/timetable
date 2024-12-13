@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import "../../department.css";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
 import Loading from "../loading";
-import Alerts from "../alerts";
+import Alerts from "../Alerts";
 
 const Page = () => {
   const [uni_id, setUni_id] = useState("");

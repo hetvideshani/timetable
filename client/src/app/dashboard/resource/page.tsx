@@ -4,6 +4,7 @@ import { IoClose } from "react-icons/io5";
 import { FaPlus } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
+import { log } from "node:console";
 
 const page = () => {
   const [uni_id, setUni_id] = useState("");
@@ -118,7 +119,10 @@ const page = () => {
       });
       const data = await response.json();
 
-      if (data.function_name === "update_faculty") {
+      console.log(data);
+      
+
+      if (data.function_name === "update_resource") {
         setResource((prev: any) =>
           prev.map((res: any) =>
             res.id === resource_id
@@ -134,7 +138,7 @@ const page = () => {
         );
       }
 
-      if (data.function_name === "create_faculty") {
+      if (data.function_name === "create_resource") {
         setResource((prev) => [...prev, data.data[0]]);
       }
 
