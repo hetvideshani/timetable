@@ -503,7 +503,7 @@ const SemesterPage = () => {
                         dep.department_name.toLowerCase().includes(inputValue)
                       );
 
-                      if (filtered.length === 0) {
+                      if (filtered.length === 0 || inputValue === '') {
                         setSelectedDepartment({
                           ...selectedDepartment,
                           department_name: '',
@@ -587,7 +587,7 @@ const SemesterPage = () => {
                         br.branch_name.toLowerCase().includes(inputValue)
                       );
 
-                      if (filter.length === 0) {
+                      if (filter.length === 0 || inputValue === '') {
                         setSelectedBranch({
                           ...selectedBranch,
                           branch_name: '',
@@ -661,7 +661,7 @@ const SemesterPage = () => {
 
                       const inputValue = e.target.value;
                       const filter = filteredClasses.filter((cl) =>
-                        cl.class_no.toLowerCase().includes(inputValue)
+                        cl.class_no.toString().toLowerCase().includes(inputValue.toLowerCase())
                       );
 
                       if (filter.length === 0) {

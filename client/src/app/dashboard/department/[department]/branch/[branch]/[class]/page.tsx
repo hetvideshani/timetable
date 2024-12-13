@@ -540,12 +540,12 @@ const SemesterPage = () => {
                 <div className="group flex relative mt-4">
                   <button
                     className="bg-blue-600 text-white px-4 py-2 rounded-md disabled:opacity-45 disabled:cursor-not-allowed"
-                    disabled={!inputData.class_id || !inputData.sem_no || !inputData.subject_faculty}
+                    disabled={!inputData.class_id || !inputData.sem_no || inputData.subject_faculty.length === 0}
                   >
                     <span>Submit</span>
                   </button>
                   {/** Tooltip displayed only when the button is disabled and hovered */}
-                  {(!inputData.class_id || !inputData.sem_no || !inputData.subject_faculty) && (
+                  {(!inputData.class_id || !inputData.sem_no || inputData.subject_faculty=== 0) && (
                     <span
                       className="group-hover:opacity-100 transition-opacity bg-slate-500 px-1 
       text-sm text-gray-100 rounded-md absolute left-1/2 
