@@ -77,7 +77,7 @@
 //                   }, []);
 //                   height[sessionIndex] = Math.max(height[sessionIndex], uniqueSubjects.length * 100);
 //                   console.log(height);
-                  
+
 //                   return (
 //                     <div key={sessionIndex} className={`flex gap-2 w-full h-[${height[sessionIndex]}px] flex-col rounded-lg p-3 shadow-md`}>
 //                       { session!= "null"? uniqueSubjects.map((subject, subjectIndex) => (
@@ -99,25 +99,24 @@
 //         }
 //       </div>
 
-      
 //     </div>
 //   );
 // };
-'use client'
-import { usePDF } from 'react-to-pdf';
-
+"use client";
+import { usePDF } from "react-to-pdf";
 
 export const Timetable = ({ timetable }) => {
+  console.log(timetable);
 
-  const { toPDF, targetRef } = usePDF({filename: 'page.pdf'});
+  const { toPDF, targetRef } = usePDF({ filename: "page.pdf" });
 
   const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-  const session_length = timetable.timetable[0].length;
+  const session_length = timetable.timeTable[0].length;
 
   // Calculate maximum height for each session index across all days
   const session_heights = Array(session_length).fill(0);
 
-  timetable.timetable.forEach((day) => {
+  timetable.timeTable.forEach((day) => {
     day.forEach((session, sessionIndex) => {
       const sessionContentHeight = session.length * 60; // Approximate height per item
       if (sessionContentHeight > session_heights[sessionIndex]) {
@@ -141,15 +140,15 @@ export const Timetable = ({ timetable }) => {
           </div>
           <div>Sem. {timetable.semester}</div>
         </div>
-        <button 
-          onClick={() => toPDF()}
-          className="flex items-end">Download</button>
+        <button onClick={() => toPDF()} className="flex items-end">
+          Download
+        </button>
       </div>
 
       {/* Timetable */}
       <div className="flex justify-evenly mt-3 p-3 border-t border-[#181C14]">
         {/* Timetable Columns */}
-        {timetable.timetable.map((day, dayIndex) => (
+        {timetable.timeTable.map((day, dayIndex) => (
           <div key={dayIndex} className="flex flex-col gap-2 items-center">
             {/* Day Header */}
             <div className="text-xl text-center w-full font-bold mb-3 text-gray-800 underline">

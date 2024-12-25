@@ -427,3 +427,23 @@ async function addResourceTypeToRedis(
   }
   return key;
 }
+export async function getAllAllocator(uniId:number):Promise<any> {
+
+  try {
+    await connectRedis();
+    const keys = await redis.keys(`${uniId}:*`);
+    const data = await Promise.all(
+      keys.map(async (key) => {
+        return {
+          key,
+          value: await redis.lRange(key, 0, -1),
+        };
+      })
+    );
+    return data;
+  } catch (error) {
+    console.error("Error fetching all allocator:", error);
+  } finally {
+    disconnectRedis();
+  }
+}

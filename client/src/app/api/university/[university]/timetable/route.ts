@@ -22,3 +22,21 @@ export async function POST(req: any, res: any) {
         return NextResponse.json({ status: 500, message: "Internal Server Error" });
     }
 }
+
+
+export async function GET(req: any, res: any) {
+    try {
+        const uni_id=req.url!.split('university/')[1].split('/')[0]; 
+        const { data, error } = await supabase
+            .from('timetable')
+            .select('timetable')
+            .eq('uni_id', uni_id)
+        if (error) {
+            throw error;
+        }
+        return NextResponse.json({ status: 200, data: data, message: "Success" });
+    } catch (error: any) {
+        console.error(error);
+        return NextResponse.json({ status: 500, message: "Internal Server Error" });
+    }
+}

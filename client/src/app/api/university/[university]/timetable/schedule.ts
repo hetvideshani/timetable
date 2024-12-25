@@ -235,7 +235,13 @@ export async function schedule(params: any, uni_id: any) {
   } catch (error) {
     console.error("Error updating allocator:", error);
   }
-  return timeTable;
+  return {
+    department_name: params.department.department_name,
+    branch_name: params.branch.branch_name,
+    class_no: params.classes.class_no,
+    semester: params.semester.sem_no,
+    timeTable: timeTable 
+  };
 }
 // faculty check
 
