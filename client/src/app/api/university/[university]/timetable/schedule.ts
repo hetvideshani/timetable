@@ -1,6 +1,7 @@
 import {
   fillAllocator,
   // genAllocator,
+  generateAllocators,
   getAllocator,
   updateAllAllocators,
   updateAllocator,
@@ -30,10 +31,12 @@ export async function schedule(params: any, uni_id: any) {
   }
 
   const number_of_session = session ? session.length : 0;
+  await generateAllocators(uni_id, 5, number_of_session,true);
 
   const faculty = subject_faculty.map((sub_fac: any) => sub_fac.faculty_name);
 
   let faculty_allocator: any = [];
+  const timeTable = createTimetable(5, number_of_session, [2]);
 
   for (const fac of faculty) {
     const fac_allocator = await getAllocator(uni_id, "Faculty", fac);
@@ -78,7 +81,6 @@ export async function schedule(params: any, uni_id: any) {
     });
   }
 
-  const timeTable = createTimetable(5, number_of_session, [2]);
   // console.log("=========================== ",total_batches);
 
   let faculty_index = 0;

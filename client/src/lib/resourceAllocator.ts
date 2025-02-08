@@ -1,3 +1,4 @@
+import { log } from "console";
 import { supabase } from "./dbConnect";
 import redis, { connectRedis, disconnectRedis } from "./redis";
 
@@ -7,6 +8,10 @@ export function genAllocator(
   numOfSessions: number
 ): any[] {
   let allocator: any[] = [];
+  console.log("gennnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn");
+  
+  console.log(resource);
+  
   resource.forEach((res) => {
     let sessions = [];
     for (let i = 0; i < numOfdays; i++) {
@@ -25,15 +30,24 @@ export function fillAllocator(
   capacity: number,
   addStudents: number
 ) {
+  log("fillAllocator", allocator, name, day, session, capacity, addStudents);
   for (let i = 0; i < allocator.length; i++) {
+    
     if (allocator[i].name == name) {
       // console.log(allocator[i].name);
       // console.table(allocator[i].sessions[day][session]);
       // console.log(typeof(addStudents));
       // console.log(capacity);
-
-      allocator[i].sessions[day][session] += addStudents / capacity;
-
+      console.log("Capacity or addStudents is 0");
+      if (capacity === 0 || addStudents === 0) {
+        
+        allocator[i].sessions[day][session] = 0;
+        break;
+        
+      }
+      else {
+        allocator[i].sessions[day][session] += addStudents / capacity;
+      }
       // console.log(allocator[i].name);
       // console.table(allocator[i].sessions[day][session]);
 
@@ -180,6 +194,7 @@ export async function getAllocator(
   try {
     await connectRedis();
     const key = `${uniId}:${resourceType}`;
+
     const exists = await redis.exists(key);
     if (!exists) {
       throw new Error(`Resource type ${resourceType} not found`);
@@ -198,6 +213,40 @@ export async function getAllocator(
     }
   } catch (error) {
     console.error("Error fetching allocator:", error);
+  } finally {
+    disconnectRedis();
+  }
+}
+export async function getAllAllocator(
+  uniId: number,
+  resourceType?: string
+): Promise<any> {
+  console.log("Fetching all allocators...");
+  try {
+    await connectRedis();
+    if (resourceType) {
+      const key = `${uniId}:${resourceType}`;
+      const exists = await redis.exists(key);
+      if (!exists) {
+        throw new Error(`Resource type ${resourceType} not found`);
+      }
+      const allocators = await redis.lRange(key, 0, -1);
+      return allocators.map((allocator) => JSON.parse(allocator));
+    } else {
+      const keys = await redis.keys(`${uniId}:*`);
+      const data = await Promise.all(
+        keys.map(async (key) => {
+          const allocators = await redis.lRange(key, 0, -1);
+          return {
+            key,
+            value: allocators.map((allocator) => JSON.parse(allocator)),
+          };
+        })
+      );
+      return data;
+    }
+  } catch (error) {
+    console.error("Error fetching all allocators:", error);
   } finally {
     disconnectRedis();
   }
@@ -427,23 +476,4 @@ async function addResourceTypeToRedis(
   }
   return key;
 }
-export async function getAllAllocator(uniId:number):Promise<any> {
 
-  try {
-    await connectRedis();
-    const keys = await redis.keys(`${uniId}:*`);
-    const data = await Promise.all(
-      keys.map(async (key) => {
-        return {
-          key,
-          value: await redis.lRange(key, 0, -1),
-        };
-      })
-    );
-    return data;
-  } catch (error) {
-    console.error("Error fetching all allocator:", error);
-  } finally {
-    disconnectRedis();
-  }
-}

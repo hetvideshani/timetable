@@ -30,7 +30,9 @@ export function createTimetable(
 ): any[] {
   let timeTable = genAllocator(["TimeTable"], numOfDays, numOfSessions)[0]
     .sessions;
-
+  console.log("helooooooooooooooooooooooo");
+  console.log(timeTable);
+  
   for (let i = 0; i < numOfDays; i++) {
     for (let j = 0; j < numOfSessions; j++) {
       if (unallocable_sessions.includes(j)) {
